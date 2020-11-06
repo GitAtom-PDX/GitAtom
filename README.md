@@ -1,2 +1,2 @@
 # GitAtom
-Development repository for GitAtom blogging software for CS Capstone
+ GitAtom blogging software development repository for CS Capstone
