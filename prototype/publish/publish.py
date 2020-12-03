@@ -7,6 +7,11 @@ ERROR = -1
 
 # input: string representation of path to source file
 # returns: ERROR if the source file does not exist
+# copies the source file to TARGET_DIRECTORY. Automatically builds the
+# target directory and sup directories for the posts depending on the
+# hyphens at the beginning of the file.
+# ex: aaa-bbb-ccc-file.html is copied to
+# ./site/posts/aaa/bbb/ccc/file.html
 def publish(path_to_src):
     src_path = Path(path_to_src)
     if not src_path.exists():
