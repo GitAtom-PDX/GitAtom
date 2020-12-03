@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed>
+<title>feed_title</title>
+<updated>feed_updated</updated>
+<id>feed_id</id>
+<entry> 
+<title>entry_title</title>
+<id>entry_id</id>
+<published>entry_published</published>
+<updated>entry_updated</updated>
+</entry>
+</feed>
