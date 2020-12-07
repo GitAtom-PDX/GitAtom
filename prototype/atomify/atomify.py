@@ -50,7 +50,7 @@ atom += '<updated>' + str(entry_updated) + '</updated>\n'
 atom += '<content>' 
 with open (html,'r') as f: 
 	atom += f.read()
-atom += '</content\n>'
+atom += '</content>\n'
 atom += '</entry>\n'
 atom += '</feed>\n'
 
