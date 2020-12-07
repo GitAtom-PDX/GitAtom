@@ -27,7 +27,7 @@ def mdtohtml(md_file):
     return None #failure
 
 #example of working with returned hfile_name
-
+"""
 hfile = mdtohtml('prototype.md')
 print(hfile)
 
@@ -36,3 +36,4 @@ if os.path.exists(hfile):
     print(entry_title)
 else:
     print("no os path")
+"""
