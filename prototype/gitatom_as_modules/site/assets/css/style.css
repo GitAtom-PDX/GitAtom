@@ -1,0 +1,8 @@
+* { box-sizing: "content-box" }
+* { font-family: "Arial" }
+
+#nav {
+	margin:1em auto;
+	padding:1em;
+	width: 100%;
+	background: #ffccff; }

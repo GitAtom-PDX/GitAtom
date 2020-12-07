@@ -1,0 +1,22 @@
+{% extends "default.html" %}
+
+{% block title %}Blog Posts{% endblock %}
+
+
+{% block main %}
+
+	<h3>Blogs</h3>
+
+	{% for blog in blogs %}
+		<div class=entry>
+			<a href={{ blog.url }}>{{ blog.filename }}</a>
+			<p>Dated (directory path): {{ blog.dated }} </h4>
+			<p>Modified: {{ blog.modified }} </h4>
+		</div>
+		<br>
+	{% endfor %}
+
+{% endblock %}
+
+
+
