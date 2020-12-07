@@ -7,7 +7,6 @@ import os           #used to get file name of markdown to match in html file in 
 def mdtohtml(md_file):
     #make sure there is a valid os path
     if os.path.exists(md_file):
-        print(md_file)
         html_name= os.path.basename(md_file)
         title = len(html_name)
 
