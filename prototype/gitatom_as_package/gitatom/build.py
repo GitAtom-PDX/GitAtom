@@ -112,6 +112,6 @@ class Builder(object):
 
 if __name__ == '__main__':
     # scan 'site/' for html files 
-    site = Builder('site/')
+    site = build.Builder('site/')
     site.build_blog()
     site.build_index()

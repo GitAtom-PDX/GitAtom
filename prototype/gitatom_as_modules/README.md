@@ -2,11 +2,14 @@
 `pip install -r requirements.txt`
 
 ### run:
-`python3 build.py`
+`python3 gitatom.py (module)
 
 or
 
-`python3 -m build`
+`python3 -m gitatom (module)`
+
+modules: [md, atomify, preview, publish, build]
+
 
 
 The directory is structured like Josh's example. 
