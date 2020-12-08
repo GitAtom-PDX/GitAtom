@@ -18,9 +18,21 @@ def mdtohtml(md_file):
             md_file.close()
 
             html_text = cmarkgfm.markdown_to_html(md_text)
-            #TODO need to change naming convention of new html files
+            #TODO should we change html name here or in atom step?
             html_file = open('{0}.html'.format(html_name), "w")
             html_file.write(html_text)
             html_file.close()
-            return html_file #success
+            return html_file.name #success
     return None #failure
+
+#example of working with returned hfile_name
+"""
+hfile = mdtohtml('prototype.md')
+print(hfile)
+
+if os.path.exists(hfile):
+    entry_title = os.path.splitext(os.path.basename(hfile))[0]
+    print(entry_title)
+else:
+    print("no os path")
+"""
