@@ -47,8 +47,10 @@ atom += '<title>' + entry_title + '</title>\n'
 atom += '<id>' + entry_id + '</id>\n'
 atom += '<published>' + str(entry_published) + '</published>\n'
 atom += '<updated>' + str(entry_updated) + '</updated>\n'
+atom += '<content>' 
 with open (html,'r') as f: 
 	atom += f.read()
+atom += '</content>\n'
 atom += '</entry>\n'
 atom += '</feed>\n'
 

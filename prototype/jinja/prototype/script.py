@@ -7,7 +7,7 @@ f_title = mydoc.getElementsByTagName('title')[0]
 f_updated = mydoc.getElementsByTagName('updated')[0]
 f_id = mydoc.getElementsByTagName('id')[0]
 entry = mydoc.getElementsByTagName('entry')
-# print(home.firstChild.data)
+content = mydoc.getElementsByTagName('content')
 
 list = []
 
@@ -23,17 +23,21 @@ for i in entry:
     list.append(published.firstChild.data)
     list.append(updated.firstChild.data)
 
-print(list)
+# getting data from content
+for i in content:
+    blog = i.getElementsByTagName("p")[0]
+    list.append(blog.firstChild.data)
 
-# load layout html file
-template_env = Environment(loader=FileSystemLoader(searchpath='./'))
-template = template_env.get_template('layout.html')
+
+# load template html file
+template_env = Environment(loader=FileSystemLoader(searchpath='../templates'))
+template = template_env.get_template('jinja_template.html')
 
 with open('sample.html', 'w') as outfile:
     outfile.write(
         template.render(
             title=list[0],
-            date='11/27/2020',
-            blog='this is a test blog post.'
+            date=list[2],
+            blog=list[4]
         )
     )
