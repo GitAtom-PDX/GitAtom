@@ -2,6 +2,7 @@ from jinja2 import Environment, FileSystemLoader
 from xml.dom import minidom
 
 # get data from xml
+#mydoc = minidom.parse('../../atomify/input.xml')
 mydoc = minidom.parse('input.xml')
 f_title = mydoc.getElementsByTagName('title')[0]
 f_updated = mydoc.getElementsByTagName('updated')[0]
