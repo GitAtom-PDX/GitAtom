@@ -1,10 +1,13 @@
-import sys, os
+import sys
+import os
 import argparse
 import datetime
 from git import Repo
-import cmarkgfm     #used to convert markdown to html in mdtohtml()
+import cmarkgfm  # used to convert markdown to html in mdtohtml()
 import shutil
 from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
+from xml.dom import minidom
 
 
 """An atom object contains files and functions used for the GitAtom process
@@ -14,9 +17,11 @@ The files data member is a list and starts with templates for the GitAtom proces
 As each file is parsed replace template with updated file. 
 """
 
+
 class Atom:
     def __init__(self):
-        self.files = [None] * 4 # Each index is a file along the process. 0: MD 1: CMark HTML 2: Atom XML 3: Jinja HTML]
+        # Each index is a file along the process. 0: MD 1: CMark HTML 2: Atom XML 3: Jinja HTML]
+        self.files = [None] * 4
         self.author = ''
         self.date = datetime.datetime.now()
 
@@ -83,6 +88,49 @@ class Atom:
         outfile.close()
         return outfile.name
 
+    # Jinja - html generator
+    def html_via_Jinja(self, xml_filename):
+        # get data from xml
+        #mydoc = minidom.parse('../../atomify/input.xml')
+        mydoc = minidom.parse(xml_filename)
+        f_title = mydoc.getElementsByTagName('title')[0]
+        f_updated = mydoc.getElementsByTagName('updated')[0]
+        f_id = mydoc.getElementsByTagName('id')[0]
+        entry = mydoc.getElementsByTagName('entry')
+        content = mydoc.getElementsByTagName('content')
+
+        list = []
+
+        for i in entry:
+            title = i.getElementsByTagName("title")[0]
+            id = i.getElementsByTagName("id")[0]
+            published = i.getElementsByTagName("published")[0]
+            updated = i.getElementsByTagName("updated")[0]
+
+            # save data into list
+            list.append(title.firstChild.data)
+            list.append(id.firstChild.data)
+            list.append(published.firstChild.data)
+            list.append(updated.firstChild.data)
+
+        # getting data from content
+        for i in content:
+            blog = i.getElementsByTagName("p")[0]
+            list.append(blog.firstChild.data)
+
+        # load template html file
+        template_env = Environment(
+            loader=FileSystemLoader(searchpath='../templates'))
+        template = template_env.get_template('jinja_template.html')
+
+        with open('sample.html', 'w') as outfile:
+            outfile.write(
+                template.render(
+                    title=list[0],
+                    date=list[2],
+                    blog=list[4]
+                )
+            )
 
     # input: string representation of path to source file.
     # returns: ERROR if the source file does not exist.
@@ -91,6 +139,7 @@ class Atom:
     # for the posts depending on the hyphens at the beginning of
     # the file. Example: aaa-bbb-ccc-file.html is copied to
     # ./site/posts/aaa/bbb/ccc/file.html
+
     def publish(self, path_to_src):
 
         TARGET_DIRECTORY = "/site/posts/"
@@ -124,6 +173,7 @@ class Atom:
     def test(self):
         print(self.date)
 
+
 def main(markdown_file):
 
     markdown_file = 'prototype.md'
@@ -151,7 +201,6 @@ def main(markdown_file):
 
     print("Starting GitAtom on file: " + markdown_file)
     print(atom.date)
-
 
 
 if __name__ == "__main__":
