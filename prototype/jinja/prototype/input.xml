@@ -8,5 +8,8 @@
 <id>entry_id</id>
 <published>entry_published</published>
 <updated>entry_updated</updated>
+<content>
+<p>blog</p>
+</content>
 </entry>
 </feed>
