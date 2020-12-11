@@ -50,21 +50,24 @@ class Atom:
         return None  # failure
 
     def html_to_atomify(self, html_filename):
+                # Open required files
+        html = html_filename
+
         # NOTE may not need this if using a separate file for feed tags...
         config_f = open('./atomify/gitatom.config')
         config = config_f.readlines()
         config_f.close()
 
-        # Populate required tags
+        # Populate required tags 
         feed_id = config[0].strip()
         feed_title = config[1].strip()
 
-        entry_title = os.path.splitext(os.path.basename(html_filename))[0]
-        entry_id = feed_id + entry_title  # depends on feed id
+        entry_title = os.path.splitext(os.path.basename(html))[0]
+        entry_id = feed_id + entry_title # depends on feed id
 
-        entry_published = datetime.datetime.now()  # using current time
+        entry_published = datetime.datetime.now() # using current time
         entry_updated = entry_published
-        feed_updated = entry_updated  # depends on entry updated
+        feed_updated = entry_updated # depends on entry updated
 
         # Create atom string
         atom = '<feed>\n'
@@ -76,13 +79,15 @@ class Atom:
         atom += '<id>' + entry_id + '</id>\n'
         atom += '<published>' + str(entry_published) + '</published>\n'
         atom += '<updated>' + str(entry_updated) + '</updated>\n'
-        with open(html_filename, 'r') as f:
+        atom += '<content>' 
+        with open (html,'r') as f: 
             atom += f.read()
+        atom += '</content>\n'
         atom += '</entry>\n'
         atom += '</feed>\n'
 
         # Write result to file
-        outname = entry_title + '.xml'  # NOTE need a good naming schema...
+        outname = entry_title + '.xml' # NOTE need a good naming schema...
         outfile = open(outname, 'w')
         outfile.write(atom)
         outfile.close()
@@ -98,9 +103,11 @@ class Atom:
         f_id = mydoc.getElementsByTagName('id')[0]
         entry = mydoc.getElementsByTagName('entry')
         content = mydoc.getElementsByTagName('content')
-
-        list = []
-
+        print(content)
+        print(entry)
+        
+        list1 = []
+        
         for i in entry:
             title = i.getElementsByTagName("title")[0]
             id = i.getElementsByTagName("id")[0]
@@ -108,30 +115,36 @@ class Atom:
             updated = i.getElementsByTagName("updated")[0]
 
             # save data into list
-            list.append(title.firstChild.data)
-            list.append(id.firstChild.data)
-            list.append(published.firstChild.data)
-            list.append(updated.firstChild.data)
+            list1.append(title.firstChild.data)
+            list1.append(id.firstChild.data)
+            list1.append(published.firstChild.data)
+            list1.append(updated.firstChild.data)
 
         # getting data from content
         for i in content:
             blog = i.getElementsByTagName("p")[0]
-            list.append(blog.firstChild.data)
-
+            print(blog.attributes)
+            list1.append(blog.childNodes)
+       
         # load template html file
         template_env = Environment(
-            loader=FileSystemLoader(searchpath='../templates'))
+            loader=FileSystemLoader(searchpath='./jinja/templates'))
         template = template_env.get_template('jinja_template.html')
 
+        
+        html_file = open(self.files[1], "r")
+        html_text = html_file.read()
+        html_file.close()
+        
         with open('sample.html', 'w') as outfile:
             outfile.write(
                 template.render(
-                    title=list[0],
-                    date=list[2],
-                    blog=list[4]
+                    title=list1[0],
+                    date=list1[2],
+                    blog=html_text
                 )
             )
-
+        
     # input: string representation of path to source file.
     # returns: ERROR if the source file does not exist.
     # This function copies the source file to TARGET_DIRECTORY.
@@ -142,7 +155,7 @@ class Atom:
 
     def publish(self, path_to_src):
 
-        TARGET_DIRECTORY = "/site/posts/"
+        TARGET_DIRECTORY = "./site/posts/"
         ERROR = -1
 
         src_path = Path(path_to_src)
@@ -169,7 +182,7 @@ class Atom:
 
         shutil.copy(src_path, dest_path)
         #TODO need to return some metric of success here, maybe just 1
-        return
+        return True
 
     def test(self):
         print(self.date)
@@ -177,7 +190,7 @@ class Atom:
 
 def main(markdown_file):
 
-    markdown_file = '2020-12-3-test.md'
+    markdown_file = 'lorem.md'
 
     # html = '/atomify/lorem.html'
 
@@ -191,6 +204,8 @@ def main(markdown_file):
     print(atom.files[1])
     atom.files[2] = atom.html_to_atomify(atom.files[1])
     print(atom.files[2])
+    atom.html_via_Jinja(atom.files[2])
+
 
     if not atom.publish(atom.files[2]):
         sys.exit('Fail')
