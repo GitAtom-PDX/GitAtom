@@ -94,7 +94,7 @@ class Atom:
         return outfile.name
 
     # Jinja - html generator
-    def html_via_Jinja(self, xml_filename):
+    def render_html(self, xml_filename):
         # get data from xml
         #mydoc = minidom.parse('../../atomify/input.xml')
         mydoc = minidom.parse(xml_filename)
@@ -103,9 +103,7 @@ class Atom:
         f_id = mydoc.getElementsByTagName('id')[0]
         entry = mydoc.getElementsByTagName('entry')
         content = mydoc.getElementsByTagName('content')
-        print(content)
-        print(entry)
-        
+
         list1 = []
         
         for i in entry:
@@ -123,7 +121,6 @@ class Atom:
         # getting data from content
         for i in content:
             blog = i.getElementsByTagName("p")[0]
-            print(blog.attributes)
             list1.append(blog.childNodes)
        
         # load template html file
@@ -132,6 +129,7 @@ class Atom:
         template = template_env.get_template('jinja_template.html')
 
         
+        # Open and read the html file for it's content
         html_file = open(self.files[1], "r")
         html_text = html_file.read()
         html_file.close()
@@ -190,11 +188,13 @@ class Atom:
 
 def main(markdown_file):
 
-    markdown_file = 'lorem.md'
+    markdown_file = 'BlogPostTest.md'
 
     # html = '/atomify/lorem.html'
 
     atom = Atom()
+    print("Starting GitAtom on file: " + markdown_file)
+    print(atom.date)
 
     # atom.test()
 
@@ -204,7 +204,7 @@ def main(markdown_file):
     print(atom.files[1])
     atom.files[2] = atom.html_to_atomify(atom.files[1])
     print(atom.files[2])
-    atom.html_via_Jinja(atom.files[2])
+    atom.render_html(atom.files[2])
 
 
     if not atom.publish(atom.files[2]):
@@ -215,8 +215,6 @@ def main(markdown_file):
     # for remote in repo.remotes:
     #     print(f'- {remote.name} {remote.url}')
 
-    print("Starting GitAtom on file: " + markdown_file)
-    print(atom.date)
 
 
 if __name__ == "__main__":
