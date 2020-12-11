@@ -168,7 +168,8 @@ class Atom:
         dest_path = dest_path / name_tokens[-1]
 
         shutil.copy(src_path, dest_path)
-        return 1
+        #TODO need to return some metric of success here, maybe just 1
+        return
 
     def test(self):
         print(self.date)
@@ -176,7 +177,7 @@ class Atom:
 
 def main(markdown_file):
 
-    markdown_file = 'prototype.md'
+    markdown_file = '2020-12-3-test.md'
 
     # html = '/atomify/lorem.html'
 
