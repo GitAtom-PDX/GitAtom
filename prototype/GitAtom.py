@@ -41,7 +41,7 @@ class Atom:
                 html_file = open('{0}.html'.format(html_name), "w")
                 html_file.write(html_text)
                 html_file.close()
-                return html_file  # success
+                return html_file.name  # success
         return None  # failure
 
     def html_to_atomify(self, html_filename):
@@ -57,7 +57,7 @@ class Atom:
         entry_title = os.path.splitext(os.path.basename(html_filename))[0]
         entry_id = feed_id + entry_title  # depends on feed id
 
-        entry_published = datetime.now()  # using current time
+        entry_published = datetime.datetime.now()  # using current time
         entry_updated = entry_published
         feed_updated = entry_updated  # depends on entry updated
 
@@ -81,7 +81,7 @@ class Atom:
         outfile = open(outname, 'w')
         outfile.write(atom)
         outfile.close()
-        return outfile
+        return outfile.name
 
 
     # input: string representation of path to source file.
@@ -119,14 +119,14 @@ class Atom:
         dest_path = dest_path / name_tokens[-1]
 
         shutil.copy(src_path, dest_path)
-        return
+        return 1
 
     def test(self):
         print(self.date)
 
 def main(markdown_file):
 
-    markdown_file = '2020-12-3-test.md'
+    markdown_file = 'prototype.md'
 
     # html = '/atomify/lorem.html'
 
@@ -135,11 +135,11 @@ def main(markdown_file):
     # atom.test()
 
     atom.files[0] = markdown_file
-
+    print(atom.files[0])
     atom.files[1] = atom.mdtohtml(atom.files[0])
-
+    print(atom.files[1])
     atom.files[2] = atom.html_to_atomify(atom.files[1])
-    print(atom.files[2].name)
+    print(atom.files[2])
 
     if not atom.publish(atom.files[2]):
         sys.exit('Fail')
