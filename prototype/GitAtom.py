@@ -142,7 +142,7 @@ class Atom:
 
     def publish(self, path_to_src):
 
-        TARGET_DIRECTORY = "/site/posts/"
+        TARGET_DIRECTORY = "./site/posts/"
         ERROR = -1
 
         src_path = Path(path_to_src)
