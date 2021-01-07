@@ -1,3 +1,4 @@
+#test
 import sys
 import os
 import argparse
@@ -17,6 +18,8 @@ The files data member is a list and starts with templates for the GitAtom proces
 As each file is parsed replace template with updated file. 
 """
 
+class test:
+    self.test = []
 
 class Atom:
     def __init__(self):
