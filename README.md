@@ -7,5 +7,7 @@
 ### Usage:
 `python3 -m gitatom [command] (filename)`
 
-commands: [atomify, render, publish, update, build]
+commands: [atomify, render, publish, include, build]
 
+
+(see: gitatom/__main__.py)
