@@ -10,4 +10,12 @@
 commands: [atomify, render, publish, include, build]
 
 
-(see: gitatom/__main__.py)
+### ex.
+To create 'lorem.xml':
+`python3 -m gitatom atomify lorem.md` 
+
+To create 'lorem.xml', 'lorem.html' and 'site/posts/lorem.html':
+`python3 -m gitatom include lorem.md` 
+
+
+(see: gitatom/\_\_main\_\_.py)
