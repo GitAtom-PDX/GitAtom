@@ -4,10 +4,16 @@ from sys import argv
 from os import path
 from datetime import datetime 
 
+import cmarkgfm  # used to convert markdown to html in mdtohtml()
+
+# see render()
+# from jinja2 import Environment, FileSystemLoader
+# from xml.dom import minidom
+
 from pathlib import Path
 import shutil
 
-# insert definitions and/or `from gitatom import other-modules`
+# insert definitions and/or `import other-modules`
 
 def atomify(filename):
     print(f"calling atomify on {filename}")
@@ -27,7 +33,6 @@ def atomify(filename):
     # <id> site URI, populated from config file 
     # <title> title of website, populated from config file
     # <updated> latest feed update, populated from entry tag
-
 
     # Open required files - this is currently designed such 
     # that atomify [file] processes one md file at a time
@@ -82,16 +87,26 @@ def atomify(filename):
 
     return outfile.name
 
+
 def render(filename):
     print(f"calling render on {filename}")
+
+    def md_to_html(md_text, filename):
+        pass
+
+    # get data from xml
+    #mydoc = minidom.parse(filename) - FAILS
+
     entry_title = path.splitext(path.basename(filename))[0]
-    rendered = "<html>rendered</html>"
+    rendered = "<html>see: render()</html>"
+
     # Write result to file
     outname = entry_title + '.html'
     outfile = open(outname, 'w')
     outfile.write(rendered)
     outfile.close()
     return outfile.name
+
 
 def publish(filename):
     print(f"calling publish on {filename}")
@@ -132,16 +147,16 @@ def publish(filename):
     #TODO need to return some metric of success here, maybe just 1
     return True
 
+
 def include(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
     publish(html_file)
 
-def update(filename):
-    pass
 
 def usage():
     exit("Usage: python3 -m gitatom [command] (filename)")
+
 
 if __name__ == '__main__':
     if len(argv) > 1:
