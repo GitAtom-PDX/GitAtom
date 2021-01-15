@@ -1,4 +1,4 @@
-from gitatom import build
+import build
 from sys import argv
 
 from os import path
