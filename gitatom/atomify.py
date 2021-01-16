@@ -18,6 +18,59 @@
 import sys 
 from os import path
 from datetime import datetime 
+import re
+
+
+# Generate blog post title from .md filename
+def getTitle(filename):
+
+	# Determine filename style
+	if '-' in filename: 
+		words = filename.replace('-',' ').split(' ')
+
+	elif '_' in filename:
+		words = filename.replace('_',' ').split(' ')
+
+	elif ' ' in filename:
+		words = filename.split(' ')	
+
+	# Check for single-word titles
+	# https://www.geeksforgeeks.org/python-test-if-string-contains-any-uppercase-character/
+	elif not bool(re.match(r'\w*[A-Z]\w*', filename)):
+		return filename.capitalize()
+
+	else: # assume camelCase
+		words = camelCaseSplit(filename)
+
+	words = [word.capitalize() for word in words]
+	title = ' '.join(words)
+	return title
+
+
+
+# Generate blog post filename from title and date
+def getFilename(title):
+	
+	# Generate date in YYYYMMDD	
+	filename = datetime.today().strftime('%Y%m%d')
+	
+	# Append title to date 
+	if ' ' not in title: # check for single-word title
+		filename += title
+	else: 
+		words = title.split(' ')
+		for word in words: filename += word
+
+	return filename
+	
+
+
+# camelCase splitter 
+# https://www.geeksforgeeks.org/python-split-camelcase-string-to-individual-strings/
+def camelCaseSplit(str):
+	return re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
+
+
 
 # Open required files - this is currently designed such 
 # that atomify [file] processes one md file at a time
@@ -34,8 +87,11 @@ config_f.close()
 feed_id = config[0].strip()
 feed_title = config[1].strip()
 
-entry_title = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
-entry_id = feed_id + entry_title # depends on feed id
+filename = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
+entry_title = getTitle(filename)
+outname = getFilename(entry_title)
+entry_id = feed_id + outname # depends on feed id
+
 
 # TODO how to check if the given markdown file is a new or existing post...
 # how best to handle updating an existing post? 
@@ -57,7 +113,7 @@ atom += '<published>' + str(entry_published) + '</published>\n'
 atom += '<updated>' + str(entry_updated) + '</updated>\n'
 atom += '<content>' 
 
-# NOTE https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
+# https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
 with open (md,'r') as f: 
 	atom += f.read().replace('<', '\<').replace('>', '\>')
 	
@@ -66,7 +122,7 @@ atom += '</entry>\n'
 atom += '</feed>\n'
 
 # Write result to file
-outname = entry_title + '.xml' # TODO need a good naming schema...
+outname += '.xml' 
 outfile = open(outname, 'w')
 outfile.write(atom)
 outfile.close()
