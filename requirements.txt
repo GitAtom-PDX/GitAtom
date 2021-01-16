@@ -1,1 +1,3 @@
+GitPython
 jinja2
+cmarkgfm
