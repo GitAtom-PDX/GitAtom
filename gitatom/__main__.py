@@ -145,29 +145,38 @@ def publish(filename):
 
     shutil.copy(src_path, dest_path)
     #TODO need to return some metric of success here, maybe just 1
-    return True
+    return dest_path
 
 
-def include(filename):
+def run(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
-    publish(html_file)
+    published_file = publish(html_file)
+    build.append(published_file)
+
+
+def init(target):
+    # write target = "target" in ./gitatom.config
+    # insert post-commit script into ./git/hooks
+    build.create(target)
+    print(f"initializing {target}")
 
 
 def usage():
-    exit("Usage: python3 -m gitatom [command] (filename)")
+    exit("Usage: python3 gitatom [command] (filename)")
 
 
 if __name__ == '__main__':
     if len(argv) > 1:
         command = argv[1]
-        if command == 'build': build.build_it('./site')
-        elif len(argv) > 2:
+        if len(argv) > 2:
             filename = argv[2]
-            if command == 'atomify': atomify(filename)
+            if command == 'init': init(filename)
+            elif command == 'atomify': atomify(filename)
             elif command == 'render': render(filename)
             elif command == 'publish': publish(filename)
-            elif command == 'include': include(filename)
+            elif command == 'append': build.insert(filename)
+            elif command == 'run': update(filename)
             else: usage()
         else: usage()
     else: usage()
