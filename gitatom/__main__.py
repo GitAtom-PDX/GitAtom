@@ -11,6 +11,8 @@ import cmarkgfm  # used to convert markdown to html in mdtohtml()
 # from xml.dom import minidom
 
 from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
+from xml.etree import cElementTree as ET
 import shutil
 
 # insert definitions and/or `import other-modules`
@@ -40,7 +42,7 @@ def atomify(filename):
     md = filename
 
     # NOTE may not need this if using a separate file for feed tags...
-    config_f = open('gitatom/gitatom.config')
+    config_f = open('gitatom.config')
     config = config_f.readlines()
     config_f.close()
 
@@ -73,7 +75,8 @@ def atomify(filename):
 
     # NOTE https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
     with open (md,'r') as f: 
-        atom += f.read().replace('<', '\<').replace('>', '\>')
+        #embedded html brackets replaced with *** on either side, can be replaced later using opposite operation
+        atom += f.read().replace('<', '\**').replace('>', '**/')
 
     atom += '</content>\n'
     atom += '</entry>\n'
@@ -87,25 +90,61 @@ def atomify(filename):
 
     return outfile.name
 
+def md_to_html(md_text):
+
+        
+        # make sure file is a .xml file
+        if xml_filename[l - 4:l] == '.xml':
+            html_name = xml_filename[:l - 4]
+            html_text = cmarkgfm.markdown_to_html(md_text)
+            # TODO need to change naming convention of new html files
+            #html_file = open('{0}.html'.format(html_name), "w")
+            #html_file.write(html_text)
+            #html_file.close()
+            return html_text # success
+        return None  # failure 
+
 
 def render(filename):
     print(f"calling render on {filename}")
 
-    def md_to_html(md_text, filename):
-        pass
+    #get data from xml
+    tree = ET.parse(filename)
+    root = tree.getroot()
 
-    # get data from xml
-    #mydoc = minidom.parse(filename) - FAILS
+    #get feed and content info from xml file
+    title = root.find('entry').find('title').text
+    updated = root.find('entry').find('updated').text
+    content = root.find('entry').find('content').text
+    """
+    #can use something like this if we nede to pull template info from xml files with multiple entries
+    for page in root.findall('entry'):
+        title = root.find('entry').find('title').text
+        updated = root.find('entry').find('updated').text
+        content = root.find('entry').find('content').text
+    """
+    #not sure what this is -walker
+    #rendered = "<html>see: render()</html>"
 
-    entry_title = path.splitext(path.basename(filename))[0]
-    rendered = "<html>see: render()</html>"
+    # load template html file
+    template_env = Environment(
+        loader=FileSystemLoader(searchpath='./templates/post_templates/'))
+    template = template_env.get_template('default_jinja.html')
+    
+    # convert content which should be in md to html
+    html_text = cmarkgfm.markdown_to_html(content)
+    html_name = title + '.html'
 
-    # Write result to file
-    outname = entry_title + '.html'
-    outfile = open(outname, 'w')
-    outfile.write(rendered)
-    outfile.close()
-    return outfile.name
+    with open(html_name, "w") as outfile:
+        outfile.write(
+            template.render(
+                title=title,
+                date=updated,
+                blog=html_text
+            )
+        )
+
+    return html_name
 
 
 def publish(filename):
@@ -148,6 +187,8 @@ def publish(filename):
     return True
 
 
+#function tests full pipeline from .md to templated and published .html
+#TODO add checks to make sure each step was successful
 def include(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
@@ -164,10 +205,12 @@ if __name__ == '__main__':
         if command == 'build': build.build_it('./site')
         elif len(argv) > 2:
             filename = argv[2]
-            if command == 'atomify': atomify(filename)
-            elif command == 'render': render(filename)
-            elif command == 'publish': publish(filename)
-            elif command == 'include': include(filename)
+            #maybe just have commands as -a , -r , -p, -i, etc. for ease of use
+            if command == 'atomify': atomify(filename)      #called with a .md file to test single step in pipeline
+            elif command == 'render': render(filename)      #called with .xml file to test single step in pipeline
+            elif command == 'publish': publish(filename)    #called with templated .html file to test single step in pipeline
+            elif command == 'include': include(filename)    #called with a .md file to test full pipeline
+            #elif command == 'preview': preview(filename)     #used in future to preview a single templated .html file
             else: usage()
         else: usage()
     else: usage()
