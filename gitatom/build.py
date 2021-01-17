@@ -14,17 +14,23 @@ from jinja2 import Environment, FileSystemLoader
 import os, stat, time
 
 def create(target):
-    # create target/index.html skeleton
-    # create target/assets/css/style.css
     print(f"creating {target}/index.html")
-    pass
+
+    print(f"creating {target}/assets/css/style.css")
+
+    # create target/index.html skeleton
+
+    # create target/assets/css/style.css
+
+
 
 def append(filename):
+    print(f"inserting {filename}")
     # parse html filename's DOM for blog info
     # parse target/index.html
     # insert blog details from filename DOM into index.html DOM
     # write target/index.html
-    print(f"inserting {filename}")
+
 
 
 # scan for blog html files 
