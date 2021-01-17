@@ -1,11 +1,12 @@
 # atomify.py
 
 # NOTE file handling is not currently OS-agnostic
+# NOTE current implementation does NOT allow duplicate titles
 
 # Required <entry> atom tags: 
 # <id> unique entry id, generated and contatenated with feed id
 # <title> title of post, populated from markdown filename
-# <updated> latest update, NOTE see README
+# <updated> latest update
 # <published> creation date, current time (requested by sponsor, not required by atom)
 # <content> markdown file contents with escaped characters
 
@@ -14,9 +15,11 @@
 # <title> title of website, populated from config file
 # <updated> latest feed update, populated from entry tag
 
-import sys 
-from os import path
+from xml.etree import cElementTree as ET
 from datetime import datetime 
+from os import path
+import glob
+import sys 
 import re
 import string
 
@@ -81,9 +84,11 @@ def atomify(md):
 	# Get title and xml filename	
 	filename = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
 	entry_title = getTitle(filename)
-	outname = getFilename(entry_title)
+	outname = getFilename(entry_title) + '.xml'
 
-	# TODO --> check for matching xml file here <--
+	# Check for a matching xml file 
+	exists = glob.glob('./*' + outname[8:] + '*') # should only ever return 0-1 matches
+	if exists: outname = exists[0][2:] # overwrite existing file 
 
 	# Grab tags from config
 	config_f = open('gitatom.config')
@@ -93,10 +98,17 @@ def atomify(md):
 	# Populate tags
 	feed_id = config[0].strip()
 	feed_title = config[1].strip()
-	entry_id = feed_id + outname 
-	entry_published = datetime.now()	# using current time
-	entry_published.replace(microsecond=0) 	# truncate ms
-	entry_updated = entry_published		# TODO handle updating entries
+	entry_id = feed_id + outname[:-4] 
+	if exists: # retain existing publish date
+		tree = ET.parse(outname) 
+		root = tree.getroot()
+		entry_published = root.find('entry').find('published').text
+		entry_updated = datetime.now()
+		entry_updated.replace(microsecond=0)
+	else:
+		entry_published = datetime.now()	# using current time
+		entry_published.replace(microsecond=0) 	# truncate ms
+		entry_updated = entry_published		
 	feed_updated = entry_updated 		
 
 	# Create atom string
@@ -113,21 +125,20 @@ def atomify(md):
 	
 	# https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
 	with open (md,'r') as f: 
-		atom += f.read().replace('<', '\<').replace('>', '\>')
+		atom += f.read().replace('<', '\**').replace('>', '**/')
 		
 	atom += '</content>\n'
 	atom += '</entry>\n'
 	atom += '</feed>\n'
 	
 	# Write result to file
-	outname += '.xml' 
+	#outname += '.xml' 
 	outfile = open(outname, 'w')
 	outfile.write(atom)
 	outfile.close()
-
-
+	
 
 
 # Testing
-#atomify("../lorem.md")
-atomify("../loremIpsum.md")
+atomify("../lorem.md")
+#atomify("../loremIpsum.md")
