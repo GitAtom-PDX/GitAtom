@@ -156,10 +156,14 @@ def run(filename):
 
 
 def init(target):
-    # write target = "target" in ./gitatom.config
-    # insert post-commit script into ./git/hooks
-    build.create(target)
     print(f"initializing {target}")
+
+    # write target = "target" in ./gitatom.config
+
+    # insert post-commit script into ./git/hooks
+
+    build.create(target)
+
 
 
 def usage():
@@ -168,15 +172,13 @@ def usage():
 
 if __name__ == '__main__':
     if len(argv) > 1:
-        command = argv[1]
         if len(argv) > 2:
-            filename = argv[2]
-            if command == 'init': init(filename)
-            elif command == 'atomify': atomify(filename)
-            elif command == 'render': render(filename)
-            elif command == 'publish': publish(filename)
-            elif command == 'append': build.insert(filename)
-            elif command == 'run': update(filename)
+            if argv[1] == 'init': init(argv[2])
+            elif argv[1] == 'atomify': atomify(argv[2])
+            elif argv[1] == 'render': render(argv[2])
+            elif argv[1] == 'publish': publish(argv[2])
+            elif argv[1] == 'append': build.append(argv[2])
+            elif argv[1]== 'run': run(argv[2])
             else: usage()
         else: usage()
     else: usage()
