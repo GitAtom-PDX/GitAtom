@@ -90,21 +90,6 @@ def atomify(filename):
 
     return outfile.name
 
-def md_to_html(md_text):
-
-        
-        # make sure file is a .xml file
-        if xml_filename[l - 4:l] == '.xml':
-            html_name = xml_filename[:l - 4]
-            html_text = cmarkgfm.markdown_to_html(md_text)
-            # TODO need to change naming convention of new html files
-            #html_file = open('{0}.html'.format(html_name), "w")
-            #html_file.write(html_text)
-            #html_file.close()
-            return html_text # success
-        return None  # failure 
-
-
 def render(filename):
     print(f"calling render on {filename}")
 
