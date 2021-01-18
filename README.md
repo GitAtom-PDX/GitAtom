@@ -11,8 +11,8 @@ commands: [atomify, render, publish, append, run]
 
 
 ### ex.
-Initialize the site directory in PWD:
-`python3 init .`
+Initialize the site directory in PWD: _in-progress_
+`python3 gitatom init .`
 
 To create index.html
 `python3 gitatom run lorem.md` 
