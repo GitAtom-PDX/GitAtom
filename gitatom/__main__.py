@@ -114,7 +114,7 @@ def publish(filename):
     # the file. Example: aaa-bbb-ccc-file.html is copied to
     # ./site/posts/aaa/bbb/ccc/file.html
 
-    TARGET_DIRECTORY = "./site/posts/"
+    TARGET_DIRECTORY = config.options["publish_directory"]
     ERROR = -1
 
     src_path = Path(filename)
