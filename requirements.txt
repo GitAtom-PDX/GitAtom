@@ -1,3 +1,4 @@
 GitPython
 jinja2
 cmarkgfm
+bs4

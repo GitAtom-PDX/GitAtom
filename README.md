@@ -5,17 +5,17 @@
 `pip install -r requirements.txt`
 
 ### Usage:
-`python3 gitatom [command] (filename)`
+`python3 gitatom [command] (target)`
 
-commands: [atomify, render, publish, include, build]
+commands: [atomify, render, publish, append, run]
 
 
 ### ex.
-To create 'lorem.xml':
-`python3 gitatom atomify lorem.md` 
+Initialize the site directory in PWD:
+`python3 init .`
 
-To create 'lorem.xml', 'lorem.html' and 'site/posts/lorem.html':
-`python3 gitatom include lorem.md` 
+To create index.html
+`python3 gitatom run lorem.md` 
 
 
 (see: gitatom/\_\_main\_\_.py)

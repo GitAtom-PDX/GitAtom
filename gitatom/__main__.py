@@ -98,7 +98,7 @@ def render(filename):
     #mydoc = minidom.parse(filename) - FAILS
 
     entry_title = path.splitext(path.basename(filename))[0]
-    rendered = "<html>see: render()</html>"
+    rendered = "<html><head><title>a blog post title</title></head><body></body></html>"
 
     # Write result to file
     outname = entry_title + '.html'
@@ -145,7 +145,7 @@ def publish(filename):
 
     shutil.copy(src_path, dest_path)
     #TODO need to return some metric of success here, maybe just 1
-    return dest_path
+    return dest_path.name
 
 
 def run(filename):
@@ -158,12 +158,20 @@ def run(filename):
 def init(target):
     print(f"initializing {target}")
 
+    # create directory 'target/site/'
+    target_path = Path(target + '/site')
+    if not target_path.exists():
+        target_path.mkdir(parents=True)
+    else:
+        return False
+        
     # write target = "target" in ./gitatom.config
+    with open('gitatom.config', "w") as config:
+        config.write(target + '\n')
 
     # insert post-commit script into ./git/hooks
 
-    build.create(target)
-
+    build.create(target + '/site')
 
 
 def usage():
@@ -171,14 +179,12 @@ def usage():
 
 
 if __name__ == '__main__':
-    if len(argv) > 1:
-        if len(argv) > 2:
-            if argv[1] == 'init': init(argv[2])
-            elif argv[1] == 'atomify': atomify(argv[2])
-            elif argv[1] == 'render': render(argv[2])
-            elif argv[1] == 'publish': publish(argv[2])
-            elif argv[1] == 'append': build.append(argv[2])
-            elif argv[1]== 'run': run(argv[2])
-            else: usage()
+    if len(argv) == 3:
+        if argv[1] == 'init': init(argv[2])
+        elif argv[1] == 'atomify': atomify(argv[2])
+        elif argv[1] == 'render': render(argv[2])
+        elif argv[1] == 'publish': publish(argv[2])
+        elif argv[1] == 'append': build.append(argv[2])
+        elif argv[1] == 'run': run(argv[2])
         else: usage()
     else: usage()
