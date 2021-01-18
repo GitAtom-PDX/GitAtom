@@ -1,0 +1,6 @@
+---
+feed_id: https://git.atom/
+feed_title: "Git Atom"
+author_name: "Josh M. Carlson"
+entry_template: gitatom/templates/blogs.html
+publish_directory: site/posts/
