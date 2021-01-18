@@ -1,4 +1,5 @@
 import build
+import config
 from sys import argv
 
 from os import path
@@ -17,6 +18,7 @@ import shutil
 
 def atomify(filename):
     print(f"calling atomify on {filename}")
+    print(config.options['publish_directory'])
     # atomify.py
     # Encloses given md in atom xml tags
 
@@ -41,12 +43,12 @@ def atomify(filename):
 
     # NOTE may not need this if using a separate file for feed tags...
     config_f = open('gitatom/gitatom.config')
-    config = config_f.readlines()
+    cfg = config_f.readlines()
     config_f.close()
 
     # Populate required tags 
-    feed_id = config[0].strip()
-    feed_title = config[1].strip()
+    feed_id = cfg[0].strip()
+    feed_title = cfg[1].strip()
 
     entry_title = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
     entry_id = feed_id + entry_title # depends on feed id
