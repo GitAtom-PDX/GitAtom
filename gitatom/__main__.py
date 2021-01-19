@@ -1,4 +1,5 @@
 import build
+import config
 from sys import argv
 
 from os import path
@@ -39,14 +40,9 @@ def atomify(filename):
     if not filename.endswith('.md'): exit("Incorrect input file type (expected .md)")
     md = filename
 
-    # NOTE may not need this if using a separate file for feed tags...
-    config_f = open('gitatom/gitatom.config')
-    config = config_f.readlines()
-    config_f.close()
-
     # Populate required tags 
-    feed_id = config[0].strip()
-    feed_title = config[1].strip()
+    feed_id = config.options['feed_id']
+    feed_title = config.options['feed_title']
 
     entry_title = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
     entry_id = feed_id + entry_title # depends on feed id
@@ -118,7 +114,7 @@ def publish(filename):
     # the file. Example: aaa-bbb-ccc-file.html is copied to
     # ./site/posts/aaa/bbb/ccc/file.html
 
-    TARGET_DIRECTORY = "./site/posts/"
+    TARGET_DIRECTORY = config.options["publish_directory"]
     ERROR = -1
 
     src_path = Path(filename)
