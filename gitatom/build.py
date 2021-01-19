@@ -4,6 +4,7 @@
 # output:   target/index.html
 #           target/blog.html
 
+import config
 from bs4 import BeautifulSoup
 
 def create(target):
@@ -23,19 +24,17 @@ def create(target):
 def append(filename):
     print(f"inserting {filename}")
 
-    # get target directory from config file 
-    with open('gitatom.config', "r") as config_f:
-        config = config_f.readlines()
-        target = config[0].strip()
-
     # parse filename (html post) DOM for title and link
     with open(filename, 'r') as f:
         post = BeautifulSoup(f, 'html.parser')
     post_title = post.head.title.string
     post_link = '/posts/' + filename
 
+    # get target directory from config file 
+    target = config.options['publish_directory']
+
     # parse target/site/index.html
-    index_file = target + '/site/index.html'
+    index_file = target + 'index.html'
     with open(index_file, 'r') as f:
         index = BeautifulSoup(f, 'html.parser')
 
