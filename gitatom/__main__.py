@@ -1,14 +1,11 @@
+import yaml
+import config
+
 import build
 from sys import argv
 
 from os import path
 from datetime import datetime 
-
-import cmarkgfm  # used to convert markdown to html in mdtohtml()
-
-# see render()
-# from jinja2 import Environment, FileSystemLoader
-# from xml.dom import minidom
 
 from pathlib import Path
 import shutil
@@ -17,95 +14,12 @@ import shutil
 
 def atomify(filename):
     print(f"calling atomify on {filename}")
-    # atomify.py
-    # Encloses given md in atom xml tags
-
-    # NOTE file handling is not currently OS-agnostic
-
-    # Required <entry> atom tags: 
-    # <id> unique entry id, generated and contatenated with feed id
-    # <title> title of post, populated from markdown filename
-    # <updated> latest update, NOTE see README
-    # <published> creation date, current time (requested by sponsor, not required by atom)
-    # <content> markdown file contents with escaped characters
-
-    # Required <feed> atom tags: 
-    # <id> site URI, populated from config file 
-    # <title> title of website, populated from config file
-    # <updated> latest feed update, populated from entry tag
-
-    # Open required files - this is currently designed such 
-    # that atomify [file] processes one md file at a time
-    if not filename.endswith('.md'): exit("Incorrect input file type (expected .md)")
-    md = filename
-
-    # NOTE may not need this if using a separate file for feed tags...
-    config_f = open('gitatom/gitatom.config')
-    config = config_f.readlines()
-    config_f.close()
-
-    # Populate required tags 
-    feed_id = config[0].strip()
-    feed_title = config[1].strip()
-
-    entry_title = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
-    entry_id = feed_id + entry_title # depends on feed id
-
-    # TODO how to check if the given markdown file is a new or existing post...
-    # how best to handle updating an existing post? 
-
-    entry_published = datetime.now()		# using current time
-    entry_published.replace(microsecond=0) 	# truncate ms
-    entry_updated = entry_published			# TODO how to handle updating entries...?
-    feed_updated = entry_updated 		# depends on entry updated
-
-    # Create atom string
-    atom = '<feed>\n'
-    atom += '<title>' + feed_title + '</title>\n'
-    atom += '<updated>' + str(feed_updated) + '</updated>\n'
-    atom += '<id>' + feed_id + '</id>\n'
-    atom += '<entry>\n'
-    atom += '<title>' + entry_title + '</title>\n'
-    atom += '<id>' + entry_id + '</id>\n'
-    atom += '<published>' + str(entry_published) + '</published>\n'
-    atom += '<updated>' + str(entry_updated) + '</updated>\n'
-    atom += '<content>' 
-
-    # NOTE https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
-    with open (md,'r') as f: 
-        atom += f.read().replace('<', '\<').replace('>', '\>')
-
-    atom += '</content>\n'
-    atom += '</entry>\n'
-    atom += '</feed>\n'
-
-    # Write result to file
-    outname = entry_title + '.xml' # TODO need a good naming schema...
-    outfile = open(outname, 'w')
-    outfile.write(atom)
-    outfile.close()
-
-    return outfile.name
+    return None
 
 
 def render(filename):
     print(f"calling render on {filename}")
-
-    def md_to_html(md_text, filename):
-        pass
-
-    # get data from xml
-    #mydoc = minidom.parse(filename) - FAILS
-
-    entry_title = path.splitext(path.basename(filename))[0]
-    rendered = "<html><head><title>a blog post title</title></head><body></body></html>"
-
-    # Write result to file
-    outname = entry_title + '.html'
-    outfile = open(outname, 'w')
-    outfile.write(rendered)
-    outfile.close()
-    return outfile.name
+    return None
 
 
 def publish(filename):
@@ -118,7 +32,7 @@ def publish(filename):
     # the file. Example: aaa-bbb-ccc-file.html is copied to
     # ./site/posts/aaa/bbb/ccc/file.html
 
-    TARGET_DIRECTORY = "./site/posts/"
+    TARGET_DIRECTORY = config.options['publish_directory'] + 'posts/'
     ERROR = -1
 
     src_path = Path(filename)
@@ -158,24 +72,34 @@ def run(filename):
 def init(target):
     print(f"initializing {target}")
 
-    # create directory 'target/site/'
+    # save global variables - target is location of 'publish_directory'
+    if target.endswith('/'):
+        target = target[:-1]
+    
+    yaml_dict = { 'publish_directory' : f'{target}/site/', \
+                'feed_id' : 'https://git.atom/', \
+                'feed_title' : 'Git Atom', \
+                'author_name' : 'Author', \
+                'entry_template' : 'gitatom/templates/blogs.html' }
+
+    with open('config.yaml', 'w') as f:
+        yaml.dump(yaml_dict, f)
+
+    # create publish directory 'target/site/'
     target_path = Path(target + '/site')
     if not target_path.exists():
         target_path.mkdir(parents=True)
     else:
         return False
-        
-    # write target = "target" in ./gitatom.config
-    with open('gitatom.config', "w") as config:
-        config.write(target + '\n')
 
-    # insert post-commit script into ./git/hooks
-
+    # make skeleton index.html and style.css
     build.create(target + '/site')
+
+    # insert post-commit script into ./git/hooks here ??
 
 
 def usage():
-    exit("Usage: python3 gitatom [command] (filename)")
+    exit("Usage: python3 gitatom [command] (target)")
 
 
 if __name__ == '__main__':
