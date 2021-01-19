@@ -22,6 +22,7 @@ import glob
 import sys 
 import re
 import string
+import config
 
 # Generate blog post title from .md filename
 def getTitle(filename):
@@ -90,14 +91,9 @@ def atomify(md):
 	exists = glob.glob('./*' + outname[8:] + '*') # should only ever return 0-1 matches
 	if exists: outname = exists[0][2:] # overwrite existing file 
 
-	# Grab tags from config
-	config_f = open('gitatom.config')
-	config = config_f.readlines()
-	config_f.close()
-
 	# Populate tags
-	feed_id = config[0].strip()
-	feed_title = config[1].strip()
+        feed_id = config.options['feed_id']
+        feed_title = config.options['feed_title']
 	entry_id = feed_id + outname[:-4] 
 	if exists: # retain existing publish date
 		tree = ET.parse(outname) 
