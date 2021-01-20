@@ -11,6 +11,8 @@ from os import path
 from datetime import datetime 
 from pathlib import Path
 from xml.etree import cElementTree as ET
+from jinja2 import Environment, FileSystemLoader
+
 
 # Generate blog post title from .md filename
 def getTitle(filename):
@@ -59,7 +61,6 @@ def getFilename(title):
 def camelCaseSplit(str):
     str = str[0].upper() + str[1:] # preserve lowercase first words
     return re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
-
 
 # Takes a .md file and pastes its content into an atom xml format
 def atomify(md):
@@ -111,6 +112,7 @@ def atomify(md):
 
     # https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
     with open (md,'r') as f: 
+        #embedded html brackets replaced with *** on either side, can be replaced later using opposite operation
         atom += f.read().replace('<', '\**').replace('>', '**/')
 
     atom += '</content>\n'
@@ -127,26 +129,47 @@ def atomify(md):
     subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
     return outname
 
-
 def render(filename):
 
-    def md_to_html(md_text, filename):
-        pass
+    #get data from xml
+    tree = ET.parse(filename)
+    root = tree.getroot()
 
-    # get data from xml
-    #mydoc = minidom.parse(filename) - FAILS
+    #get feed and content info from xml file
+    title = root.find('entry').find('title').text
+    updated = root.find('entry').find('updated').text
+    content = root.find('entry').find('content').text
+    """
+    #can use something like this if we nede to pull template info from xml files with multiple entries
+    for page in root.findall('entry'):
+        title = root.find('entry').find('title').text
+        updated = root.find('entry').find('updated').text
+        content = root.find('entry').find('content').text
+    """
+    #not sure what this is -walker
+    #rendered = "<html>see: render()</html>"
 
-    entry_title = path.splitext(path.basename(filename))[0]
-    rendered = "<html>see: render()</html>"
+    # load template html file
+    template_env = Environment(
+        loader=FileSystemLoader(searchpath='./templates/post_templates/'))
+    template = template_env.get_template('default_jinja.html')
+    
+    # convert content which should be in md to html
+    html_text = cmarkgfm.markdown_to_html(content)
+    html_name = title + '.html'
 
-    # Write result to file
-    outname =  entry_title + '.html'
-    outfile = open('files/html_files/' + outname, 'w')
-    outfile.write(rendered)
-    outfile.close()
-    subprocess.call(['git', 'add', 'files/html_files/' + outname])
-    subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
-    return outname
+    with open('files/html_files/' + html_name, "w") as outfile:
+        outfile.write(
+            template.render(
+                title=title,
+                date=updated,
+                blog=html_text
+            )
+        )
+    subprocess.call(['git', 'add', 'files/html_files/' + html_name])
+    subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
+    return html_name
+
 
 def publish(filename):
     print(f"calling publish on {filename}")
@@ -187,7 +210,6 @@ def publish(filename):
     #TODO need to return some metric of success here, maybe just 1
     return True
 
-
 def gitatom_git_add(md_file,xml_file,html_file):
     subprocess.call(['git', 'add', md_file])
     subprocess.call(['git', 'add', 'files/xml_files/' + xml_file])
@@ -200,6 +222,8 @@ def gitatom_git_push(filename):
     #print('Push called with file: {}'.format(filename))
     #subprocess.call(['git', 'push', 'origin', 'git_hook'])
 
+#function tests full pipeline from .md to templated and published .html
+#TODO add checks to make sure each step was successful
 def include(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
@@ -208,7 +232,7 @@ def include(filename):
 
 
 def usage():
-    exit("Usage: python3 -m gitatom [command] (filename)")
+    exit("Usage: python3 gitatom [command] (filename)")
 
 
 
@@ -216,7 +240,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         command = sys.argv[1]
         file_out = ''
+        
         if command == 'build': build.build_it('./site')
+        
         elif len(sys.argv) > 2:
             filename = sys.argv[2]
             #print("printing filename from main: ", filename)
