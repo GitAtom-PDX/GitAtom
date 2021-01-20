@@ -188,26 +188,49 @@ def publish(filename):
     return True
 
 
+def gitatom_git_add(md_file,xml_file,html_file):
+    subprocess.call(['git', 'add', md_file])
+    subprocess.call(['git', 'add', 'files/xml_files/' + xml_file])
+    subprocess.call(['git', 'add', 'files/html_files/' + html_file])
+    subprocess.call(['git', 'commit', '-m', 'Adding {}, {}, {} files to git.'.format(md_file, xml_file, html_file)])
+
+
+def gitatom_git_push(filename):
+    print('New files add to vc, push when ready.')
+    #print('Push called with file: {}'.format(filename))
+    #subprocess.call(['git', 'push', 'origin', 'git_hook'])
+
 def include(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
-    publish(html_file)
+    #publish(html_file)
+    gitatom_git_add(filename,xml_file,html_file)
 
 
 def usage():
     exit("Usage: python3 -m gitatom [command] (filename)")
 
 
+
 if __name__ == '__main__':
-    if len(argv) > 1:
-        command = argv[1]
+    if len(sys.argv) > 1:
+        command = sys.argv[1]
+        file_out = ''
         if command == 'build': build.build_it('./site')
-        elif len(argv) > 2:
-            filename = argv[2]
-            if command == 'atomify': atomify(filename)
-            elif command == 'render': render(filename)
-            elif command == 'publish': publish(filename)
-            elif command == 'include': include(filename)
+        elif len(sys.argv) > 2:
+            filename = sys.argv[2]
+            #print("printing filename from main: ", filename)
+            if command == 'atomify': 
+                subprocess.call(['git', 'add', filename])
+                file_out = atomify(filename)
+            elif command == 'render': file_out = render(filename)
+            elif command == 'publish': file_out = publish(filename)
+            elif command == 'include': 
+                subprocess.call(['git', 'add', filename])
+                file_out = include(filename)
             else: usage()
+            gitatom_git_push(file_out)
         else: usage()
+
     else: usage()
+
