@@ -1,20 +1,16 @@
 import build
 import config
-from sys import argv
-
+import shutil
+import cmarkgfm  # used to convert markdown to html in mdtohtml()
+import subprocess
+import glob
+import sys
+import re
+import string
 from os import path
 from datetime import datetime 
-
-import cmarkgfm  # used to convert markdown to html in mdtohtml()
-
-# see render()
-# from jinja2 import Environment, FileSystemLoader
-# from xml.dom import minidom
-
 from pathlib import Path
-import shutil
-
-# insert definitions and/or `import other-modules`
+from xml.etree import cElementTree as ET
 
 def atomify(filename):
     print(f"calling atomify on {filename}")
