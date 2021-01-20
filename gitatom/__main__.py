@@ -80,7 +80,7 @@ def atomify(md):
     #print('outname from atomify: ', outname)
 
     # Check for a matching xml file 
-    exists = glob.glob('./*' + outname[8:] + '*') # should only ever return 0-1 matches
+    exists = glob.glob('./files/xml_files/*' + outname[8:] + '*') # should only ever return 0-1 matches
     if exists: outname = exists[0][2:] # overwrite existing file 
 
     # Grab tags from config
