@@ -129,7 +129,6 @@ def atomify(md):
 
 
 def render(filename):
-    print(f"calling render on {filename}")
 
     def md_to_html(md_text, filename):
         pass
@@ -141,12 +140,13 @@ def render(filename):
     rendered = "<html>see: render()</html>"
 
     # Write result to file
-    outname = entry_title + '.html'
-    outfile = open(outname, 'w')
+    outname =  entry_title + '.html'
+    outfile = open('files/html_files/' + outname, 'w')
     outfile.write(rendered)
     outfile.close()
-    return outfile.name
-
+    subprocess.call(['git', 'add', 'files/html_files/' + outname])
+    subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
+    return outname
 
 def publish(filename):
     print(f"calling publish on {filename}")
