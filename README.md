@@ -5,17 +5,23 @@
 `pip install -r requirements.txt`
 
 ### Usage:
-`python3 gitatom [command] (filename)`
+`python3 gitatom [command] (target)`
 
-commands: [atomify, render, publish, include, build]
+commands: [atomify, render, publish, append, run]
 
 
 ### ex.
-To create 'lorem.xml':
-`python3 gitatom atomify lorem.md` 
+Initialize the site directory:
+`python3 gitatom init .`
 
-To create 'lorem.xml', 'lorem.html' and 'site/posts/lorem.html':
-`python3 gitatom include lorem.md` 
+- An empty config.yaml file must exist in the directory otherwise config.py errors
+- config.yaml is populated when `init` is called.
+
+To create index.html
+`python3 gitatom append lorem.html` 
+
+- Tested with skeleton html
 
 
-(see: gitatom/\_\_main\_\_.py)
+(see: gitatom/\_\_main\_\_.py and gitatom/build.py)
+

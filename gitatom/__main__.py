@@ -1,4 +1,5 @@
 import build
+import yaml
 import config
 import shutil
 import cmarkgfm  # used to convert markdown to html in mdtohtml()
@@ -12,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
+
 
 
 # Generate blog post title from .md filename
@@ -39,6 +41,7 @@ def getTitle(filename):
     title = ' '.join(words)
     return title
 
+  
 
 # Generate xml filename from title and date
 def getFilename(title):
@@ -55,6 +58,7 @@ def getFilename(title):
 
     return filename
 
+  
 
 # camelCase splitter 
 # https://www.geeksforgeeks.org/python-split-camelcase-string-to-individual-strings/
@@ -62,6 +66,8 @@ def camelCaseSplit(str):
     str = str[0].upper() + str[1:] # preserve lowercase first words
     return re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
 
+  
+  
 # Takes a .md file and pastes its content into an atom xml format
 def atomify(md):
     # Check for invalid filetype
@@ -108,7 +114,7 @@ def atomify(md):
     atom += '<id>' + entry_id + '</id>\n'
     atom += '<published>' + str(entry_published) + '</published>\n'
     atom += '<updated>' + str(entry_updated) + '</updated>\n'
-    atom += '<content>' 
+    atom += '<content>'
 
     # https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
     with open (md,'r') as f: 
@@ -129,6 +135,8 @@ def atomify(md):
     subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
     return outname
 
+  
+  
 def render(filename):
 
     #get data from xml
@@ -146,17 +154,16 @@ def render(filename):
         updated = root.find('entry').find('updated').text
         content = root.find('entry').find('content').text
     """
-    #not sure what this is -walker
-    #rendered = "<html>see: render()</html>"
 
     # load template html file
     template_env = Environment(
         loader=FileSystemLoader(searchpath='./templates/post_templates/'))
     template = template_env.get_template('default_jinja.html')
-    
+
     # convert content which should be in md to html
     html_text = cmarkgfm.markdown_to_html(content)
     html_name = title + '.html'
+
 
     with open('files/html_files/' + html_name, "w") as outfile:
         outfile.write(
@@ -166,6 +173,7 @@ def render(filename):
                 blog=html_text
             )
         )
+
     subprocess.call(['git', 'add', 'files/html_files/' + html_name])
     subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
     return html_name
@@ -181,7 +189,8 @@ def publish(filename):
     # the file. Example: aaa-bbb-ccc-file.html is copied to
     # ./site/posts/aaa/bbb/ccc/file.html
 
-    TARGET_DIRECTORY = config.options["publish_directory"]
+    TARGET_DIRECTORY = config.options['publish_directory']
+
     ERROR = -1
 
     src_path = Path(filename)
@@ -208,7 +217,7 @@ def publish(filename):
 
     shutil.copy(src_path, dest_path)
     #TODO need to return some metric of success here, maybe just 1
-    return True
+    return dest_path.name
 
 def gitatom_git_add(md_file,xml_file,html_file):
     subprocess.call(['git', 'add', md_file])
@@ -222,41 +231,60 @@ def gitatom_git_push(filename):
     #print('Push called with file: {}'.format(filename))
     #subprocess.call(['git', 'push', 'origin', 'git_hook'])
 
-#function tests full pipeline from .md to templated and published .html
-#TODO add checks to make sure each step was successful
-def include(filename):
+def run(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
-    #publish(html_file)
+    published_file = publish(html_file)
+    build.append(published_file)
     gitatom_git_add(filename,xml_file,html_file)
 
 
-def usage():
-    exit("Usage: python3 gitatom [command] (filename)")
+def init(target):
+    print(f"initializing {target}")
+    # save global variables - target is location of 'publish_directory'
+    if target.endswith('/'):
+        target = target[:-1]
+    
+    yaml_dict = { 'publish_directory' : f'{target}/site/', \
+                'feed_id' : 'https://git.atom/', \
+                'feed_title' : 'Git Atom', \
+                'author_name' : 'Author', \
+                'entry_template' : 'gitatom/templates/blogs.html' }
 
+    with open('config.yaml', 'w') as f:
+        yaml.dump(yaml_dict, f)
+
+    # create publish directory 'target/site/'
+    target_path = Path(target + '/site')
+    if not target_path.exists():
+        target_path.mkdir(parents=True)
+    else:
+        return False
+
+    # make skeleton index.html and style.css
+    build.create(target + '/site')
+
+    # insert post-commit script into ./git/hooks here ??
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        file_out = ''
-        
-        if command == 'build': build.build_it('./site')
-        
+        file_out = ''     
+       
         elif len(sys.argv) > 2:
             filename = sys.argv[2]
             #print("printing filename from main: ", filename)
-            if command == 'atomify': 
+            if command == 'atomify':
                 subprocess.call(['git', 'add', filename])
                 file_out = atomify(filename)
             elif command == 'render': file_out = render(filename)
             elif command == 'publish': file_out = publish(filename)
-            elif command == 'include': 
+            elif command == 'run': 
                 subprocess.call(['git', 'add', filename])
-                file_out = include(filename)
+                file_out = run(filename)
             else: usage()
             gitatom_git_push(file_out)
         else: usage()
 
     else: usage()
-
