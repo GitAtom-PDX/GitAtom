@@ -28,7 +28,7 @@ def append(filename):
     with open(filename, 'r') as f:
         post = BeautifulSoup(f, 'html.parser')
     post_title = post.head.title.string
-    post_link = '/posts/' + filename
+    post_link = filename
 
     # get target directory from config file 
     target = config.options['publish_directory']
