@@ -1,79 +1,50 @@
-# given: 'templates/default.html', 
-#        'templates/blogs.html',
-#        'site/assets/css/style.css',
-#        'site/*.html'
-#        'site/posts/*.html'
-#
-# build.py: scans a target dir and its subdirs, 
-#           renders default and/or blogs template
-#
-# output:   basepath/index.html
-#           basepath/blog.html
+# build.py: Using the 'target' config option ...
+#           Creates 'target/index.html' and 'target/style.css'
+#           Adds a blog post link to the index
+# output:   target/index.html
+#           target/blog.html
 
-from jinja2 import Environment, FileSystemLoader
-import os, stat, time
+import config
+from bs4 import BeautifulSoup
 
-# scan for blog html files 
-def scan_blog(basepath):
-    blogs = list() # blog posts
-    for dirpath, dirname, files in os.walk(basepath):
-        for f in files:
-            if f.endswith('.html'):
-                html = dict()
-                url = os.path.join(dirpath, f).split('/')[2:]
-                urlString = '/'.join(url)
-                html['url'] = urlString
-                html['filename'] = os.path.splitext(f)[0]
-                file_stats = os.stat(os.path.join(dirpath, f))
-                modified_time = time.ctime(file_stats[ stat.ST_MTIME ])
-                html['modified'] = modified_time
-                # assume dir path is year-month-day-etc
-                html['dated'] = os.path.join(dirpath).replace(basepath, '').replace('/', '-')
-                blogs.append(html)
-    # sort on dated (newest first)
-    sorted_blogs = sorted(blogs, key=lambda blog: blog['dated'], reverse=True)
-    return sorted_blogs
+def create(target):
+    print(f"creating {target}/index.html and {target}/style.css")
 
-# scan for html files 
-def scan_index(basepath):
-    nav = list()   # for navbar atop page
-    for f in os.listdir(basepath):
-        if f.endswith('.html'):
-            html = dict()
-            url = os.path.join(basepath, f)
-            html['url'] = url.replace(basepath, '')[1:]
-            html['filename'] = os.path.splitext(f)[0]
-            nav.append(html)
-    return nav
+    html = BeautifulSoup(f"""<html lang="en"><head><link rel=stylesheet type=text/css href="{target}/style.css">
+	<title>Blog Post List</title></head><body><div id=main></div></body></html>""", features='html.parser')
 
-# render blogs template, return html
-def blog(nav, blogs):
-    file_loader = FileSystemLoader('./gitatom/templates')
-    env = Environment(loader=file_loader)
-    template = env.get_template('blogs.html')
-    # fill blogs template and inherited default template
-    output = template.render(nav=nav, blogs=blogs)
-    return output
+    css = "* { box-sizing: 'content-box'; }"
 
-# render default template, return html
-def index(nav):
-    file_loader = FileSystemLoader('./gitatom/templates')
-    env = Environment(loader=file_loader)
-    template = env.get_template('default.html')
-    output = template.render(nav=nav)
-    return output
+    with open(target + '/index.html', "w") as index:
+        index.write(html.prettify())
+    with open(target + '/style.css', "w") as style:
+        style.write(css)
 
-# write html files
-def create(basepath, filename, html):
-    with open(basepath + '/' + filename + '.html', "w") as page:
-        page.write(html)
-    print(f"{basepath}/{filename}.html was just rendered.")
 
-# scan, render and write landing page and published posts 
-def build_it(basepath):
-    posts = scan_blog(basepath + '/posts/')
-    nav = scan_index(basepath)
-    rendered_blog = blog(nav, posts)
-    rendered_index = index(nav)
-    create(basepath, 'blog', rendered_blog)
-    create(basepath, 'index', rendered_index)
+def append(filename):
+    print(f"inserting {filename}")
+
+    # parse filename (html post) DOM for title and link
+    with open(filename, 'r') as f:
+        post = BeautifulSoup(f, 'html.parser')
+    post_title = post.head.title.string
+    post_link = filename
+
+    # get target directory from config file 
+    target = config.options['publish_directory']
+
+    # parse target/site/index.html
+    index_file = target + 'index.html'
+    with open(index_file, 'r') as f:
+        index = BeautifulSoup(f, 'html.parser')
+
+    # insert blog details 
+    new_link = index.new_tag('a', href=post_link)
+    new_link.string = post_title
+    new_div = index.new_tag('div')
+    new_div['class'] = 'entry'
+    new_div.insert(0, new_link)
+
+    index.html.body.insert(0, new_div)
+    with open(index_file, 'w') as f:
+        f.write(index.prettify())
