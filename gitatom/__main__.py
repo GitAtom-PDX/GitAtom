@@ -1,61 +1,108 @@
-from sys import argv
-
+import build
 import yaml
 import config
-
+import shutil
+import cmarkgfm  # used to convert markdown to html in mdtohtml()
+import subprocess
+import glob
+import sys
+import re
+import string
 from os import path
 from datetime import datetime 
-
-import cmarkgfm
-from jinja2 import Environment, FileSystemLoader
-from xml.etree import cElementTree as ET
-
 from pathlib import Path
-import shutil
+from xml.etree import cElementTree as ET
+from jinja2 import Environment, FileSystemLoader
 
-import build
 
 
-# insert definitions and/or `import other-modules`
+# Generate blog post title from .md filename
+def getTitle(filename):
 
-def atomify(filename):
-    print(f"calling atomify on {filename}")
-    # atomify.py
-    # Encloses given md in atom xml tags
+    # Determine filename style
+    if '-' in filename: 
+        words = filename.replace('-',' ').split(' ')
 
-    # NOTE file handling is not currently OS-agnostic
+    elif '_' in filename:
+        words = filename.replace('_',' ').split(' ')
 
-    # Required <entry> atom tags:
-    # <id> unique entry id, generated and contatenated with feed id
-    # <title> title of post, populated from markdown filename
-    # <updated> latest update, NOTE see README
-    # <published> creation date, current time (requested by sponsor, not required by atom)
-    # <content> markdown file contents with escaped characters
+    elif ' ' in filename:
+        words = filename.split(' ')	
 
-    # Required <feed> atom tags:
-    # <id> site URI, populated from config file
-    # <title> title of website, populated from config file
-    # <updated> latest feed update, populated from entry tag
+        # Check for single-word titles
+        # https://www.geeksforgeeks.org/python-test-if-string-contains-any-uppercase-character/
+    elif not bool(re.match(r'\w*[A-Z]\w*', filename)):
+        return filename.capitalize()
 
-    # Open required files - this is currently designed such
-    # that atomify [file] processes one md file at a time
-    if not filename.endswith('.md'): exit("Incorrect input file type (expected .md)")
-    md = filename
+    else: # assume camelCase
+        words = camelCaseSplit(filename)
 
-    # Populate required tags
-    feed_id = config.options['feed_id']
-    feed_title = config.options['feed_title']
+    words = [word.capitalize() for word in words]
+    title = ' '.join(words)
+    return title
 
-    entry_title = path.splitext(path.basename(md))[0] # TODO make os-agnostic
-    entry_id = feed_id + entry_title # depends on feed id
+  
 
-    # TODO how to check if the given markdown file is a new or existing post...
-    # how best to handle updating an existing post?
+# Generate xml filename from title and date
+def getFilename(title):
 
-    entry_published = datetime.now()		# using current time
-    entry_published.replace(microsecond=0) 	# truncate ms
-    entry_updated = entry_published			# TODO how to handle updating entries...?
-    feed_updated = entry_updated 		# depends on entry updated
+    # Generate date in YYYYMMDD	
+    filename = datetime.today().strftime('%Y%m%d')
+
+    # Append title to date 
+    if ' ' not in title: # check for single-word title
+        filename += title
+    else: 
+        words = title.split(' ')
+        for word in words: filename += word
+
+    return filename
+
+  
+
+# camelCase splitter 
+# https://www.geeksforgeeks.org/python-split-camelcase-string-to-individual-strings/
+def camelCaseSplit(str):
+    str = str[0].upper() + str[1:] # preserve lowercase first words
+    return re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
+
+  
+  
+# Takes a .md file and pastes its content into an atom xml format
+def atomify(md):
+    # Check for invalid filetype
+    if not md.endswith('.md'): exit("Incorrect input file type (expected .md)")
+
+    # Get title and xml filename	
+    filename = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
+    entry_title = getTitle(filename)
+    outname = getFilename(entry_title) + '.xml'
+    #print('outname from atomify: ', outname)
+
+    # Check for a matching xml file 
+    exists = glob.glob('./*' + outname[8:] + '*') # should only ever return 0-1 matches
+    if exists: outname = exists[0][2:] # overwrite existing file 
+
+    # Grab tags from config
+    config_f = open('./gitatom/gitatom.config')
+    config = config_f.readlines()
+    config_f.close()
+
+    # Populate tags
+    feed_id = config[0].strip()
+    feed_title = config[1].strip()
+    entry_id = feed_id + outname[:-4] 
+    if exists: # retain existing publish date
+        tree = ET.parse(outname) 
+        root = tree.getroot()
+        entry_published = root.find('entry').find('published').text
+        entry_updated = datetime.now()
+        entry_updated.replace(microsecond=0)
+    else:
+        entry_published = datetime.now()	# using current time
+        entry_published.replace(microsecond=0) 	# truncate ms
+        entry_updated = entry_published		
+    feed_updated = entry_updated 		
 
     # Create atom string
     atom = '<feed>\n'
@@ -69,25 +116,28 @@ def atomify(filename):
     atom += '<updated>' + str(entry_updated) + '</updated>\n'
     atom += '<content>'
 
-    # NOTE https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
-    with open (md,'r') as f:
-        atom += f.read().replace('<', '\<').replace('>', '\>')
+    # https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
+    with open (md,'r') as f: 
+        #embedded html brackets replaced with *** on either side, can be replaced later using opposite operation
+        atom += f.read().replace('<', '\**').replace('>', '**/')
 
     atom += '</content>\n'
     atom += '</entry>\n'
     atom += '</feed>\n'
 
     # Write result to file
-    outname = entry_title + '.xml' # TODO need a good naming schema...
-    outfile = open(outname, 'w')
+    #outname += '.xml' 
+    outfile = open('files/xml_files/' + outname, 'w')
     outfile.write(atom)
     outfile.close()
 
-    return outfile.name
+    subprocess.call(['git', 'add', 'files/xml_files/' + outname])
+    subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
+    return outname
 
-
+  
+  
 def render(filename):
-    print(f"calling render on {filename}")
 
     #get data from xml
     tree = ET.parse(filename)
@@ -114,7 +164,8 @@ def render(filename):
     html_text = cmarkgfm.markdown_to_html(content)
     html_name = title + '.html'
 
-    with open(html_name, "w") as outfile:
+
+    with open('files/html_files/' + html_name, "w") as outfile:
         outfile.write(
             template.render(
                 title=title,
@@ -123,6 +174,8 @@ def render(filename):
             )
         )
 
+    subprocess.call(['git', 'add', 'files/html_files/' + html_name])
+    subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
     return html_name
 
 
@@ -137,6 +190,7 @@ def publish(filename):
     # ./site/posts/aaa/bbb/ccc/file.html
 
     TARGET_DIRECTORY = config.options['publish_directory']
+
     ERROR = -1
 
     src_path = Path(filename)
@@ -165,12 +219,24 @@ def publish(filename):
     #TODO need to return some metric of success here, maybe just 1
     return dest_path.name
 
+def gitatom_git_add(md_file,xml_file,html_file):
+    subprocess.call(['git', 'add', md_file])
+    subprocess.call(['git', 'add', 'files/xml_files/' + xml_file])
+    subprocess.call(['git', 'add', 'files/html_files/' + html_file])
+    subprocess.call(['git', 'commit', '-m', 'Adding {}, {}, {} files to git.'.format(md_file, xml_file, html_file)])
+
+
+def gitatom_git_push(filename):
+    print('New files add to vc, push when ready.')
+    #print('Push called with file: {}'.format(filename))
+    #subprocess.call(['git', 'push', 'origin', 'git_hook'])
 
 def run(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
     published_file = publish(html_file)
     build.append(published_file)
+    gitatom_git_add(filename,xml_file,html_file)
 
 
 def init(target):
@@ -201,17 +267,24 @@ def init(target):
     # insert post-commit script into ./git/hooks here ??
 
 
-def usage():
-    exit("Usage: python3 gitatom [command] (target)")
-
-
 if __name__ == '__main__':
-    if len(argv) == 3:
-        if argv[1] == 'init': init(argv[2])
-        elif argv[1] == 'atomify': atomify(argv[2])
-        elif argv[1] == 'render': render(argv[2])
-        elif argv[1] == 'publish': publish(argv[2])
-        elif argv[1] == 'append': build.append(argv[2])
-        elif argv[1] == 'run': run(argv[2])
+    if len(sys.argv) > 1:
+        command = sys.argv[1]
+        file_out = ''     
+       
+        elif len(sys.argv) > 2:
+            filename = sys.argv[2]
+            #print("printing filename from main: ", filename)
+            if command == 'atomify':
+                subprocess.call(['git', 'add', filename])
+                file_out = atomify(filename)
+            elif command == 'render': file_out = render(filename)
+            elif command == 'publish': file_out = publish(filename)
+            elif command == 'run': 
+                subprocess.call(['git', 'add', filename])
+                file_out = run(filename)
+            else: usage()
+            gitatom_git_push(file_out)
         else: usage()
+
     else: usage()
