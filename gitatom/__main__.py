@@ -80,17 +80,14 @@ def atomify(md):
     #print('outname from atomify: ', outname)
 
     # Check for a matching xml file 
-    exists = glob.glob('./files/xml_files/*' + outname[8:] + '*') # should only ever return 0-1 matches
+    exists = glob.glob('./atoms/*' + outname[8:] + '*') # should only ever return 0-1 matches
     if exists: outname = exists[0][2:] # overwrite existing file 
 
     # Grab tags from config
-    config_f = open('./gitatom/gitatom.config')
-    config = config_f.readlines()
-    config_f.close()
-
     # Populate tags
-    feed_id = config[0].strip()
-    feed_title = config[1].strip()
+    feed_id = config.options['feed_id']
+    feed_title = config.options['feed_title']
+
     entry_id = feed_id + outname[:-4] 
     if exists: # retain existing publish date
         tree = ET.parse(outname) 
@@ -127,13 +124,13 @@ def atomify(md):
 
     # Write result to file
     #outname += '.xml' 
-    outfile = open('files/xml_files/' + outname, 'w')
+    outfile = open('./atoms/' + outname, 'w')
     outfile.write(atom)
     outfile.close()
 
-    subprocess.call(['git', 'add', 'files/xml_files/' + outname])
-    subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
-    return outname
+    #subprocess.call(['git', 'add', 'atoms/' + outname])
+    #subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
+    return outfile.name
 
   
   
@@ -157,15 +154,16 @@ def render(filename):
 
     # load template html file
     template_env = Environment(
-        loader=FileSystemLoader(searchpath='./templates/post_templates/'))
+        loader=FileSystemLoader(searchpath='gitatom/post_templates/'))
     template = template_env.get_template('default_jinja.html')
 
     # convert content which should be in md to html
     html_text = cmarkgfm.markdown_to_html(content)
     html_name = title + '.html'
 
+    posts_directory = config.options['publish_directory'] + '/posts/'
 
-    with open('files/html_files/' + html_name, "w") as outfile:
+    with open(posts_directory + html_name, "w") as outfile:
         outfile.write(
             template.render(
                 title=title,
@@ -174,50 +172,10 @@ def render(filename):
             )
         )
 
-    subprocess.call(['git', 'add', 'files/html_files/' + html_name])
-    subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
+    #subprocess.call(['git', 'add', posts_directory + html_name])
+    #subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
     return html_name
 
-
-def publish(filename):
-    print(f"calling publish on {filename}")
-    # input: string representation of path to source file.
-    # returns: ERROR if the source file does not exist.
-    # This function copies the source file to TARGET_DIRECTORY.
-    # Automatically builds the target directory and sub directories
-    # for the posts depending on the hyphens at the beginning of
-    # the file. Example: aaa-bbb-ccc-file.html is copied to
-    # ./site/posts/aaa/bbb/ccc/file.html
-
-    TARGET_DIRECTORY = config.options['publish_directory']
-
-    ERROR = -1
-
-    src_path = Path(filename)
-    if not src_path.exists():
-        return ERROR
-
-    # extract the filename from full path, split filname into pieces
-    # based on '-'
-    # ex: 2020-12-1-post.html is split into:
-    # ['2020', '12', '1', 'post.html']
-    src_filename = src_path.name
-    name_tokens = src_filename.split("-")
-
-    # build the destination directory based on previous pieces
-    dest_path = Path(TARGET_DIRECTORY)
-    for i in range(len(name_tokens) - 1):
-        dest_path = dest_path / name_tokens[i]
-
-    if not dest_path.exists():
-        dest_path.mkdir(parents=True)
-
-    # append filename w/out date info to destination path
-    dest_path = dest_path / name_tokens[-1]
-
-    shutil.copy(src_path, dest_path)
-    #TODO need to return some metric of success here, maybe just 1
-    return dest_path.name
 
 def gitatom_git_add(md_file,xml_file,html_file):
     subprocess.call(['git', 'add', md_file])
@@ -231,60 +189,66 @@ def gitatom_git_push(filename):
     #print('Push called with file: {}'.format(filename))
     #subprocess.call(['git', 'push', 'origin', 'git_hook'])
 
+
 def run(filename):
     xml_file = atomify(filename)
     html_file = render(xml_file)
-    published_file = publish(html_file)
-    build.append(published_file)
-    gitatom_git_add(filename,xml_file,html_file)
+    #published_file = publish(html_file)
+    #build.append(published_file)
+    build.append(html_file)
+    #gitatom_git_add(filename,xml_file,html_file)
 
 
-def init(target):
-    print(f"initializing {target}")
-    # save global variables - target is location of 'publish_directory'
-    if target.endswith('/'):
-        target = target[:-1]
+def init():
+    print("initializing")
     
-    yaml_dict = { 'publish_directory' : f'{target}/site/', \
-                'feed_id' : 'https://git.atom/', \
-                'feed_title' : 'Git Atom', \
-                'author_name' : 'Author', \
-                'entry_template' : 'gitatom/templates/blogs.html' }
+    feed_id = 'a-feed-id'
+    feed_title = 'yet another blog'
+    author = 'Author'
+    publish_directory = './site'
+
+    yaml_dict = { 
+                'feed_id' : feed_id, \
+                'feed_title' : feed_title, \
+                'author' : author, \
+                'publish_directory' : publish_directory
+                }
 
     with open('config.yaml', 'w') as f:
         yaml.dump(yaml_dict, f)
 
-    # create publish directory 'target/site/'
-    target_path = Path(target + '/site')
-    if not target_path.exists():
-        target_path.mkdir(parents=True)
-    else:
-        return False
+    posts_path = Path(publish_directory + '/posts')
+    if not posts_path.exists():
+        posts_path.mkdir(parents=True)
+
+    atoms_path = Path('./atoms')
+    if not atoms_path.exists():
+        atoms_path.mkdir()
 
     # make skeleton index.html and style.css
-    build.create(target + '/site')
+    build.create(publish_directory)
 
-    # insert post-commit script into ./git/hooks here ??
+
+def usage():
+    exit("Usage: python3 gitatom [command] (filename)")
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        file_out = ''     
-       
+        if command == 'init': init()
         elif len(sys.argv) > 2:
+            file_out = ''     
             filename = sys.argv[2]
             #print("printing filename from main: ", filename)
             if command == 'atomify':
-                subprocess.call(['git', 'add', filename])
+                #subprocess.call(['git', 'add', filename])
                 file_out = atomify(filename)
             elif command == 'render': file_out = render(filename)
-            elif command == 'publish': file_out = publish(filename)
             elif command == 'run': 
-                subprocess.call(['git', 'add', filename])
+                #subprocess.call(['git', 'add', filename])
                 file_out = run(filename)
             else: usage()
-            gitatom_git_push(file_out)
+            #gitatom_git_push(file_out)
         else: usage()
-
     else: usage()
