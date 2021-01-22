@@ -1,5 +1,0 @@
-author_name: Author
-entry_template: gitatom/templates/blogs.html
-feed_id: https://git.atom/
-feed_title: Git Atom
-publish_directory: ./site/
