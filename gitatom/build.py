@@ -24,6 +24,8 @@ def create(publish_directory):
 def append(filename):
     print(f"inserting {filename}")
 
+    filename_only = ''.join(filename.split('/')[-1:])
+
     # get target directory from config file 
     publish_directory = config.options['publish_directory']
     author = config.options['author']
@@ -35,13 +37,13 @@ def append(filename):
         index = BeautifulSoup(f, 'html.parser')
 
     # parse filename (html post) DOM for title and link
-    with open(f'{publish_directory}/posts/' + filename, 'r') as f:
+    with open(f'{publish_directory}/posts/' + filename_only, 'r') as f:
         post = BeautifulSoup(f, 'html.parser')
     # what it should be: post_title = post.html.head.title.string
     post_title = post.html.body.center.h1.string
     # what it should be: post_date = post.html.h2.string
     post_date = post.html.body.center.next_sibling.next_sibling.h3.string
-    post_link = 'posts/' + ''.join(filename.split('/')[-1:])
+    post_link = 'posts/' + filename_only
 
     # insert blog details 
     new_link = index.new_tag('a', href=post_link)

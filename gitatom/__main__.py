@@ -245,6 +245,7 @@ if __name__ == '__main__':
                 #subprocess.call(['git', 'add', filename])
                 file_out = atomify(filename)
             elif command == 'render': file_out = render(filename)
+            elif command == 'append': file_out = build.append(filename)
             elif command == 'run': 
                 #subprocess.call(['git', 'add', filename])
                 file_out = run(filename)
