@@ -8,11 +8,26 @@ import yaml
 options = {}
 
 def load():
-    config_file = open("config.yaml", "r")
+    try:
+        config_file = open("config.yaml", "r")
+
+    except FileNotFoundError:
+        yaml_dict = {
+            'feed_id' : '', \
+            'feed_title' : '', \
+            'author' : '', \
+            'publish_directory' : '' 
+            }
+
+        with open('config.yaml', 'w') as f:
+            yaml.dump(yaml_dict, f)
+
+        config_file = open("config.yaml", "r")
 
     global options
     options = yaml.load(config_file, yaml.FullLoader)
     config_file.close()
+
 
 # this is called when config is imported
 load()
