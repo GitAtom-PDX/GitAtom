@@ -80,8 +80,11 @@ def atomify(md):
     #print('outname from atomify: ', outname)
 
     # Check for a matching xml file 
-    exists = glob.glob('./atoms/*' + outname[8:] + '*') # should only ever return 0-1 matches
-    if exists: outname = exists[0][2:] # overwrite existing file 
+    atompath = './atoms/'
+    exists = glob.glob(atompath + '*' + outname[8:] + '*') # should only ever return 0-1 matches
+    if exists: # overwrite existing file
+        s = slice(len(atompath), len(exists[0])) # use path length to slice
+        outname = exists[0][s] # slice path from existing file name
 
     # Grab tags from config
     # Populate tags
@@ -90,7 +93,7 @@ def atomify(md):
 
     entry_id = feed_id + outname[:-4] 
     if exists: # retain existing publish date
-        tree = ET.parse(outname) 
+        tree = ET.parse(atompath + outname) 
         root = tree.getroot()
         entry_published = root.find('entry').find('published').text
         entry_updated = datetime.now()
