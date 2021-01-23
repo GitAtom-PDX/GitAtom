@@ -12,7 +12,7 @@ def create(publish_directory):
     print(f"creating {publish_directory}/index.html and {publish_directory}/style.css")
 
     html = BeautifulSoup(f"""<html lang="en"><head><link rel=stylesheet type=text/css href="{publish_directory}/style.css">
-	<title>Blog Post List</title></head><body><header><h1></h1><h2></h2></header><div id=main></div></body></html>""", features='html.parser')
+	<title>Blog Post List</title></head><body><header><h1></h1><h2></h2></header><div id=\"archive\"></div></body></html>""", features='html.parser')
     css = "* { box-sizing: 'content-box'; }"
 
     with open(publish_directory + '/index.html', "w") as index:
@@ -50,18 +50,21 @@ def append(filename):
     new_link.string = post_title
 
     new_p = index.new_tag('p')
-    new_p.string = post_date
     new_p.insert(0, new_link)
+
+    new_p2 = index.new_tag('p')
+    new_p2.string = post_date
 
     new_div = index.new_tag('div')
     new_div.insert(0, new_p)
+    new_div.insert(1, new_p2)
     new_div['class'] = 'entry'
 
-    index.html.body.insert(0, new_div)
+    index.find('div', id='archive').insert(0, new_div)
 
     index.html.head.title.string = feed_title
-    index.html.body.header.h1 = feed_title
-    index.html.body.header.h2 = author
+    index.html.body.header.h1.string = feed_title
+    index.html.body.header.h2.string = author
 
     with open(index_file, 'w') as f:
         f.write(index.prettify())
