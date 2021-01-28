@@ -1,72 +1,76 @@
-# build.py: Using the 'pubish_directory' config option ...
-#           Creates publish_directory/index.html and publish_directory/style.css
-#           Appends a blog post link to index
+# given: 'main_templates/base.html', 
+#        'main_templates/default.html',
+#        'publish_directory/*.html'
+#        'publish_directory/posts/*.html'
+#
+# build.py: scans publish_directory and publish_directory/posts/
+#           renders the base and default templates
+#
 # output:   publish_directory/index.html
-#           publish_directory/style.css
 
 import config
-from bs4 import BeautifulSoup
+from pathlib import Path
+import cmarkgfm
+from xml.etree import cElementTree as ET
+from jinja2 import Environment, FileSystemLoader
 
+# create files with blank pages
 def create(publish_directory):
+    site_dir = Path(publish_directory)
 
-    print(f"creating {publish_directory}/index.html and {publish_directory}/style.css")
+    index = site_dir / "index.html"
+    with open(index, 'w') as f:
+        f.write("")
+    archive = site_dir / "archive.html"
+    with open(archive, 'w') as f:
+        f.write("")
 
-    html = BeautifulSoup(f"""<html lang="en"><head><link rel=stylesheet type=text/css href="{publish_directory}/style.css">
-	<title>Blog Post List</title></head><body><header><h1></h1><h2></h2></header><div id=\"archive\"></div></body></html>""", features='html.parser')
-    css = "* { box-sizing: 'content-box'; }"
+# scan, render and write landing page 
+def build_it():
+    # create 'Pathlib' paths from publish_directory config option
+    site_dir = Path(config.options['publish_directory'])
+    posts_dir = Path(config.options['publish_directory'] + '/posts/')
+    atoms_dir = Path('atoms/')
 
-    with open(publish_directory + '/index.html', "w") as index:
-        index.write(html.prettify())
-    with open(publish_directory + '/style.css', "w") as style:
-        style.write(css)
+    # scan for atoms and pages
+    nav_pages = list(site_dir.glob('*.html'))
+    nav_dict = {nav.stem : nav.name for nav in nav_pages}
+    nav_dict['home'] = nav_dict.pop('index')
+    atoms = list(atoms_dir.glob('*.xml'))
 
+    # create a list of maps of posts
+    posts = list()
+    archive = list()
+    for atom in atoms:
+        tree = ET.parse(atom)
+        root = tree.getroot()
+        post = dict()
+        post['title'] = root.find('entry').find('title').text
+        post['updated'] = root.find('entry').find('updated').text
+        content = root.find('entry').find('content').text
+        post['body'] = cmarkgfm.markdown_to_html(content)
+        post['link'] = 'posts/' + atom.stem[8:] + '.html'
+        posts.append(post)
+        archive.append( { 'title' : post['title'], 'link' : post['link'], 'updated' : post['updated'] } )
 
-def append(filename):
-    print(f"inserting {filename}")
+    # render blog template with found entries and other pages
+    file_loader = FileSystemLoader('gitatom/main_templates/')
+    env = Environment(loader=file_loader)
+    template = env.get_template('blog-a.html')
+    rendered_blog = template.render(nav=nav_dict, posts=posts, sidebar=archive)
+    index = site_dir / "index.html"
 
-    filename_only = ''.join(filename.split('/')[-1:])
+    # render archive template with found entries and other pages
+    file_loader = FileSystemLoader('gitatom/main_templates/')
+    env = Environment(loader=file_loader)
+    template = env.get_template('archive-a.html')
+    rendered_archive = template.render(nav=nav_dict, archive=archive)
+    archive = site_dir / "archive.html"
 
-    # get target directory from config file 
-    publish_directory = config.options['publish_directory']
-    author = config.options['author']
-    feed_title = config.options['feed_title']
+    # write the html
+    with open(index, 'w') as f:
+        f.write(rendered_blog)
+    with open(archive, 'w') as f:
+        f.write(rendered_archive)
 
-    # parse publish_directory/index.html
-    index_file = publish_directory + '/index.html'
-    with open(index_file, 'r') as f:
-        index = BeautifulSoup(f, 'html.parser')
-
-    # parse filename (html post) DOM for title and link
-    with open(f'{publish_directory}/posts/' + filename_only, 'r') as f:
-        post = BeautifulSoup(f, 'html.parser')
-    # what it should be: post_title = post.html.head.title.string
-    post_title = post.html.body.center.h1.string
-    # what it should be: post_date = post.html.h2.string
-    post_date = post.html.body.center.next_sibling.next_sibling.h3.string
-    post_link = 'posts/' + filename_only
-
-    # insert blog details 
-    new_link = index.new_tag('a', href=post_link)
-    new_link.string = post_title
-
-    new_p = index.new_tag('p')
-    new_p.insert(0, new_link)
-
-    new_p2 = index.new_tag('p')
-    new_p2.string = post_date
-
-    new_div = index.new_tag('div')
-    new_div.insert(0, new_p)
-    new_div.insert(1, new_p2)
-    new_div['class'] = 'entry'
-
-    index.find('div', id='archive').insert(0, new_div)
-
-    index.html.head.title.string = feed_title
-    index.html.body.header.h1.string = feed_title
-    index.html.body.header.h2.string = author
-
-    with open(index_file, 'w') as f:
-        f.write(index.prettify())
-
-    return index_file
+    return index

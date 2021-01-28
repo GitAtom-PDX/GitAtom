@@ -198,7 +198,7 @@ def run(filename):
     html_file = render(xml_file)
     #published_file = publish(html_file)
     #build.append(published_file)
-    build.append(html_file)
+    build.build_it()
     #gitatom_git_add(filename,xml_file,html_file)
 
 
@@ -228,7 +228,6 @@ def init():
     if not atoms_path.exists():
         atoms_path.mkdir()
 
-    # make skeleton index.html and style.css
     build.create(publish_directory)
 
 
@@ -240,6 +239,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         command = sys.argv[1]
         if command == 'init': init()
+        elif command == 'build': build.build_it()
         elif len(sys.argv) > 2:
             file_out = ''     
             filename = sys.argv[2]
@@ -248,7 +248,6 @@ if __name__ == '__main__':
                 #subprocess.call(['git', 'add', filename])
                 file_out = atomify(filename)
             elif command == 'render': file_out = render(filename)
-            elif command == 'append': file_out = build.append(filename)
             elif command == 'run': 
                 #subprocess.call(['git', 'add', filename])
                 file_out = run(filename)

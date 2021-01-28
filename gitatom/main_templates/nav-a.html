@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<link rel=stylesheet type=text/css href="./style.css">
+	<title> {% block title %}{% endblock %}</title>
+</head>
+<body>
+
+	<div id=nav_pages>
+		{% block navigation %}
+			{% for key, value in nav.items() %}
+			<a href={{value}}>{{ key }}</a>
+			{% endfor %}
+		{% endblock %}
+	</div>
+
+	<div id=main>{% block main %}{% endblock %}</div>
+</body>
+</html>

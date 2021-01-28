@@ -1,0 +1,29 @@
+{% extends "nav-a.html" %}
+
+{% block title %}Blog Posts{% endblock %}
+
+
+{% block main %}
+
+	<h3>Blog</h3>
+
+	{% for post in posts %}
+		<div class=entry>
+			<h4><a href={{post.link}}>{{ post.title }}<a/></h4>
+			<h5>{{ post.updated }}</h5>
+			<p>{{ post.body }}</p>
+		</div>
+		<br>
+	{% endfor %}
+
+	<h3>All Posts</h3>
+
+	{% for item in sidebar %}
+		<div class=item>
+			<h4><a href={{item.link}}>{{ item.title }}<a/></h4>
+			<h5>{{ item.updated }}</h5>
+		</div>
+		<br>
+	{% endfor %}
+
+{% endblock %}
