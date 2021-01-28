@@ -1,0 +1,18 @@
+{% extends "nav-a.html" %}
+
+{% block title %}Archive{% endblock %}
+
+
+{% block main %}
+
+	<h3>Archive</h3>
+
+	{% for item in archive %}
+		<div class=item>
+			<h4><a href={{item.link}}>{{ item.title }}<a/></h4>
+			<h5>{{ item.updated }}</h5>
+		</div>
+		<br>
+	{% endfor %}
+
+{% endblock %}
