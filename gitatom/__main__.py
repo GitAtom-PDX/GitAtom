@@ -15,10 +15,10 @@ from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 
 
-
+#Functions not being used in current iteration, together do some modification of title to capitilize and append date to front
+"""
 # Generate blog post title from .md filename
 def getTitle(filename):
-
     # Determine filename style
     if '-' in filename: 
         words = filename.replace('-',' ').split(' ')
@@ -32,7 +32,7 @@ def getTitle(filename):
         # Check for single-word titles
         # https://www.geeksforgeeks.org/python-test-if-string-contains-any-uppercase-character/
     elif not bool(re.match(r'\w*[A-Z]\w*', filename)):
-        return filename.capitalize()
+        return filename
 
     else: # assume camelCase
         words = camelCaseSplit(filename)
@@ -40,12 +40,8 @@ def getTitle(filename):
     words = [word.capitalize() for word in words]
     title = ' '.join(words)
     return title
-
-  
-
-# Generate xml filename from title and date
+ # Generate xml filename from title and date
 def getFilename(title):
-
     # Generate date in YYYYMMDD	
     filename = datetime.today().strftime('%Y%m%d')
 
@@ -56,16 +52,14 @@ def getFilename(title):
         words = title.split(' ')
         for word in words: filename += word
 
-    return filename
-
-  
+    return filename 
 
 # camelCase splitter 
 # https://www.geeksforgeeks.org/python-split-camelcase-string-to-individual-strings/
 def camelCaseSplit(str):
     str = str[0].upper() + str[1:] # preserve lowercase first words
     return re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
-
+"""
   
   
 # Takes a .md file and pastes its content into an atom xml format
@@ -74,9 +68,8 @@ def atomify(md):
     if not md.endswith('.md'): exit("Incorrect input file type (expected .md)")
 
     # Get title and xml filename	
-    filename = path.splitext(path.basename(md))[0] # TODO make os-agnostic 
-    entry_title = getTitle(filename)
-    outname = getFilename(entry_title) + '.xml'
+    entry_title= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
+    outname = entry_title + '.xml'
     #print('outname from atomify: ', outname)
 
     # Check for a matching xml file 
@@ -96,11 +89,10 @@ def atomify(md):
         tree = ET.parse(atompath + outname) 
         root = tree.getroot()
         entry_published = root.find('entry').find('published').text
-        entry_updated = datetime.now()
-        entry_updated.replace(microsecond=0)
+        entry_updated = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
     else:
-        entry_published = datetime.now()	# using current time
-        entry_published.replace(microsecond=0) 	# truncate ms
+        entry_published = datetime.now().strftime("%d/%m/%Y %H:%M:%S")	# using current time
         entry_updated = entry_published		
     feed_updated = entry_updated 		
 
@@ -130,7 +122,6 @@ def atomify(md):
     outfile = open('./atoms/' + outname, 'w')
     outfile.write(atom)
     outfile.close()
-
     #subprocess.call(['git', 'add', 'atoms/' + outname])
     #subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
     return outfile.name
@@ -147,14 +138,7 @@ def render(filename):
     title = root.find('entry').find('title').text
     updated = root.find('entry').find('updated').text
     content = root.find('entry').find('content').text
-    """
-    #can use something like this if we nede to pull template info from xml files with multiple entries
-    for page in root.findall('entry'):
-        title = root.find('entry').find('title').text
-        updated = root.find('entry').find('updated').text
-        content = root.find('entry').find('content').text
-    """
-
+   
     # load template html file
     template_env = Environment(
         loader=FileSystemLoader(searchpath='gitatom/post_templates/'))
