@@ -49,7 +49,7 @@ def build_it():
         post['updated'] = root.find('entry').find('updated').text
         content = root.find('entry').find('content').text
         post['body'] = cmarkgfm.markdown_to_html(content)
-        post['link'] = 'posts/' + atom.stem[8:] + '.html'
+        post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
         archive.append( { 'title' : post['title'], 'link' : post['link'], 'updated' : post['updated'] } )
 
