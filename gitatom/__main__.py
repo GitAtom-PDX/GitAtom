@@ -74,7 +74,7 @@ def atomify(md):
 
     # Check for a matching xml file 
     atompath = './atoms/'
-    exists = glob.glob(atompath + '*' + outname[8:] + '*') # should only ever return 0-1 matches
+    exists = glob.glob(atompath + '*' + outname + '*') # should only ever return 0-1 matches
     if exists: # overwrite existing file
         s = slice(len(atompath), len(exists[0])) # use path length to slice
         outname = exists[0][s] # slice path from existing file name
