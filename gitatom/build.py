@@ -32,6 +32,9 @@ def build_it():
     posts_dir = Path(config.options['publish_directory'] + '/posts/')
     atoms_dir = Path('atoms/')
 
+    site_title = Path(config.options['feed_title'])
+    site_author = Path(config.options['author'])
+
     # scan for atoms and pages
     nav_pages = list(site_dir.glob('*.html'))
     nav_dict = {nav.stem : nav.name for nav in nav_pages}
@@ -51,23 +54,30 @@ def build_it():
         post['body'] = cmarkgfm.markdown_to_html(content)
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
+        sorted_posts = sorted(posts, key=lambda post: post['updated'], reverse=True)
         archive.append( { 'title' : post['title'], 'link' : post['link'], 'updated' : post['updated'] } )
+        sorted_archive = sorted(archive, key=lambda item: item['updated'], reverse=True)
+
+    sidebar_len = len(sorted_archive) if len(sorted_archive) < 5 else 5
 
     # render blog template with found entries and other pages
     file_loader = FileSystemLoader('gitatom/main_templates/')
     env = Environment(loader=file_loader)
     template = env.get_template('blog-a.html')
-    rendered_blog = template.render(nav=nav_dict, posts=posts, sidebar=archive)
-    index = site_dir / "index.html"
+    rendered_blog = template.render(title=site_title, author=site_author, \
+                                    nav=nav_dict, posts=sorted_posts, \
+                                    sidebar=sorted_archive[0:sidebar_len])
 
     # render archive template with found entries and other pages
     file_loader = FileSystemLoader('gitatom/main_templates/')
     env = Environment(loader=file_loader)
     template = env.get_template('archive-a.html')
-    rendered_archive = template.render(nav=nav_dict, archive=archive)
-    archive = site_dir / "archive.html"
+    rendered_archive = template.render(title=site_title, author=site_author, \
+                                        nav=nav_dict, archive=sorted_archive)
 
     # write the html
+    index = site_dir / "index.html"
+    archive = site_dir / "archive.html"
     with open(index, 'w') as f:
         f.write(rendered_blog)
     with open(archive, 'w') as f:
