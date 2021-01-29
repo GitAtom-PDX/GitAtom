@@ -56,20 +56,18 @@ def build_it():
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
         archive.append( { 'title' : post['title'], 'link' : post['link'], 'updated' : post['updated'] } )
-        sorted_posts = sorted(posts, key=lambda post: post['updated'], reverse=True)
-        sorted_archive = sorted(archive, key=lambda item: item['updated'], reverse=True)
 
+    sorted_posts = sorted(posts, key=lambda post: post['updated'], reverse=True)
+    sorted_archive = sorted(archive, key=lambda item: item['updated'], reverse=True)
+    sidebar_len = len(archive) if len(archive) < 5 else 5
 
     # render blog and archive templates
     file_loader = FileSystemLoader('gitatom/main_templates/')
     env = Environment(loader=file_loader)
-    sidebar_len = len(archive) if len(archive) < 5 else 5
-
     temp1 = env.get_template('blog-a.html')
     rendered_blog = temp1.render(title=site_title, author=site_author, \
                                  nav=nav_dict, posts=sorted_posts, \
                                  sidebar=sorted_archive[0:sidebar_len])
-
     temp2 = env.get_template('archive-a.html')
     rendered_archive = temp2.render(title=site_title, author=site_author, \
                                     nav=nav_dict, archive=sorted_archive)
