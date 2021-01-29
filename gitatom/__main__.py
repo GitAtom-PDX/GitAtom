@@ -167,13 +167,13 @@ def render(filename):
 # function for use with commit git hook
 def on_commit(mds):
     files = []
-	for md in mds:
+    for md in mds:
         xml = atomify(md)
         html = render(xml)
         files.append(xml)
         files.append(html)
     build.build_it()
-	site_dir = Path(config.options['publish_directory'])
+    site_dir = Path(config.options['publish_directory'])
     files.append(str(site_dir) + '/index.html')
     files.append(str(site_dir) + '/archive.html')
     return files
