@@ -5,8 +5,9 @@
 
 {% block main %}
 
-	<h3>Blog</h3>
-
+<h2>Blog</h2>	
+<div class="flex-container">
+	<div class="flex-item item1">
 	{% for post in posts %}
 		<div class=entry>
 			<h4><a href={{post.link}}>{{ post.title }}<a/></h4>
@@ -15,7 +16,9 @@
 		</div>
 		<br>
 	{% endfor %}
+	</div>
 
+	<div class="flex-item item2">
 	<h3>All Posts</h3>
 
 	{% for item in sidebar %}
@@ -25,5 +28,6 @@
 		</div>
 		<br>
 	{% endfor %}
-
+	</div>
+</div>
 {% endblock %}
