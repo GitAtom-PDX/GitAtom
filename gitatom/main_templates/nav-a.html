@@ -4,16 +4,32 @@
 	<link rel=stylesheet type=text/css href="./style.css">
 	<title> {% block title %}{% endblock %}</title>
 </head>
+<!-- writing css here just for now-->
+<style>
+	nav {
+		font-size: 2rem;
+	}
+
+	.flex-container {
+		  display: flex;
+		  flex-wrap: wrap;
+	}
+
+	.item1 {
+		width: 85%;
+		margin: 25px;
+	}
+</style>
 <body>
-
-	<div id=nav_pages>
-		{% block navigation %}
-			{% for key, value in nav.items() %}
-			<a href={{value}}>{{ key }}</a>
-			{% endfor %}
-		{% endblock %}
-	</div>
-
+	<section>
+		<nav id=nav_pages>
+			{% block navigation %}
+				{% for key, value in nav.items() %}
+				<a href={{value}}>{{ key }}</a>
+				{% endfor %}
+			{% endblock %}
+		</nav>
+	</section>
 	<div id=main>{% block main %}{% endblock %}</div>
 </body>
 </html>
