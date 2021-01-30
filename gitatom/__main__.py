@@ -138,6 +138,7 @@ def render(filename):
     title = root.find('entry').find('title').text
     updated = root.find('entry').find('updated').text
     content = root.find('entry').find('content').text
+    content = content.replace('\**', '<').replace('**/', '>')
    
     # load template html file
     template_env = Environment(
@@ -162,6 +163,21 @@ def render(filename):
     #subprocess.call(['git', 'add', posts_directory + html_name])
     #subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
     return html_name
+
+
+# function for use with commit git hook
+def on_commit(mds):
+    files = []
+    for md in mds:
+        xml = atomify(md)
+        html = render(xml)
+        files.append(xml)
+        files.append(html)
+    build.build_it()
+    site_dir = Path(config.options['publish_directory'])
+    files.append(str(site_dir) + '/index.html')
+    files.append(str(site_dir) + '/archive.html')
+    return files
 
 
 def gitatom_git_add(md_file,xml_file,html_file):
