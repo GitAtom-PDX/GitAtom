@@ -1,11 +1,12 @@
 {% extends "nav-a.html" %}
 
-{% block title %}Blog Posts{% endblock %}
+{% block title %}{{title}} Blog{% endblock %}
 
 
 {% block main %}
 
-	<h3>Blog</h3>
+<h3>{{title}}</h3>
+<h4>{{author}}</h4>
 
 	{% for post in posts %}
 		<div class=entry>
@@ -16,7 +17,7 @@
 		<br>
 	{% endfor %}
 
-	<h3>All Posts</h3>
+	<h3>Recent Posts</h3>
 
 	{% for item in sidebar %}
 		<div class=item>
