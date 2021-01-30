@@ -48,6 +48,7 @@ def build_it():
         post['title'] = root.find('entry').find('title').text
         post['updated'] = root.find('entry').find('updated').text
         content = root.find('entry').find('content').text
+        content = content.replace('\**', '<').replace('**/', '>')
         post['body'] = cmarkgfm.markdown_to_html(content)
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
