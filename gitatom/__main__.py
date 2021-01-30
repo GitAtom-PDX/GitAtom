@@ -138,6 +138,7 @@ def render(filename):
     title = root.find('entry').find('title').text
     updated = root.find('entry').find('updated').text
     content = root.find('entry').find('content').text
+    content = content.replace('\**', '<').replace('**/', '>')
    
     # load template html file
     template_env = Environment(
