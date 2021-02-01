@@ -5,11 +5,13 @@
 
 {% block main %}
 
-<h2>Blog</h2>	
+<h2>{{title}}</h2>
+<h3>{{author}}</h3>
+
 <div class="flex-container">
 	<div class="flex-item item1">
 	{% for post in posts %}
-		<div class=entry>
+		<div class=entry id=post>
 			<h4><a href={{post.link}}>{{ post.title }}<a/></h4>
 			<h5>{{ post.updated }}</h5>
 			<p>{{ post.body }}</p>
@@ -19,7 +21,7 @@
 	</div>
 
 	<div class="flex-item item2">
-	<h3>All Posts</h3>
+	<h2>All Posts</h2>
 
 	{% for item in sidebar %}
 		<div class=item>
