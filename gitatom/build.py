@@ -12,6 +12,7 @@
 import config
 from pathlib import Path
 import cmarkgfm
+import re
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 
@@ -49,14 +50,15 @@ def build_it():
         tree = ET.parse(atom)
         root = tree.getroot()
         content = root.find('entry').find('content').text
-        post = dict()
-        post['title'] = root.find('entry').find('title').text
-        post['updated'] = root.find('entry').find('updated').text
 
-
-        content = root.find('entry').find('content').text
         content = content.replace('\**', '<').replace('**/', '>')
+        # title and body could/should be separated in atomify
+        title = re.compile(r"#(.+)").findall(content)[0].strip()
+        content = re.compile(r"#(.+)").sub('', content, 1)
 
+        post = dict()
+        post['updated'] = root.find('entry').find('updated').text
+        post['title'] = title
         post['body'] = cmarkgfm.markdown_to_html(content)
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
