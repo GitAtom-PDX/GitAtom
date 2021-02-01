@@ -1,21 +1,19 @@
 {% extends "nav-a.html" %}
 
-{% block title %}{{title}} Archive{% endblock %}
-
+{% block title %}{{title}} - Archive{% endblock %}
 
 {% block main %}
 
-<h3>{{title}}</h3>
-<h4>{{author}}</h4>
+<h1>Archive</h1>
+<h2>{{title}}</h2>
+<h3>{{author}}</h3>
 
-	<h3>Archive</h3>
-
-	{% for item in archive %}
-		<div class=item>
-			<h4><a href={{item.link}}>{{ item.title }}<a/></h4>
-			<h5>{{ item.updated }}</h5>
-		</div>
-		<br>
-	{% endfor %}
+{% for item in archive %}
+	<div class=item>
+		<h4><a href={{item.link}}>{{item.title}}<a/></h4>
+		<h5>{{item.updated}}</h5>
+	</div>
+	<br>
+{% endfor %}
 
 {% endblock %}
