@@ -5,26 +5,26 @@
 
 {% block main %}
 
-<h3>{{title}}</h3>
-<h4>{{author}}</h4>
+<h1>{{title}}</h1>
+<h2>{{author}}</h2>
 
-	{% for post in posts %}
-		<div class=entry>
-			<h4><a href={{post.link}}>{{ post.title }}<a/></h4>
-			<h5>{{ post.updated }}</h5>
-			<p>{{ post.body }}</p>
-		</div>
-		<br>
-	{% endfor %}
+{% for post in posts %}
+	<div class=entry>
+		<h3><a href={{post.link}}>{{post.title}}<a/></h3>
+		<h4>{{post.updated}}</h4>
+		<p>{{post.body}}</p>
+	</div>
+	<br>
+{% endfor %}
 
-	<h3>Recent Posts</h3>
+<h1>Recent Posts</h1>
 
-	{% for item in sidebar %}
-		<div class=item>
-			<h4><a href={{item.link}}>{{ item.title }}<a/></h4>
-			<h5>{{ item.updated }}</h5>
-		</div>
-		<br>
-	{% endfor %}
+{% for item in sidebar %}
+	<div class=item>
+		<h3><a href={{item.link}}>{{item.title}}<a/></h3>
+		<h4>{{item.updated}}</h4>
+	</div>
+	<br>
+{% endfor %}
 
 {% endblock %}
