@@ -29,7 +29,7 @@ def create(publish_directory):
         f.write("")
 
     # copy the stylesheet we create into the site directory
-    style_src = Path("gitatom/main_templates/main_style.css")
+    style_src = Path("gitatom/main_templates/style.css")
     style_dst = site_dir / "style.css"
     copyfile(style_src, style_dst)
 
