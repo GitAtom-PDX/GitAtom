@@ -8,23 +8,33 @@
 <h1>{{title}}</h1>
 <h2>{{author}}</h2>
 
-{% for post in posts %}
-	<div class=entry>
-		<h3><a href={{post.link}}>{{post.title}}<a/></h3>
-		<h4>{{post.updated}}</h4>
-		<p>{{post.body}}</p>
+<div class="flex-container">
+	<div class="flex-item item1">
+	{% for post in posts %}
+		<div class=entry id=post>
+			<h3><a href={{post.link}}>{{ post.title }}</a></h3>
+			<h4>{{ post.updated }}</h4>
+			<p>{{ post.body }}</p>
+		</div>
+		<br>
+	{% endfor %}
 	</div>
-	<br>
-{% endfor %}
 
-<h1>Recent Posts</h1>
+	<div class="flex-item item2">
+	<h3>Recent Posts</h3>
 
-{% for item in sidebar %}
-	<div class=item>
-		<h3><a href={{item.link}}>{{item.title}}<a/></h3>
-		<h4>{{item.updated}}</h4>
+	{% for item in sidebar %}
+		<div class=item>
+			<h4><a href={{item.link}}>{{ item.title }}</a></h4>
+			<h5>{{ item.updated }}</h5>
+		</div>
+		<br>
+	{% endfor %}
 	</div>
-	<br>
-{% endfor %}
-
+</div>
+{% endblock %}
+{% block footer %}
+<div class="footer">
+	<p>footer</p>
+</div>
 {% endblock %}
