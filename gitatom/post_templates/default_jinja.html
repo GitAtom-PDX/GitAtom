@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<title>{% block title %}{% endblock %} - GitAtom</title>
-<link rel="stylesheet" href="style01.css">
+<title>{% block title %}{{title}}{% endblock %}</title>
+<link rel="stylesheet" href="../style.css">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <center><h1>{{title}} - Based on name of file </h1></center>
-    <center><h3>{{date}}</h3></center>
-    <section class = "content">
-    <p>{{blog}}</p>
-</section>
+    <section class="content">
+        <p>{{content}}</p>
+    </section>
+    <h4>updated: {{update}}</h4>
+    <h4>originally published: {{published}}</h4>
 </body>
 </html>
