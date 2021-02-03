@@ -11,7 +11,12 @@
 {% for item in archive %}
 	<div class=item>
 		<h4><a href={{item.link}}>{{item.title}}<a/></h4>
-		<h5>{{item.updated}}</h5>
+		{% if item.original %}
+		<h5>published {{ item.published }}</h5>
+		{% else %}
+		<h5>updated {{item.updated}}</h4>
+		<h5>published {{ item.published }}</h5>
+		{% endif %}
 	</div>
 	<br>
 {% endfor %}
