@@ -12,6 +12,7 @@
 import config
 from pathlib import Path
 import cmarkgfm
+from shutil import copyfile
 import re
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -26,16 +27,11 @@ def create(publish_directory):
     archive = site_dir / "archive.html"
     with open(archive, 'w') as f:
         f.write("")
-    style = site_dir / "style.css"
-    with open(style, 'w') as f:
-        f.write("nav {font-family: sans-serif; font-size: 2rem; font-style: normal; background-color: black;} \
-            nav ul { margin: 0; padding: 0; list-style-type: none;} nav ul li { cursor: pointer; margin: 20px; display: inline;} \
-                nav ul li a { text-decoration: none; color: white } nav ul li a:hover { color: #008080; } nav ul li a:active \
-                { color: #008080; } nav ul li a:focus { color: #008080; } .flex-container { display: flex; flex-wrap: wrap; } \
-                .item1 { width: 85%; height: 1000px; overflow: scroll; -ms-overflow-style: none;  /* IE and Edge */ \
-                    scrollbar-width: none;  /* Firefox */ } /* Hide scrollbar for Chrome, Safari and Opera */ .item1::-webkit-scrollbar \
-                        {display: none; } #post { padding: 25px; } .footer {position: fixed; left: 0; bottom: 0; width: 100%; \
-                        background-color: gray; text-align: center } @media (max-width: 800px) { .item1, .item2 { flex: 100%; } ")
+
+    # copy the stylesheet we create into the site directory
+    style_src = Path("gitatom/main_templates/main_style.css")
+    style_dst = site_dir / "style.css"
+    copyfile(style_src, style_dst)
 
 # scan, render and write landing page 
 def build_it():
