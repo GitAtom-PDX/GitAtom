@@ -137,6 +137,7 @@ def render(filename):
     #get feed and content info from xml file
     title = root.find('entry').find('title').text
     updated = root.find('entry').find('updated').text
+    published = root.find('entry').find('published').text
     content = root.find('entry').find('content').text
     content = content.replace('\**', '<').replace('**/', '>')
    
@@ -155,8 +156,9 @@ def render(filename):
         outfile.write(
             template.render(
                 title=title,
-                date=updated,
-                blog=html_text
+                update=updated,
+                published=published,
+                content=html_text
             )
         )
 
