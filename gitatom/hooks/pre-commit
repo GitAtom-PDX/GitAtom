@@ -1,0 +1,25 @@
+#!/bin/python3
+# test comment
+
+import sys
+import os
+import pygit2
+
+sys.path.append(os.getcwd())
+
+from gitatom import __main__ as main
+from gitatom import build
+
+
+print('hello world')
+current_directory = os.getcwd()
+repo_path = pygit2.discover_repository(current_directory)
+repo = pygit2.Repository(repo_path)
+#repo.status()
+staged_files = main.git_staged_files(repo)
+print(staged_files)
+files = main.on_commit(staged_files)
+print(files)
+main.gitatom_git_add(repo, files)
+
+print('end of script')
