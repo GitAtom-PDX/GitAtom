@@ -9,7 +9,7 @@
 #
 # output:   publish_directory/index.html
 
-import config
+from gitatom import config
 from pathlib import Path
 import cmarkgfm
 from shutil import copyfile
@@ -64,13 +64,11 @@ def build_it():
 
         post = dict()
         post['updated'] = root.find('entry').find('updated').text
-        post['published'] = root.find('entry').find('published').text
-        post['original'] = True if post['updated'] == post['published'] else False
         post['title'] = title
         post['body'] = cmarkgfm.markdown_to_html(content)
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
-        archive.append( { 'title' : post['title'], 'link' : post['link'], 'published': post['published'], 'updated' : post['updated'], 'original' : post['original']} )
+        archive.append( { 'title' : post['title'], 'link' : post['link'], 'updated' : post['updated'] } )
 
     sorted_posts = sorted(posts, key=lambda post: post['updated'], reverse=True)
     sorted_archive = sorted(archive, key=lambda item: item['updated'], reverse=True)
