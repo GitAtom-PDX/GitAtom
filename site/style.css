@@ -1,0 +1,104 @@
+/* The original stylesheet is located in gitatom/main_templates/style.css. It is copied into publish_directory/style.css on 'gitatom init' */
+
+nav {
+    font-family: sans-serif;
+    font-size: 2rem;
+    font-style: normal;
+    background-color: black;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+nav ul li {
+    cursor: pointer;
+    margin: 20px;
+    display: inline;
+    
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+}
+
+nav ul li a:hover {
+    color: #008080;
+}
+
+nav ul li a:active {
+    color: #008080;
+}
+
+nav ul li a:focus {
+        color: #008080;
+}
+
+.flex-container {
+        display: flex;
+        flex-wrap: wrap;
+}
+
+.item1 {
+    width: 85%;
+    height: 1000px;
+    overflow: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.item1::-webkit-scrollbar {
+    display: none;
+}
+
+#post {
+    padding: 25px;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: gray;
+    text-align: center;
+}
+
+@media (max-width: 800px) {
+    .item1, .item2 {
+        flex: 100%;
+    }
+}
+
+/* html { font-family: 'Trebuchet MS', Veranda, sans-serif; background: aliceblue; padding: 1rem; }
+body { max-width: 960px; margin: 0 auto; background: white; }
+h1 { font-family: sans-serif; color: darkcyan; margin: 1rem 0; }
+h3 { color: darkslategray;}
+a { color: seagreen; }
+hr { border: none; border-top: 1px solid lightsteelblue; }
+section { text-align: justify;}
+nav { background: lightsteelblue; display: flex; align-items: center; padding: 0 0.5rem; }
+nav h1 { flex: auto; margin: 0; }
+nav h1 a { text-decoration: none; padding: 0.25rem 0.5rem; }
+nav ul  { display: flex; list-style: none; margin: 0; padding: 0; }
+nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
+.content { padding: 0 1rem 1rem; }
+.content > header { border-bottom: 1px solid lightsteelblue; display: flex; align-items: flex-end; }
+.content > header h1 { flex: auto; margin: 1rem 0 0.25rem 0; }
+.flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid; color: seagreen; }
+.post > header { display: flex; align-items: flex-end; font-size: 0.85em; }
+.post > header > div:first-of-type { flex: auto; }
+.post > header h1 { font-size: 1.5em; margin-bottom: 0; }
+.post .about { color: slategray; font-style: italic; }
+.post .body { white-space: pre-line; }
+.content:last-child { margin-bottom: 0; }
+.content form { margin: 1em 0; display: flex; flex-direction: column; }
+.content label { font-weight: bold; margin-bottom: 0.5em; }
+.content input, .content textarea { margin-bottom: 1em; }
+.content textarea { min-height: 12em; resize: vertical; }
+input.danger { color: #cc2f2e; }
+input[type=submit] { align-self: start; min-width: 10em; } */
