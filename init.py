@@ -3,7 +3,7 @@
 import yaml
 from gitatom import build
 from pathlib import Path
-
+import os
 
 
 # init.py
@@ -23,7 +23,8 @@ def init():
                 'author' : author, \
                 'publish_directory' : publish_directory
                 }
-
+    cur_dir = os.getcwd()
+    os.replace(cur_dir+'/gitatom/hooks/pre-commit',cur_dir+'/.git/hooks/pre-commit')
     with open('config.yaml', 'w') as f:
         yaml.dump(yaml_dict, f)
 
