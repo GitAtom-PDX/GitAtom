@@ -1,0 +1,7 @@
+# template config file
+# place in root of working directory
+# remove "template" from file name
+author: author's name
+feed_id: feed id
+feed_title: feed title
+publish_directory: ./site   # path to rendered site files
