@@ -1,6 +1,7 @@
 # Dummodo non
 
 ## Et manat
+### Et vindicat
 
 Lorem markdownum rogat; *convertit remisit* ignibus. Est nimbi Latona. Mea
 fulgore virginea **quiete Sminthea** vindicat lacrimae nunc, [vestigia
