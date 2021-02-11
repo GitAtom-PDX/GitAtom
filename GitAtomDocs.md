@@ -1,45 +1,51 @@
 ##
 # GitAtom
 
-CS Capstone Winter 2021 ![](RackMultipart20210115-4-76adbx_html_66b194b54866537f.png)
+CS Capstone Winter 2021 ![](RackMultipart20210211-4-bxln3i_html_66b194b54866537f.png)
 
 **Table of Contents**
 
-[Goals/General Description 2](#_Toc61537779)
+[Goals/General Description 2](#_Toc63939597)
 
-[What is GitAtom? 2](#_Toc61537780)
+[What is GitAtom? 2](#_Toc63939598)
 
-[Goals of this Project 2](#_Toc61537781)
+[Goals of this Project 2](#_Toc63939599)
 
-[Usage 2](#_Toc61537782)
+[Usage 2](#_Toc63939600)
 
-[Example 2](#_Toc61537783)
+[Configuration 3](#_Toc63939601)
 
-[Install Dependencies 3](#_Toc61537784)
+[Installation 3](#_Toc63939602)
 
-[Pipeline 3](#_Toc61537785)
+[Usage with git commands 3](#_Toc63939603)
 
-[Figure 1: Pipeline Diagram 3](#_Toc61537786)
+[Example 3](#_Toc63939604)
 
-[Current Implementation 4](#_Toc61537787)
+[Pipeline 4](#_Toc63939605)
 
-[Markdown to HTML - CMark 4](#_Toc61537788)
+[Figure 1: Pipeline Diagram 5](#_Toc63939606)
 
-[HTML to XML Atom - Atomify 4](#_Toc61537789)
+[Current Implementation 5](#_Toc63939607)
 
-[XML to Formatted HTML- Jinja &amp; Minidom 4](#_Toc61537790)
+[HTML to XML Atom - Atomify 5](#_Toc63939608)
 
-[Publish to Web via Git Repository 4](#_Toc61537791)
+[XML to Formatted HTML- Jinja &amp; XML etree 5](#_Toc63939609)
 
-[Alternative Implementation Options 5](#_Toc61537792)
+[Publish to Web via Git Repository - githooks 5](#_Toc63939610)
 
-[Markdown to HTML 5](#_Toc61537793)
+[Alternative Implementation Options 6](#_Toc63939611)
 
-[HTML to XML Atom 5](#_Toc61537794)
+[Markdown to HTML 6](#_Toc63939612)
 
-[XML to Formatted HTML 5](#_Toc61537795)
+[HTML to XML Atom 6](#_Toc63939613)
 
-[Publish to Web via Git Repository 5](#_Toc61537796)
+[XML to Formatted HTML 6](#_Toc63939614)
+
+[Popular Template Languages 6](#_Toc63939615)
+
+[Python-Based Template Languages 7](#_Toc63939616)
+
+[Publish to Web via Git Repository 8](#_Toc63939617)
 
 ### Goals/General Description
 
@@ -59,59 +65,96 @@ Blogs and the posts within them are formatted using Atom XML formatting. Atom pr
 
 ### Usage
 
-python3 -m gitatom [command] (filename)
+GitAtom uses githooks to operate behind the scenes when git commands are called. After it is initialized, the user should not need to interact directly with GitAtom to use it.
 
-commands: [atomify, render, publish, include, build]
-
-## Example
-
-To create &#39;lorem.xml&#39;: python3 -m gitatom atomify lorem.md
-
-To create &#39;lorem.xml&#39;, &#39;lorem.html&#39; and &#39;site/posts/lorem.html&#39;: python3 -m gitatom include lorem.md
-
-(see: gitatom/\_\_main\_\_.py)
-
-## Install Dependencies
+Install Dependencies
 
 pip install -r requirements.txt
 
+## Configuration
+
+GitAtom can be configured in the config.yaml file. If this file does not exist when GitAtom is initialized, one is created and populated with default values. Blog title, blog id, author name, and file path are specified in this file. (note: style.css will eventually be specified in the config file as well)
+
+## Installation
+
+Initialize the site directory: python3 gitatom init
+
+## Usage with git commands
+
+git [command] [-flag] (target)
+
+commands: [add, commit, push]
+
+- Add: add target files to the /markdowns/ directory. (same as standard git add command)
+- Commit: create formatted .xml files in /atoms/ from .md files in the /markdowns/ directory using atomify. Create .html files in /site/posts/ directory from .xml files in /atoms/ using jinja template. Add the new post locations to the site index and archive.
+- Push: push site files to remote repository. Once files are in the remote repository, they are published.
+
+## Example
+
+To set up GitAtom:
+
+pip install gitatom
+
+pip install -r requirements.txt
+
+python3 gitatom init
+
+To publish contents of &#39;lorem.md&#39; to the site:
+
+git add ../markdowns/lorem.md
+
+git commit -m &#39;atomify and render lorem.md&#39;
+
+git push
+
+(see: gitatom/\_\_main\_\_.py)
+
+Initialize the site directory: python3 gitatom init .
+
+- An empty config.yaml file must exist in the directory otherwise config.py errors
+- config.yaml is populated when init is called.
+
+To create index.html python3 gitatom append lorem.html
+
+- Tested with skeleton html
+
+(see: gitatom/\_\_main\_\_.py and gitatom/build.py)
+
 ### Pipeline
 
-![](RackMultipart20210115-4-76adbx_html_443c06fc376ed1b6.jpg)
+![](RackMultipart20210211-4-bxln3i_html_443c06fc376ed1b6.jpg)
+
+See pipeline diagram at [https://docs.google.com/drawings/d/1fY9yvk1XWXno47KaTcl7GqXHPoirk4SK26p59zirCmI/edit?usp=sharing](https://docs.google.com/drawings/d/1fY9yvk1XWXno47KaTcl7GqXHPoirk4SK26p59zirCmI/edit?usp=sharing)
 
 ### Figure 1: Pipeline Diagram
 
-The [linked diagram](https://docs.google.com/drawings/d/1vogONGyVG5FVBg1XpAbyG_FnPneU2iwRE61v5BCrI_A/edit?usp=sharing) shows the pipeline used by GitAtom. The process takes a Markdown file from the user, converts it into formatted HTML, and publishes a git repository.
+The linked diagram shows the pipeline used by GitAtom. The process takes a Markdown file from the user, converts it into formatted HTML, and publishes a git repository.
 
-To begin the process, a user creates a blog post in a Markdown (.md) file and commits the file to a local git repository. On commit, the Markdown file is converted to HTML. Then, the HTML file is parsed to find metadata and converted into Atom XML format. This file goes through a template that adds CSS. This formatted page is in HTML. The user can preview the formatted page, then they can use a gitatom command to publish the page to a remote git repository.
+To begin the process, a user creates a blog post in a Markdown (.md) file and commits the file to a local git repository. On commit, the Markdown file is parsed to find metadata and converted into Atom XML format. This file goes through a template that adds CSS. This formatted page is in HTML. The user can preview the formatted page, then they can use a gitatom command to publish the page to a remote git repository.
 
 ### Current Implementation
 
-Currently, GitAtom is written implemented using primarily Python 3 with some HTML and CSS.
-
-## Markdown to HTML - CMark
-
-Located in GitAtom class - mdtohtml(). Uses [CMark](https://github.com/commonmark/cmark). Imports [cmarkgfm](https://pypi.org/project/cmarkgfm/).
-
-The function checks that the named Markdown file exists and that it is in the correct format. cmarkgfm is used to convert the Markdown text to HTML text, and the text is written to an HTML file.
+Currently, GitAtom is implemented using primarily Python 3 with some HTML and CSS.
 
 ## HTML to XML Atom - Atomify
 
-The atomify() function is located in the GitAtom class. It parses the file to find required tags like title, date, and author. This information is used to build the text of the Atom file. Then, that text is written to an XML file.
+The atomify() function is located in the GitAtom class. It checks that the named Markdown file exists and that it is in the correct format. Auxiliary functions getTitle() and getFilename() help to parse the Markdown file to find required tags like title, date, and author. This information is used to build the text of the Atom file. Then, that text is written to an XML file.
 
-## XML to Formatted HTML- Jinja &amp; Minidom
+## XML to Formatted HTML- Jinja &amp; XML etree
 
-Located in the GitAtom class - render\_html(). Imports [xml.dom.minidom](https://docs.python.org/3/library/xml.dom.minidom.html).
+Located in the GitAtom class - render\_html(). Imports [xml.etree.ElementTree](https://docs.python.org/3/library/xml.etree.elementtree.html).
 
-The XML file is parsed using minidom. Then, tags, blog content, and other information are sorted out and appended a list. The function then loads a Jinja template and renders a formatted HTML page using the list of blog information.
+The XML file is parsed using minidom. Then, tags, blog content, and other information are sorted out and appended to a list. The function then loads a Jinja template and renders a formatted HTML page using the list of blog information.
 
 Jinja template is located at jinja/templates/jinja\_template.html
 
-## Publish to Web via Git Repository
+## Publish to Web via Git Repository - githooks
 
-publish() in GitAtom class Githooks. Dependency: [shutil](https://docs.python.org/3/library/shutil.html)
+Hooks are located in gitatom/hooks directory. These githooks call functions that are located in the gitAtom class&#39; main file.
 
-This function checks that the source HTML file exists and copies it to a target directory in a remote git repository. If necessary, it builds the target directory.
+The pre-commit hook calls atomify() and render(), and it stores the resulting .xml and .html files in their respective directories. The functions that are called directly by this hook are git\_staged\_files() and gitatom\_git\_add().
+
+The on-push hook (note: this has not been implemented yet) publishes the .html files in /site/ to a remote repository.
 
 ### Alternative Implementation Options
 
@@ -125,8 +168,56 @@ There are several HTML to XML conversion tools for Python. [Lxml](https://lxml.d
 
 ## XML to Formatted HTML
 
-Some alternative Python-friendly templating languages are [Django](https://docs.djangoproject.com/en/3.1/ref/templates/), [Mako](http://www.makotemplates.org/), and [Genshi](https://genshi.edgewall.org/).
+### Popular Template Languages
+
+React
+
+[https://reactjs.org/](https://reactjs.org/)
+
+React is a Javascript library used to build UIs. It is added to HTML pages to make them more interactive. In React, components manage their own state, and they come together to build a UI. Each component has a render() method that handles input data and returns the display. JSX is a syntax similar to XML. It can be used with React, but its use is optional.
+
+Go
+
+[https://golang.org/pkg/html/template/](https://golang.org/pkg/html/template/)
+
+Go&#39;s template package is used mainly to organize and display data for web apps. A notable feature is that it automatically escapes data/input, making web pages more secure against injection. Templates can be parsed from a string or a stored file.
+
+Liquid
+
+[https://shopify.dev/docs/themes/liquid/reference](https://shopify.dev/docs/themes/liquid/reference)
+
+Liquid is a template language written in Ruby. Shopify developed it as a basis for Shopify store design themes, and it is now an open-source tool used for many web pages. The main components of a Liquid template are objects, tags, and filters.
+
+Vue
+
+[https://vuejs.org/v2/guide/syntax.html](https://vuejs.org/v2/guide/syntax.html)
+
+Vue.js uses HTML based syntax, and templates are valid HTML. It compiles templates into Virtual DOM render functions. Alternatively, JSX can be used to directly write render functions. Javascript code is allowed inside Vue bindings, and Javascript can be used as dynamic arguments in templates.
+
+AnyJS
+
+[https://openbase.com/js/anyjs/documentation](https://openbase.com/js/anyjs/documentation)
+
+AnyJS is a Javascript library for UI development. It is relatively lightweight and has TinyUI and BasicUI options.
+
+### Python-Based Template Languages
+
+Django
+
+[https://docs.djangoproject.com/en/3.1/ref/templates/language/](https://docs.djangoproject.com/en/3.1/ref/templates/language/)
+
+Like Jinia2, Django is a text-based template language written in Python. Templates can be written in any text format. Django templates use variables, tags, and filters. It supports inheritance, so a base template can be used to streamline templates for various pages.
+
+Mako
+
+[https://www.makotemplates.org/](https://www.makotemplates.org/)
+
+Mako is a template language that compiles into Python code. Mako is an embedded Python language, and therefore can be faster than other template languages. Its Syntax is closer to Python than HTML or XML. It supports inheritance and escaping.
+
+Genshi
+
+[https://genshi.edgewall.org/](https://genshi.edgewall.org/)
+
+Genshi is a Python library whose main feature is a template language. It is written to be a more intelligent and less verbose template language. Directives can be attached directly to elements. Features include relatively flexible inheritance, escaping, and stream-based filtering
 
 ## Publish to Web via Git Repository
-
-Alternatives?
