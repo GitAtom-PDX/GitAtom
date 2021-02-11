@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 
-import yaml
 import os.path
-from gitatom import build
 from pathlib import Path
+import yaml
+from gitatom import build
+from gitatom import config
 
 
 
@@ -13,26 +14,9 @@ from pathlib import Path
 def init():
     print("initializing")
 
-    # check if config file exists
-    if not os.path.isfile('config.yaml'):
-        print("config file not found, generating default config \"config.yaml\"")
-        print("this file needs to be filled out!")
-        feed_id = 'a-feed-id'
-        feed_title = 'yet another blog'
-        author = 'Author'
-        publish_directory = './site'
+    cfg = config.load_into_dict()
 
-        yaml_dict = {
-                    'feed_id' : feed_id, \
-                    'feed_title' : feed_title, \
-                    'author' : author, \
-                    'publish_directory' : publish_directory
-                    }
-
-        with open('config.yaml', 'w') as f:
-            yaml.dump(yaml_dict, f)
-
-    posts_path = Path('./site' + '/posts')
+    posts_path = Path(cfg['publish_directory'] + '/posts')
     if not posts_path.exists():
         posts_path.mkdir(parents=True)
 
@@ -40,7 +24,7 @@ def init():
     if not atoms_path.exists():
         atoms_path.mkdir()
 
-    build.create('./site')
+    build.create(cfg['publish_directory'])
 
 
 

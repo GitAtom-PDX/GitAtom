@@ -81,8 +81,9 @@ def atomify(md):
 
     # Grab tags from config
     # Populate tags
-    feed_id = config.options['feed_id']
-    feed_title = config.options['feed_title']
+    cfg = config.load_into_dict()
+    feed_id = cfg['feed_id']
+    feed_title = cfg['feed_title']
 
     entry_id = feed_id + outname[:-4] 
     if exists: # retain existing publish date
@@ -150,7 +151,8 @@ def render(filename):
     html_text = cmarkgfm.markdown_to_html(content)
     html_name = title + '.html'
 
-    posts_directory = config.options['publish_directory'] + '/posts/'
+    cfg = config.load_into_dict()
+    posts_directory = cfg['publish_directory'] + '/posts/'
 
     with open(posts_directory + html_name, "w") as outfile:
         outfile.write(
@@ -199,7 +201,8 @@ def on_commit(mds):
         files.append('atoms/' + xml)
         files.append('site/posts/' + html)
     build.build_it()
-    site_dir = Path(config.options['publish_directory'])
+    cfg = config.load_into_dict()
+    site_dir = Path(cfg['publish_directory'])
     files.append(str(site_dir) + '/index.html')
     files.append(str(site_dir) + '/archive.html')
     return files
