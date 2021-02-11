@@ -36,12 +36,13 @@ def create(publish_directory):
 # scan, render and write landing page 
 def build_it():
     # create 'Pathlib' paths from publish_directory config option
-    site_dir = Path(config.options['publish_directory'])
-    posts_dir = Path(config.options['publish_directory'] + '/posts/')
+    cfg = config.load_into_dict()
+    site_dir = Path(cfg['publish_directory'])
+    posts_dir = Path(cfg['publish_directory'] + '/posts/')
     atoms_dir = Path('atoms/')
 
-    site_title = Path(config.options['feed_title'])
-    site_author = Path(config.options['author'])
+    site_title = Path(cfg['feed_title'])
+    site_author = Path(cfg['author'])
 
     # scan for atoms and pages
     nav_pages = list(site_dir.glob('*.html'))
