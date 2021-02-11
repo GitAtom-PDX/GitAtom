@@ -19,9 +19,7 @@ repo = pygit2.Repository(repo_path)
 staged_files = main.git_staged_files(repo)
 print(staged_files)
 files = main.on_commit(staged_files)
-# the way this path is built is throwing an error
-# TODO need to investigate and fix
-#files.append(current_directory+'site/style.css')
+files.append('site/style.css')
 print(files)
 main.gitatom_git_add(repo, files)
 
