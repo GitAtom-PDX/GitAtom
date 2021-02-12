@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
 
+import os.path
+from pathlib import Path
 import yaml
 from gitatom import build
+from gitatom import config
 from pathlib import Path
 import os
 
@@ -11,24 +14,14 @@ import os
 
 def init():
     print("initializing")
-    
-    feed_id = 'a-feed-id'
-    feed_title = 'yet another blog'
-    author = 'Author'
-    publish_directory = './site'
 
-    yaml_dict = { 
-                'feed_id' : feed_id, \
-                'feed_title' : feed_title, \
-                'author' : author, \
-                'publish_directory' : publish_directory
-                }
+    cfg = config.load_into_dict()
+    posts_path = Path(cfg['publish_directory'] + '/posts')
+
     cur_dir = os.getcwd()
+    # this moves the original pre-commit hook, it doesn't copy
     os.replace(cur_dir+'/gitatom/hooks/pre-commit',cur_dir+'/.git/hooks/pre-commit')
-    with open('config.yaml', 'w') as f:
-        yaml.dump(yaml_dict, f)
 
-    posts_path = Path(publish_directory + '/posts')
     if not posts_path.exists():
         posts_path.mkdir(parents=True)
 
@@ -36,7 +29,7 @@ def init():
     if not atoms_path.exists():
         atoms_path.mkdir()
 
-    build.create(publish_directory)
+    build.create(cfg['publish_directory'])
 
 
 
