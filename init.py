@@ -57,8 +57,15 @@ def init():
     posts_path = Path(cfg['publish_directory'] + '/posts')
 
     cur_dir = os.getcwd()
-    # this moves the original pre-commit hook, it doesn't copy
-    os.replace(cur_dir+'/gitatom/hooks/pre-commit',cur_dir+'/.git/hooks/pre-commit')
+    
+    from_pc = cur_dir+'/gitatom/hooks/pre-commit'
+    to_pc = cur_dir+'/.git/hooks/pre-commit'
+
+    with open (from_pc,'r') as f: 
+        lines = f.read()
+    outfile = open(to_pc,'w')
+    outfile.write(lines)
+    outfile.close()
 
     if not posts_path.exists():
         posts_path.mkdir(parents=True)
