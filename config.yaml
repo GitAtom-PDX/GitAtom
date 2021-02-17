@@ -1,0 +1,13 @@
+author: Author
+feed_id: a-feed-id
+feed_title: yet another blog
+publish_directory: ./site
+
+repo_path: /home/capstone/kathryn/bare_repo.git
+work_path: /home/capstone/kathryn/work_tree
+host: 167.99.103.193
+port: 22
+username: capstone
+keypath: /u/katsilva/.ssh/gitatom.pub
+
+deploy: true
