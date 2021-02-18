@@ -1,59 +1,37 @@
-##
 # GitAtom
 
 CS Capstone Winter 2021 ![](RackMultipart20210211-4-bxln3i_html_66b194b54866537f.png)
 
-**Table of Contents**
+## Contents
 
-[Goals/General Description 2](#_Toc63939597)
+* Goals/General Description
+  * What is GitAtom?
+  * Goals of this Project
+* Usage
+  * Configuration
+  * Installation
+  * Usage with git commands
+  * Example
+* Pipeline
+  * Figure 1: Pipeline Diagram
+* Current Implementation
+  * HTML to XML Atom - Atomify
+  * XML to Formatted HTML- Jinja &amp; XML etree
+  * Publish to Web via Git Repository - githooks
+* Alternative Implementation Options
+  * Markdown to HTML
+  * HTML to XML Atom 
+  * XML to Formatted HTML
+    * Popular Template Languages
+    * Python-Based Template Languages
+* Publish to Web via Git Repository
+## Goals/General Description
 
-[What is GitAtom? 2](#_Toc63939598)
-
-[Goals of this Project 2](#_Toc63939599)
-
-[Usage 2](#_Toc63939600)
-
-[Configuration 3](#_Toc63939601)
-
-[Installation 3](#_Toc63939602)
-
-[Usage with git commands 3](#_Toc63939603)
-
-[Example 3](#_Toc63939604)
-
-[Pipeline 4](#_Toc63939605)
-
-[Figure 1: Pipeline Diagram 5](#_Toc63939606)
-
-[Current Implementation 5](#_Toc63939607)
-
-[HTML to XML Atom - Atomify 5](#_Toc63939608)
-
-[XML to Formatted HTML- Jinja &amp; XML etree 5](#_Toc63939609)
-
-[Publish to Web via Git Repository - githooks 5](#_Toc63939610)
-
-[Alternative Implementation Options 6](#_Toc63939611)
-
-[Markdown to HTML 6](#_Toc63939612)
-
-[HTML to XML Atom 6](#_Toc63939613)
-
-[XML to Formatted HTML 6](#_Toc63939614)
-
-[Popular Template Languages 6](#_Toc63939615)
-
-[Python-Based Template Languages 7](#_Toc63939616)
-
-[Publish to Web via Git Repository 8](#_Toc63939617)
-
-### Goals/General Description
-
-## What is GitAtom?
+### What is GitAtom?
 
 GitAtom is a git-based static site generator used to create and manage blog content. It stores blog content in an Atom XML content.
 
-## Goals of this Project
+### Goals of this Project
 
 GitAtom is designed to be an easy to use blog management tool that eliminates problems that are commonly found in other generators.
 
@@ -63,7 +41,7 @@ GitAtom does not require the user or a blogging site to host a database of blog 
 
 Blogs and the posts within them are formatted using Atom XML formatting. Atom provides options for a large amount of metadata, which provides information, such as update time and author information, that is useful to authors and readers. Atom also makes it easy to migrate content from a blog to another format, like a book.
 
-### Usage
+## Usage
 
 GitAtom uses githooks to operate behind the scenes when git commands are called. After it is initialized, the user should not need to interact directly with GitAtom to use it.
 
@@ -71,15 +49,15 @@ Install Dependencies
 
 pip install -r requirements.txt
 
-## Configuration
+### Configuration
 
 GitAtom can be configured in the config.yaml file. If this file does not exist when GitAtom is initialized, one is created and populated with default values. Blog title, blog id, author name, and file path are specified in this file. (note: style.css will eventually be specified in the config file as well)
 
-## Installation
+### Installation
 
 Initialize the site directory: python3 gitatom init
 
-## Usage with git commands
+### Usage with git commands
 
 git [command] [-flag] (target)
 
@@ -89,27 +67,25 @@ commands: [add, commit, push]
 - Commit: create formatted .xml files in /atoms/ from .md files in the /markdowns/ directory using atomify. Create .html files in /site/posts/ directory from .xml files in /atoms/ using jinja template. Add the new post locations to the site index and archive.
 - Push: push site files to remote repository. Once files are in the remote repository, they are published.
 
-## Example
+### Example
 
 To set up GitAtom:
 
-pip install gitatom
-
-pip install -r requirements.txt
-
-python3 gitatom init
+`pip install gitatom`
+`pip install -r requirements.txt`
+`python3 gitatom init`
 
 To publish contents of &#39;lorem.md&#39; to the site:
 
-git add ../markdowns/lorem.md
+`git add ../markdowns/lorem.md`
 
-git commit -m &#39;atomify and render lorem.md&#39;
+`git commit -m 'atomify and render lorem.md'`
 
-git push
+`git push`
 
-(see: gitatom/\_\_main\_\_.py)
+(see: `gitatom/\_\_main\_\_.py`)
 
-Initialize the site directory: python3 gitatom init .
+Initialize the site directory: `python3 gitatom init` .
 
 - An empty config.yaml file must exist in the directory otherwise config.py errors
 - config.yaml is populated when init is called.
@@ -120,27 +96,25 @@ To create index.html python3 gitatom append lorem.html
 
 (see: gitatom/\_\_main\_\_.py and gitatom/build.py)
 
-### Pipeline
+## Pipeline
 
 ![](RackMultipart20210211-4-bxln3i_html_443c06fc376ed1b6.jpg)
 
 See pipeline diagram at [https://docs.google.com/drawings/d/1fY9yvk1XWXno47KaTcl7GqXHPoirk4SK26p59zirCmI/edit?usp=sharing](https://docs.google.com/drawings/d/1fY9yvk1XWXno47KaTcl7GqXHPoirk4SK26p59zirCmI/edit?usp=sharing)
 
-### Figure 1: Pipeline Diagram
-
 The linked diagram shows the pipeline used by GitAtom. The process takes a Markdown file from the user, converts it into formatted HTML, and publishes a git repository.
 
 To begin the process, a user creates a blog post in a Markdown (.md) file and commits the file to a local git repository. On commit, the Markdown file is parsed to find metadata and converted into Atom XML format. This file goes through a template that adds CSS. This formatted page is in HTML. The user can preview the formatted page, then they can use a gitatom command to publish the page to a remote git repository.
 
-### Current Implementation
+## Current Implementation
 
 Currently, GitAtom is implemented using primarily Python 3 with some HTML and CSS.
 
-## HTML to XML Atom - Atomify
+### HTML to XML Atom - Atomify
 
 The atomify() function is located in the GitAtom class. It checks that the named Markdown file exists and that it is in the correct format. Auxiliary functions getTitle() and getFilename() help to parse the Markdown file to find required tags like title, date, and author. This information is used to build the text of the Atom file. Then, that text is written to an XML file.
 
-## XML to Formatted HTML- Jinja &amp; XML etree
+### XML to Formatted HTML- Jinja &amp; XML etree
 
 Located in the GitAtom class - render\_html(). Imports [xml.etree.ElementTree](https://docs.python.org/3/library/xml.etree.elementtree.html).
 
@@ -148,7 +122,7 @@ The XML file is parsed using minidom. Then, tags, blog content, and other inform
 
 Jinja template is located at jinja/templates/jinja\_template.html
 
-## Publish to Web via Git Repository - githooks
+### Publish to Web via Git Repository - githooks
 
 Hooks are located in gitatom/hooks directory. These githooks call functions that are located in the gitAtom class&#39; main file.
 
@@ -156,19 +130,19 @@ The pre-commit hook calls atomify() and render(), and it stores the resulting .x
 
 The on-push hook (note: this has not been implemented yet) publishes the .html files in /site/ to a remote repository.
 
-### Alternative Implementation Options
+## Alternative Implementation Options
 
-## Markdown to HTML
+### Markdown to HTML
 
 There are Markdown to HTML conversion tools in pypi. A few examples are [md-to-html](https://pypi.org/project/md-to-html/), [md2html](https://pypi.org/project/md2html/), and [gh-md-to-html](https://pypi.org/project/gh-md-to-html/) which has features to be more user friendly and command-line usable
 
-## HTML to XML Atom
+### HTML to XML Atom
 
 There are several HTML to XML conversion tools for Python. [Lxml](https://lxml.de/parsing.html) and [html5lib](http://code.google.com/p/html5lib/)support HTML to XML parsing. Beautiful Soup sits on top of those and adds extra functionality for parsing and formatting.
 
-## XML to Formatted HTML
+### XML to Formatted HTML
 
-### Popular Template Languages
+#### Popular Template Languages
 
 React
 
@@ -200,7 +174,7 @@ AnyJS
 
 AnyJS is a Javascript library for UI development. It is relatively lightweight and has TinyUI and BasicUI options.
 
-### Python-Based Template Languages
+#### Python-Based Template Languages
 
 Django
 
@@ -220,4 +194,4 @@ Genshi
 
 Genshi is a Python library whose main feature is a template language. It is written to be a more intelligent and less verbose template language. Directives can be attached directly to elements. Features include relatively flexible inheritance, escaping, and stream-based filtering
 
-## Publish to Web via Git Repository
+### Publish to Web via Git Repository
