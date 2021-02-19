@@ -11,7 +11,6 @@ from gitatom import __main__ as main
 from gitatom import build
 
 
-print('hello world')
 current_directory = os.getcwd()
 repo_path = pygit2.discover_repository(current_directory)
 repo = pygit2.Repository(repo_path)
@@ -22,4 +21,3 @@ files.append('site/style.css')
 print(files)
 main.gitatom_git_add(repo, files)
 
-print('end of script')
