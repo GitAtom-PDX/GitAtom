@@ -9,40 +9,38 @@
 #
 # output:   publish_directory/index.html
 
-from gitatom import config
+import config
 from pathlib import Path
 import cmarkgfm
 from shutil import copyfile
 import re
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
+import json
 
 # create files with blank pages
 def create(publish_directory):
     site_dir = Path(publish_directory)
 
-    index = site_dir / "index.html"
-    with open(index, 'w') as f:
+    with open(site_dir / "index.html", 'w') as f:
         f.write("")
-    archive = site_dir / "archive.html"
-    with open(archive, 'w') as f:
+    with open(site_dir / "archive.html", 'w') as f:
+        f.write("")
+    with open(site_dir / "pageIndex.json", 'w') as f:
+        f.write("")
+    with open(site_dir / "wordIndex.json", 'w') as f:
         f.write("")
 
-    # copy the stylesheet we create into the site directory
-    style_src = Path("gitatom/main_templates/style.css")
-    style_dst = site_dir / "style.css"
-    copyfile(style_src, style_dst)
+    # copy the stylesheet and search script into the site directory
+    copyfile(Path("gitatom/main_templates/style.css"), site_dir / "style.css")
+    copyfile(Path("gitatom/main_templates/search.js"), site_dir / "search.js")
 
 # scan, render and write landing page 
 def build_it():
-    # create 'Pathlib' paths from publish_directory config option
-    cfg = config.load_into_dict()
-    site_dir = Path(cfg['publish_directory'])
-    posts_dir = Path(cfg['publish_directory'] + '/posts/')
+    site_dir = Path(config.options['publish_directory'])
     atoms_dir = Path('atoms/')
-
-    site_title = Path(cfg['feed_title'])
-    site_author = Path(cfg['author'])
+    site_title = Path(config.options['feed_title'])
+    site_author = Path(config.options['author'])
 
     # scan for atoms and pages
     nav_pages = list(site_dir.glob('*.html'))
@@ -53,23 +51,38 @@ def build_it():
     # create a list of maps of posts
     posts = list()
     archive = list()
-    for atom in atoms:
+    pageIndex = dict()
+    wordIndex = dict()
+    # create a dictionary for searchable content
+    def addWordIndex(title, body, url, wordIndex, pageIndex, pageNum):
+        pageIndex[pageNum] = url
+        title = title.lower().split(' ')
+        body = content.replace('\n', ' ').lower().split(' ')
+        words = set(title).union(set(body))
+        for word in words:
+            if word in wordIndex:
+                wordIndex[word] += [pageNum]
+            else: wordIndex[word] = [pageNum]
+
+    for i, atom in enumerate(atoms):
         tree = ET.parse(atom)
         root = tree.getroot()
         content = root.find('entry').find('content').text
-
         content = content.replace('\**', '<').replace('**/', '>')
-        # title and body could/should be separated in atomify
+
         title = re.compile(r"#(.+)").findall(content)[0].strip()
         content = re.compile(r"#(.+)").sub('', content, 1)
 
         post = dict()
         post['updated'] = root.find('entry').find('updated').text
+        post['published'] = root.find('entry').find('published').text
+        post['original'] = True if post['updated'] == post['published'] else False
         post['title'] = title
         post['body'] = cmarkgfm.markdown_to_html(content)
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
-        archive.append( { 'title' : post['title'], 'link' : post['link'], 'updated' : post['updated'] } )
+        archive.append( { 'title' : post['title'], 'link' : post['link'], 'published': post['published'], 'updated' : post['updated'], 'original' : post['original']} )
+        addWordIndex(post['title'], post['body'], post['link'], wordIndex, pageIndex, i)
 
     sorted_posts = sorted(posts, key=lambda post: post['updated'], reverse=True)
     sorted_archive = sorted(archive, key=lambda item: item['updated'], reverse=True)
@@ -86,12 +99,21 @@ def build_it():
     rendered_archive = temp2.render(title=site_title, author=site_author, \
                                     nav=nav_dict, archive=sorted_archive)
 
-    # write the html
-    index = site_dir / "index.html"
-    with open(index, 'w') as f:
+    # write the html and json
+    with open(site_dir / "index.html", 'w') as f:
         f.write(rendered_blog)
-    archive = site_dir / "archive.html"
-    with open(archive, 'w') as f:
+    with open(site_dir / "archive.html", 'w') as f:
         f.write(rendered_archive)
-
-    return index
+    with open(site_dir / "pageIndex.json", "w") as f:
+        json.dump(pageIndex, f, indent=4)
+        # { 
+        #   "0":"posts/lorem.html", 
+        #   "1":"posts/ipsum.html" 
+        # }
+    with open(site_dir / "wordIndex.json", "w") as f:
+        json.dump(wordIndex, f)
+        # {  
+        #   "wordA":[1,2,5,6], 
+        #   "wordB":[3,6], 
+        #   "wordC":[2,6,132] 
+        # } 	

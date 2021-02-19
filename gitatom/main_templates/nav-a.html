@@ -12,11 +12,14 @@
 				{% for key, value in nav.items() %}
 				<li><a href="{{value}}">{{ key }}</a></li>
 				{% endfor %}
+				<li><form><input type="text" id="searchField"><input type="submit" id="searchButton" value="Search"></form></li>
 			</ul>
 			{% endblock %}
 		</nav>
 	</section>
+	<div id="searchResults"></div>
 	<div id="main">{% block main %}{% endblock %}</div>
 	<div id="footer">{% block footer %}{% endblock %}</div>
 </body>
+<script type="text/javascript" src="search.js"></script>
 </html>
