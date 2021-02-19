@@ -205,6 +205,8 @@ def on_commit(mds):
     site_dir = Path(cfg['publish_directory'])
     files.append(str(site_dir) + '/index.html')
     files.append(str(site_dir) + '/archive.html')
+    files.append(str(site_dir) + '/pageIndex.json')
+    files.append(str(site_dir) + '/wordIndex.json')
     return files
 
 
