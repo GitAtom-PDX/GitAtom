@@ -1,11 +1,13 @@
-feed_id: feed id
-feed_title: feed title
-author: author
-publish_directory: site
-repo_path: path to bare git repository
-work_path: path to work tree
-host: host ip address
-port: port number
-username: username
-keypath: path to ssh key
-deploy: false
+author: Author
+feed_id: a-feed-id
+feed_title: yet another blog
+publish_directory: ./site
+
+repo_path: /home/capstone/bruh/bare_repo.git
+work_path: /home/capstone/bruh/work_tree
+host: 167.99.103.193
+port: 22
+username: capstone
+keypath: /home/bbeyene/.ssh/capstone
+
+deploy: true
