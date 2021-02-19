@@ -11,7 +11,7 @@ def generate_default():
             'feed_id' : 'feed id',
             'feed_title' : 'feed title',
             'author' : 'author',
-            'publish_directory' : './site',
+            'publish_directory' : 'site',
             'repo_path' : 'path to bare git repository',
             'work_path' : 'path to work tree',
             'host' : 'host ip address',
