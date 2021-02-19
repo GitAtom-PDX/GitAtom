@@ -10,4 +10,4 @@ port: 22
 username: capstone
 keypath: /u/katsilva/.ssh/gitatom.pub
 
-deploy: true
+deploy: false
