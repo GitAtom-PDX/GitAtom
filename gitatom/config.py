@@ -7,20 +7,22 @@ import yaml
 #           blog_title = options["feed_title"]
 
 def generate_default():
-        feed_id = 'a-feed-id'
-        feed_title = 'yet another blog'
-        author = 'Author'
-        publish_directory = './site'
-
         yaml_dict = {
-                    'feed_id' : feed_id, \
-                    'feed_title' : feed_title, \
-                    'author' : author, \
-                    'publish_directory' : publish_directory
-                    }
+            'feed_id' : 'feed id',
+            'feed_title' : 'feed title',
+            'author' : 'author',
+            'publish_directory' : 'publish directory',
+            'repo_path' : 'path to bare git repository',
+            'work_path' : 'path to work tree',
+            'host' : 'host ip address',
+            'port' : 'port number',
+            'username' : 'username',
+            'keypath' : 'path to ssh key',
+            'deploy' : False
+        }
 
         with open('config.yaml', 'w') as f:
-            yaml.dump(yaml_dict, f)
+            yaml.dump(yaml_dict, f, sort_keys=False)
 
 
 def load_into_dict():
