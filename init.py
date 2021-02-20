@@ -26,6 +26,7 @@ def remote_setup():
     bare_path = cfg['repo_path']
     command = "git init --bare " + bare_path
     #absolute path from root
+    symbolic_command = f"cd {bare_path}; git symbolic-ref HEAD refs/heads/main"
     work_path = cfg['work_path']
     work_tree = "mkdir " + work_path
 
@@ -42,6 +43,7 @@ def remote_setup():
 
     #should prob catch these
     ssh.exec_command(command)
+    ssh.exec_command(symbolic_command)
     ssh.exec_command(work_tree)
     stdin, stdout, stderr =  ssh.exec_command(make_hook)
     ssh.exec_command(make_hook2)
