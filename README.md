@@ -1,8 +1,65 @@
 # GitAtom
  GitAtom blogging software development repository for CS Capstone
+ 
+ ### Contents
+ * Introduction
+ * Requirements
+ * Setup
+ * Configuration
+ * Usage
+ * Troubleshooting
+ 
+### Introduction
+GitAtom is a git-based static site generator used to create and manage blog content.  It stores blog content in an Atom XML content.
 
-### Install Dependencies
-`pip install -r requirements.txt`
+GitAtom takes a blog post in the form of a Markdown file and commits the file to a local git repository.  On commit, the Markdown file is parsed to find metadata and converted into Atom XML format.  This file goes through a template that adds CSS.  This formatted page is in HTML.  The user can preview the formatted page, then they can use a gitatom command to publish the page to a remote git repository.
+
+More information in GitAtomDocs.md or at <https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing>
+ 
+
+### Requirements
+Install requirements on local repository using `pip install -r requirements.txt`
+Install Pygit2 on remote repository using `pip install pygit2`
+
+This application requires the following modules:
+Jinja2 <https://pypi.org/project/Jinja2/>
+cmark <https://pypi.org/project/cmarkgfm/>
+YAML <https://pypi.org/project/PyYAML/>
+Pygit2 <https://pypi.org/project/pygit2/>
+Paramiko <https://pypi.org/project/paramiko/>
+
+### Setup
+Before installing GitAtom:
+Fork GitAtom from Github and clone to local repository.
+Have access to the remote server to which you want to publish the blog.
+Create an ssh key and store it in Github->profile->settings->SSH and GPG keys
+ 
+Install with `python3 gitatom init`
+ 
+Modify githook permissions:
+`ls .git/hooks`
+`chmod u+x .git/hooks/precommit`
+ 
+Connect to remote server
+`ssh <user>@<server address>` 
+Enter ssh public key if required - See troubleshooting section if ssh key is not accepted
+Setup working tree directory and connect remote repository
+`python3 init.py`
+Use cd command to get into preferred directory
+`mkdir <working tree directory>`
+`git remote -v`
+Create master branch (needed for upstream)
+`git push live master`
+ 
+Connect local repository
+In local:
+`git remote -v`
+`git remote set-url live <user>@<remote server name>:~/<working tree directory path>/bare-repo.git`
+
+### Configuration
+Configure blog information like title and author in `config.yaml` after initialization.  Fields to configure: author name, feed ID, feed title, desired path to html files.  That path is `/site/` by default
+
+Configure remote server settings using `.ssh config`
 
 ### Usage:
 `git [command] [-flag] (target)`
@@ -10,9 +67,7 @@ commands: [add, commit, push]
 
 - Add: add target files to the /markdowns/ directory.  (same as standard git add command)
 - Commit: create formatted .xml files in /atoms/  from .md files in the /markdowns/ directory using atomify.  Create .html files in /site/posts/ directory from .xml files in /atoms/ using jinja template.  Add the new post locations to the site index and archive.
-- Push: push site files to remote repository.  Once files are in the remote repository, they are published.
-
-
+- Push: push site files to remote repository.  Once files are in the remote repository, they are published.  Make sure to push to live branch.
 
 ### ex.
 Initialize the site directory:
@@ -26,13 +81,28 @@ To publish contents of ‘lorem.md’ to the site:
 
 - `git add ../markdowns/lorem.md`
 - `git commit -m ‘atomify and render lorem.md’`
-- `git push`
+- `git push live master`
 
-To create index.html
-`python3 gitatom append lorem.html` 
+Initialize the site directory: python3 gitatom init .
+config.yaml is created populated with default values when init is called.
 
-- Tested with skeleton html
+Site index and archive are created at initialization, and they are updated when new entries are added.
+
+###Troubleshooting
+Permission denied when ssh into remote server:
+
+This issue comes up when a user has multiple ssh keys to choose from.  To solve, you need to create an alias that indicates use of a specific key.  This is done by updating the config file in the remote repository
+In `ssh config`  add/modify the following
+`Host <human readable hostname>`
+`HostName <host address>`
+`User <username>
+`IDFile ~users/<username>/.ssh/key/<key alias>`
+`IDOnly` yes
+
+Note IDFile needs a complete file path.
+
+With the alias specified, the live branch will use <username>@<alias>
 
 
-(see: gitatom/\_\_main\_\_.py and gitatom/build.py)
+
 
