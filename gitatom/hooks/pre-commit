@@ -1,5 +1,4 @@
-#!/bin/python3
-# test comment
+#!/usr/bin/env python3
 
 import sys
 import os
