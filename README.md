@@ -18,25 +18,27 @@ More information in GitAtomDocs.md or at <https://docs.google.com/document/d/1eO
  
 
 ### Requirements
+Python3 and pip need ot be installed to run GitAtom
+
 Install requirements on local repository using `pip install -r requirements.txt`
-Install Pygit2 on remote repository using `pip install pygit2`
 
 This application requires the following modules:
-Jinja2 <https://pypi.org/project/Jinja2/>
-cmark <https://pypi.org/project/cmarkgfm/>
-YAML <https://pypi.org/project/PyYAML/>
-Pygit2 <https://pypi.org/project/pygit2/>
-Paramiko <https://pypi.org/project/paramiko/>
+* Jinja2 <https://pypi.org/project/Jinja2/>
+* cmark <https://pypi.org/project/cmarkgfm/>
+* YAML <https://pypi.org/project/PyYAML/>
+* Pygit2 <https://pypi.org/project/pygit2/>
+* Paramiko <https://pypi.org/project/paramiko/>
 
 ### Setup
 Before installing GitAtom:
 Fork GitAtom from Github and clone to local repository.
 Have access to the remote server to which you want to publish the blog.
-Create an ssh key and store it in Github->profile->settings->SSH and GPG keys
+Create an ssh key
  
-Install with `python3 gitatom init`
+Install with `python3 init.py`
  
 Modify githook permissions:
+You need to have permissions to write in the working tree directory.  If that directory cannot normally be written to without sudo, need to specify the work tree path
 `ls .git/hooks`
 `chmod u+x .git/hooks/precommit`
  
@@ -45,21 +47,19 @@ Connect to remote server
 Enter ssh public key if required - See troubleshooting section if ssh key is not accepted
 Setup working tree directory and connect remote repository
 `python3 init.py`
-Use cd command to get into preferred directory
+
 `mkdir <working tree directory>`
-`git remote -v`
-Create master branch (needed for upstream)
-`git push live master`
+If you already have write permissions where the directory is currently located, creating the working tree directory elsewhere is unnecessary.
+
  
 Connect local repository
 In local:
-`git remote -v`
-`git remote set-url live <user>@<remote server name>:~/<working tree directory path>/bare-repo.git`
-
+`git remote add live 'username@ipaddress:path-to-bare-directory'`
 ### Configuration
 Configure blog information like title and author in `config.yaml` after initialization.  Fields to configure: author name, feed ID, feed title, desired path to html files.  That path is `/site/` by default
 
 Configure remote server settings using `.ssh config`
+(not necessary unless working with multiple ssh keys - see Troubleshooting section)
 
 ### Usage:
 `git [command] [-flag] (target)`
@@ -81,9 +81,9 @@ To publish contents of ‘lorem.md’ to the site:
 
 - `git add ../markdowns/lorem.md`
 - `git commit -m ‘atomify and render lorem.md’`
-- `git push live master`
+- `git push live main`
 
-Initialize the site directory: python3 gitatom init .
+Initialize the site directory: `python3 init.py`
 config.yaml is created populated with default values when init is called.
 
 Site index and archive are created at initialization, and they are updated when new entries are added.
@@ -96,7 +96,7 @@ In `ssh config`  add/modify the following
 `Host <human readable hostname>`
 `HostName <host address>`
 `User <username>
-`IDFile ~users/<username>/.ssh/key/<key alias>`
+`IDFile ~/.ssh/key`
 `IDOnly` yes
 
 Note IDFile needs a complete file path.
