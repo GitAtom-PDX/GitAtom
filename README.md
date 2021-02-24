@@ -29,6 +29,14 @@ This application requires the following modules:
 * Pygit2 <https://pypi.org/project/pygit2/>
 * Paramiko <https://pypi.org/project/paramiko/>
 
+### Configuration
+Configure blog information like title and author in `config.yaml` after initialization.  Fields to configure: author name, feed ID, feed title, desired path to html files.  That path is `/site/` by default
+
+Configure remote server settings using `.ssh config`
+(not necessary unless working with multiple ssh keys - see Troubleshooting section)
+
+To change blog appearance, add a CSS file to the `gitatom/main_templates` directory.  To choose which template to use, specify the file name in the 'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a different Jinja template, add the new template as an HTML file to the `gitatom/post_templates` directory.
+
 ### Setup
 Before installing GitAtom:
 Fork GitAtom from Github and clone to local repository.
@@ -38,30 +46,20 @@ Create an ssh key
 Install with `python3 init.py`
  
 Modify githook permissions:
-You need to have permissions to write in the working tree directory.  If that directory cannot normally be written to without sudo, need to specify the work tree path
+The new pre-commit hook needs permisions to exicute on the commit.
 `ls .git/hooks`
-`chmod u+x .git/hooks/precommit`
- 
-Connect to remote server
+`chmod u+x .git/hooks/pre-commit`
+
+
+You need to have permissions to write in the working tree directory on the
+remote server.  If that directory cannot normally be written to without sudo you
+need to  connect to remote server
 `ssh <user>@<server address>` 
-Enter ssh public key if required - See troubleshooting section if ssh key is not accepted
-Setup working tree directory and connect remote repository
-`python3 init.py`
+and make sure the user has permions to write into the targeted directories.
 
-`mkdir <working tree directory>`
-If you already have write permissions where the directory is currently located, creating the working tree directory elsewhere is unnecessary.
-
- 
-Connect local repository
+Add remote repo to list of tracked repositories
 In local:
 `git remote add live 'username@ipaddress:path-to-bare-directory'`
-### Configuration
-Configure blog information like title and author in `config.yaml` after initialization.  Fields to configure: author name, feed ID, feed title, desired path to html files.  That path is `/site/` by default
-
-Configure remote server settings using `.ssh config`
-(not necessary unless working with multiple ssh keys - see Troubleshooting section)
-
-To change blog appearance, add a CSS file to the `gitatom/main_templates` directory.  To choose which template to use, specify the file name in the 'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a different Jinja template, add the new template as an HTML file to the `gitatom/post_templates` directory.
 
 ### Usage:
 `git [command] [-flag] (target)`
@@ -71,9 +69,9 @@ commands: [add, commit, push]
 - Commit: create formatted .xml files in /atoms/  from .md files in the /markdowns/ directory using atomify.  Create .html files in /site/posts/ directory from .xml files in /atoms/ using jinja template.  Add the new post locations to the site index and archive.
 - Push: push site files to remote repository.  Once files are in the remote repository, they are published.  Make sure to push to live branch.
 
-### ex.
+### ex. --CURRENTLY UNDER CONSTRUCTION
 Initialize the site directory:
-`python3 gitatom init .`
+`python3 init.py`
 
 - An empty config.yaml file must exist in the directory otherwise config.py will create one and populate with default values
 - config.yaml is populated when `init` is called.
