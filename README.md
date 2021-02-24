@@ -61,7 +61,7 @@ Configure blog information like title and author in `config.yaml` after initiali
 Configure remote server settings using `.ssh config`
 (not necessary unless working with multiple ssh keys - see Troubleshooting section)
 
-To change blog appearance, add a CSS file to the `gitatom/main_templates` directory.  To choose which template to use, specify the file name in the 'stylesheet' reference in `gitatom/post_templates/default_jinja.htm`l.  To use a different Jinja template, add the new template as an HTML file to the `gitatom/post_templates` directory.
+To change blog appearance, add a CSS file to the `gitatom/main_templates` directory.  To choose which template to use, specify the file name in the 'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a different Jinja template, add the new template as an HTML file to the `gitatom/post_templates` directory.
 
 ### Usage:
 `git [command] [-flag] (target)`
@@ -103,7 +103,7 @@ In `ssh config`  add/modify the following:
 
 Note IDFile needs a complete file path.
 
-With the alias specified, the live branch will use <username>@<alias>
+With the alias specified, the live branch will use `<username>@<alias>`
 
 
 
