@@ -61,6 +61,8 @@ Configure blog information like title and author in `config.yaml` after initiali
 Configure remote server settings using `.ssh config`
 (not necessary unless working with multiple ssh keys - see Troubleshooting section)
 
+To change blog appearance, add a CSS file to the `gitatom/main_templates` directory.  To choose which template to use, specify the file name in the 'stylesheet' reference in `gitatom/post_templates/default_jinja.htm`l.  To use a different Jinja template, add the new template as an HTML file to the `gitatom/post_templates` directory.
+
 ### Usage:
 `git [command] [-flag] (target)`
 commands: [add, commit, push]
@@ -88,16 +90,16 @@ config.yaml is created populated with default values when init is called.
 
 Site index and archive are created at initialization, and they are updated when new entries are added.
 
-###Troubleshooting
+### Troubleshooting
 Permission denied when ssh into remote server:
 
-This issue comes up when a user has multiple ssh keys to choose from.  To solve, you need to create an alias that indicates use of a specific key.  This is done by updating the config file in the remote repository
-In `ssh config`  add/modify the following
-`Host <human readable hostname>`
-`HostName <host address>`
-`User <username>
-`IDFile ~/.ssh/key`
-`IDOnly` yes
+This issue comes up when a user has multiple ssh keys to choose from.  To solve, you need to create an alias that indicates use of a specific key.  This is done by updating the config file in the remote repository.  
+In `ssh config`  add/modify the following:  
+`Host <human readable hostname>`  
+`HostName <host address>`  
+`User <username>`  
+`IDFile ~/.ssh/key`  
+`IDOnly yes`  
 
 Note IDFile needs a complete file path.
 
