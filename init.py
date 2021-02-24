@@ -75,6 +75,9 @@ def init():
     atoms_path = Path('./atoms')
     if not atoms_path.exists():
         atoms_path.mkdir()
+    markdowns_path = Path('./markdowns')
+    if not atoms_path.exists():
+        markdowns_path.mkdir()
 
     build.create(cfg['publish_directory'])
     # check if deplay set to true before running remote
