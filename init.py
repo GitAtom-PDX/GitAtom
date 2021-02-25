@@ -81,6 +81,7 @@ def init():
     outfile = open(to_pc,'w')
     outfile.write(lines)
     outfile.close()
+    os.chmod(to_pc, 0o755)
 
     if not posts_path.exists():
         posts_path.mkdir(parents=True)
