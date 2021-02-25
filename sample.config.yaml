@@ -3,11 +3,17 @@ feed_id: a-feed-id
 feed_title: yet another blog
 publish_directory: site
 
+#full path from remote ssh home to bare repo for deployment git tracking
 repo_path: /home/capstone/kathryn/bare_repo.git
+
+#full path from remote ssh home to deployment repo !!-Different than bare-!!
 work_path: /home/capstone/kathryn/work_tree
+
+#ssh info for remote
 host: 167.99.103.193
 port: 22
 username: capstone
+#relative path to ssh key
 keypath: /u/katsilva/.ssh/gitatom.pub
 
 deploy: false

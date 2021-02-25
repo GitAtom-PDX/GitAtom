@@ -47,6 +47,8 @@ def build_it():
     # scan for atoms and pages
     nav_pages = list(site_dir.glob('*.html'))
     nav_dict = {nav.stem : nav.name for nav in nav_pages}
+    if not nav_dict:
+        quit("Error: run init.py before committing")
     nav_dict['home'] = nav_dict.pop('index')
     atoms = list(atoms_dir.glob('*.xml'))
 
