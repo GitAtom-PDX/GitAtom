@@ -9,12 +9,13 @@ from pathlib import Path
 import os
 import paramiko
 import getpass
+import pygit2
 
 
 # init.py
 
 def remote_setup():
-    
+
     cfg = config.load_into_dict()    
 
     host = cfg['host']
@@ -50,6 +51,18 @@ def remote_setup():
     ssh.exec_command(change_perm)
     lines = stdout.readlines()
     print(lines)
+
+    # Track remote server with git
+    current_directory = os.getcwd()
+    repo_path = pygit2.discover_repository(current_directory)
+    repo = pygit2.Repository(repo_path)
+    target = f"{username}@{host}:{bare_path}"
+
+    repo.remotes.create('live',target)
+
+
+
+
 
 
 def init():
