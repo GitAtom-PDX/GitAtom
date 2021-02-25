@@ -4,8 +4,8 @@
  ### Contents
  * Introduction
  * Requirements
- * Setup
  * Configuration
+ * Setup
  * Usage
  * Troubleshooting
  
@@ -41,19 +41,20 @@ This application requires the following modules:
 
 ### Configuration
 Edit the configuration file: `config.yaml` before initialization.  
-#### Fields:   
-- feed_id: A metadata field in Atom, not currently used other then to fill the
-xml.  
-- feed_title: Title of the website/blog.  
-- author: Name of author of the blog.   
-- publish_directory: site -needs to remain site for now.  
-- repo_path: Path to where the remote server bare repository will be located.   
-- work_path: Path to where the website will be hosted.  
-- host: Ip adddress of remote server.   
-- port: SSH port default used by ssh is 22.   
-- username: Name of the user on the remote system.  
-- keypath: Path to your ssh key.    
-- deploy: true/false use true if you want to deploy to a remote server.  
+#### Fields:  
+| Fields | Description|
+| --- | --- |
+| feed_id | A metadata field in Atom, not currently used other then to fill the xml.|
+| feed_title | Title of the website/blog.|  
+| author | Name of author of the blog.|   
+| publish_directory | site -needs to remain site for now.  |
+| repo_path | Path to where the remote server bare repository will be located. |   
+| work_path | Path to where the website will be hosted. |
+| host | Ip address of remote server. |   
+| port | SSH port default used by ssh is 22. |   
+| username | Name of the user on the remote system. |  
+| keypath | Path to your ssh key. |    
+| deploy | true/false use true if you want to deploy to a remote server.| 
 
 Configure remote server settings using `.ssh/config`
 (not necessary unless working with multiple ssh keys - see Troubleshooting section)
@@ -78,9 +79,9 @@ You need to have permissions to write in the repo and working tree directory on 
 remote server.  If that directory cannot normally be written to without sudo you
 need to  connect to remote server
 ```
-`ssh <user>@<server address>` 
+ssh <user>@<server address>
 ```
-and make sure the user has permions to write into the targeted directories.
+and make sure the user has permissions to write into the targeted directories.
 
 ### Usage:
 `git [command] [-flag] (target)`
@@ -91,13 +92,13 @@ commands: [add, commit, push]
   repository will be tracked for xml file creation. 
 - Commit: create formatted .xml files in /atoms/  from .md files in the /markdowns/ directory using atomify.  Creates .html files in /site/posts/ directory from .xml files in /atoms/ using jinja template.  Add the new post locations to the site index and archive.
 - Push: Pushes the repository to the remote repo.  Once files are in the remote
-  repository, a post-recieve hook checkouts the site directory of the HEAD
+  repository, a post-receive hook checkouts the site directory of the HEAD
   branch. By default this is set to main with the initialization script.  
   Make sure to push to live branch. 
 ```
   git push live
 ```
-  The post-recieve hook on the remote repository will checkout the site
+  The post-receive hook on the remote repository will checkout the site
   directory to your work_path specified in the configuration file.  
 
 ### ex. --CURRENTLY UNDER CONSTRUCTION
@@ -107,8 +108,8 @@ python3 init.py
 ```
 
 - A config.yaml file must exist in the directory otherwise config.py will create one and populate with default values
-- The config.yaml file is read when init.py is ran. Taking in the users input to 
-setup the remote repository if deploy is set to true.  
+- The config.yaml file is read when init.py is run. Taking in the users input to 
+set up the remote repository if deploy is set to true.  
 
 
 To publish contents of ‘lorem.md’ to the site:
