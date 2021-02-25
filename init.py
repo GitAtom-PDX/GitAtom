@@ -57,8 +57,10 @@ def remote_setup():
     repo_path = pygit2.discover_repository(current_directory)
     repo = pygit2.Repository(repo_path)
     target = f"{username}@{host}:{bare_path}"
-
-    repo.remotes.create('live',target)
+    try:
+        repo.remotes.create('live',target)
+    except ValueError:
+        print("Live remote already tracked")
 
 
 
