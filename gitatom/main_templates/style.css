@@ -42,16 +42,19 @@ nav ul li a:focus {
 }
 
 .item1 {
-  width: 85%;
-  height: 1000px;
+  flex: 5;
   overflow: scroll;
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .item1::-webkit-scrollbar {
   display: none;
+}
+
+.item2 {
+  flex: 1;
+  margin: 20px;
 }
 
 #post {
@@ -73,9 +76,14 @@ nav ul li a:focus {
   width: 100%;
   background-color: gray;
   text-align: center;
+  border-top: double;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
+  .flex-container {
+    justify-content: center;
+  }
+
   .item1,
   .item2 {
     flex: 100%;
