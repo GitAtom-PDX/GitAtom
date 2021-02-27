@@ -33,7 +33,7 @@ HTML: git clone https://github.com/GitAtom-PDX/GitAtom.git
 ssh: git clone git@github.com:GitAtom-PDX/GitAtom.git
 ```
 
-Next, install all required modules using `pip`.
+Next, install all required modules using `pip3`.
 
 ```
 pip3 install -r requirements.txt
