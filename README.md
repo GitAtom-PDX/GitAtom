@@ -125,12 +125,20 @@ To fix, create an alias in the ssh config file on the remote repository.
 
 In `.ssh/config` add the following:  
 
-###### How to make this pretty...
-Host `chosen alias name`
- HostName `host IP address`  
- User `your username on host`  
- IDFile `path to your ssh key` 
- IDOnly yes  
+```
+Host alias
+    HostName address 
+    User username 
+    IDFile ~/.ssh/path-to-key
+    IDOnly yes  
+```
+
+| Field | Description|
+| --- | --- |
+| Host | alias name, chosen by user |
+| HostName | IP address of remote server |  
+| User | username for remote server |   
+| IDFile | path to your ssh key |   
 
 **NOTE** IDFile requires a complete file path.
 
