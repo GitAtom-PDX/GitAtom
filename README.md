@@ -22,7 +22,7 @@ Detailed information can be found [here](https://docs.google.com/document/d/1eON
 ## Setup 
 ### Requirements 
 
-`python3` and `pip` must be installed prior to installing GitAtom.
+`python3` and `pip3` must be installed prior to installing GitAtom.
 
 ### Installation 
 
@@ -36,7 +36,7 @@ ssh: git clone git@github.com:GitAtom-PDX/GitAtom.git
 Next, install all required modules using `pip`.
 
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 The following modules will be installed:
