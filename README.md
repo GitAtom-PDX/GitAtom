@@ -93,6 +93,7 @@ post-recieve hook will be installed on the remote server.
 
 
 ## Usage
+### Commands
 `git [command] [-flag] (target)`
 commands: [add, commit, push]
 
@@ -113,11 +114,14 @@ git commit -m 'adding somepost to blog'
 git push live main
 ```
 
-###### Should this go here, or in installation?
-To change blog appearance, add a CSS file to the `gitatom/main_templates` 
-directory.  To choose which template to use, specify the file name in the 
-'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a 
-different Jinja template, add the new template as an HTML file to the 
+### Templating 
+To add a new blog template, add the CSS file to the `gitatom/main_templates` 
+directory.  
+
+To choose which template to use, specify the file name in the 
+'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  
+
+To use a different Jinja template, add the new template as an HTML file to the 
 `gitatom/post_templates` directory.
 
 
