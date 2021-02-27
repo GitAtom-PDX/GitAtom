@@ -16,7 +16,7 @@ web site and commit all required files for you. You can even configure GitAtom t
 publish your site to a remote repository upon pushing.
 
 ###### Is this drive link publicly accessible?
-Detailed information can be found in GitAtomDocs.md or [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
+Detailed information can be found [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
 
  
 ## Setup 
@@ -44,12 +44,12 @@ The following modules will be installed:
 * [Jinja2](https://pypi.org/project/Jinja2/) for site generation and formatting.
 * [cmark](https://pypi.org/project/cmarkgfm/) to convert Markdown to HTML for site generation.
 * [PyYAML](https://pypi.org/project/PyYAML/) for config handling.
-* [pygit2](https://pypi.org/project/pygit2/) to umm... make git hooks work in Python? how to word this?
+* [pygit2](https://pypi.org/project/pygit2/) to implement git commands in Python.
 * [paramiko](https://pypi.org/project/paramiko/) to initialize remote server. 
 
 ### Configuration 
 
-GitAtom must be configured using `config.yaml` prior to initialization. 
+GitAtom must be configured using `config.yaml` prior to initialization. `sample.config.yaml` is provided as a reference.
 
 #### Fields:  
 | Field | Description|
@@ -72,13 +72,8 @@ remote server to which you want to publish the blog.
 Create an ssh key.  
 Configure remote server settings using `.ssh/config`
 (not necessary unless working with multiple ssh keys - see Troubleshooting)
+ 
 
-###### This is not user-friendly, can we change how this works? 
-To change blog appearance, add a CSS file to the `gitatom/main_templates` 
-directory.  To choose which template to use, specify the file name in the 
-'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a 
-different Jinja template, add the new template as an HTML file to the 
-`gitatom/post_templates` directory.
 
 
 ### Initialization
