@@ -98,16 +98,11 @@ commands: [add, commit, push]
 
 | Command | Description|
 | --- | --- |
-| Add | add or update a blog post. Only Markdown files located in the `/markdowns/` will be tracked for xml file creation. |
-| Commit | generate and commit XML and HTML from added Markdown files. Resulting files are located in `/atoms/` and `/site/`. |  
+| Add | add or update one or more blog posts. Only Markdown files located in the `/markdowns/` will be tracked for xml file creation. |
+| Commit | generate and commit XML and HTML from added Markdown file(s). Resulting files are located in `/atoms/` and `/site/`. |  
 | Push | publish to the remote repository. Make sure to push to the 'live' branch. |   
-  
-```
-  git push live
-```
 
-  The post-receive hook on the remote repository will checkout the site
-  directory to your work_path specified in the configuration file.  
+If using remote deployment, the post-receive hook on the remote repository will copy the site directory to your `work_path` specified in `config.yaml`.  
 
 ### Example
 To publish `somepost.md`:
