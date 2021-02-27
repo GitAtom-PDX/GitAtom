@@ -1,5 +1,5 @@
 # GitAtom
- GitAtom blogging software development repository for CS Capstone
+Developed for Portland State University CS Capstone (Fall 2020 - Winter 2021)
  
  ## Contents
  * Introduction
@@ -13,7 +13,7 @@ content using the Atom XML format.
 
 Upon committing one or more Markdown files, GitAtom will automatically generate a static 
 web site and commit all required files for you. You can even configure GitAtom to automatically 
-publish your site to a remote repository upon pushing.
+publish your site to a remote repository upon push.
 
 ###### Is this drive link publicly accessible?
 Detailed information can be found [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
@@ -69,12 +69,6 @@ GitAtom must be configured using `config.yaml` prior to initialization. `sample.
 GitAtom can be configured to use automatic remote deployment. You will need access to the 
 remote server to which you want to publish the blog.  
 
-Create an ssh key.  
-Configure remote server settings using `.ssh/config`
-(not necessary unless working with multiple ssh keys - see Troubleshooting)
- 
-
-
 
 ### Initialization
 
@@ -126,27 +120,34 @@ git push live main
 
 
 ## Troubleshooting
-Permission denied when ssh into remote server:
 
-This issue comes up when a user has multiple ssh keys to choose from.  To solve, you need to create an alias that indicates use of a specific key.  This is done by updating the config file in the remote repository.  
-In `ssh config`  add/modify the following:  
-`Host <human readable hostname>`  
-`HostName <host address>`  
-`User <username>`  
-`IDFile ~/.ssh/key`  
-`IDOnly yes`  
+### Permission denied on ssh into remote server
 
-Note IDFile needs a complete file path.
+This error occurs when a user has multiple ssh keys. Ceate an alias that indicates use of a specific key.  
+
+###### I thought this was on the local machine?
+To fix, create an alias in the ssh config file on the remote repository. 
+
+In `.ssh/config` add the following:  
+
+```
+Host `chosen alias name`
+ HostName `host IP address`  
+ User `your username on host`  
+ IDFile `path to your ssh key` 
+ IDOnly yes  
+``` 
+
+**NOTE** IDFile requires a complete file path.
 
 With the alias specified, the live branch will use `<username>@<alias>`
 
 You need to have permissions to write in the repo and working tree directory on the
-remote server.  If that directory cannot normally be written to without sudo you
-need to  connect to remote server
-```
-ssh <user>@<server address>
-```
-and make sure the user has permissions to write into the targeted directories
+remote server. If that directory cannot normally be written to without sudo you
+need to connect to remote server and make sure the user has permissions to write 
+into the targeted directories.
+
+
 
 
 
