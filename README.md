@@ -81,7 +81,7 @@ python3 init.py
 If using GitAtom locally, this will create the required directories and 
 install the post-commit hook. 
 
-#### Directories:  
+#### Directories
 | Directory | Description|
 | --- | --- |
 | markdowns | Where GitAtom expects to find your Markdown blog posts. |
@@ -130,6 +130,7 @@ To fix, create an alias in the ssh config file on the remote repository.
 
 In `.ssh/config` add the following:  
 
+###### How to make this pretty...
 Host `chosen alias name`
  HostName `host IP address`  
  User `your username on host`  
