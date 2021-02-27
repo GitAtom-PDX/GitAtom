@@ -130,13 +130,12 @@ To fix, create an alias in the ssh config file on the remote repository.
 
 In `.ssh/config` add the following:  
 
-```
-Host `chosen alias name`
- HostName `host IP address`  
- User `your username on host`  
- IDFile `path to your ssh key` 
- IDOnly yes  
-``` 
+>Host `chosen alias name`
+> HostName `host IP address`  
+> User `your username on host`  
+> IDFile `path to your ssh key` 
+> IDOnly yes  
+
 
 **NOTE** IDFile requires a complete file path.
 
