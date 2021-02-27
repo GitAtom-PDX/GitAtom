@@ -15,10 +15,9 @@ Upon committing one or more Markdown files, GitAtom will automatically generate 
 web site and commit all required files for you. You can even configure GitAtom to automatically 
 publish your site to a remote repository upon pushing.
 
-###### Is this publically accessible?
-```
-More information in GitAtomDocs.md or at <https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing>
-```
+###### Is this drive link publicly accessible?
+Detailed information can be found in GitAtomDocs.md or [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
+
  
 ## Setup 
 ### Requirements 
@@ -74,6 +73,14 @@ Create an ssh key.
 Configure remote server settings using `.ssh/config`
 (not necessary unless working with multiple ssh keys - see Troubleshooting)
 
+###### This is not user-friendly, can we change how this works? 
+To change blog appearance, add a CSS file to the `gitatom/main_templates` 
+directory.  To choose which template to use, specify the file name in the 
+'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a 
+different Jinja template, add the new template as an HTML file to the 
+`gitatom/post_templates` directory.
+
+
 ### Initialization
 
 Initialize GitAtom using the configuration specified in `config.yaml`.
@@ -90,51 +97,31 @@ install the post-commit hook.
 | --- | --- |
 | markdowns | Where GitAtom expects to find your Markdown blog posts. |
 | atoms | Where GitAtom stores your Atom-formatted blog posts. |  
-| site | Where GitAtom stores your |   
+| site | Where GitAtom stores your static web pages. |   
 
 If using remote depoloyment, a bare repository will be created and the 
 post-recieve hook will be installed on the remote server.
 
-###### This is not user-friendly, can we change how this works?
-```
-To change blog appearance, add a CSS file to the `gitatom/main_templates` 
-directory.  To choose which template to use, specify the file name in the 
-'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a 
-different Jinja template, add the new template as an HTML file to the 
-`gitatom/post_templates` directory.
-```
 
-## Usage:
+## Usage
 `git [command] [-flag] (target)`
 commands: [add, commit, push]
 
 | Command | Description|
 | --- | --- |
 | Add | add or update a blog post. Only Markdown files located in the `/markdowns/` will be tracked for xml file creation. |
-| atoms | Where GitAtom stores your Atom-formatted blog posts. |  
-| site | Where GitAtom stores your |   
-
-- `Add` add or update a blog post. Only Markdown files located in the `/markdowns/` will be tracked for xml file creation. 
-- `Commit` generate and commit XML and HTML from added Markdown files. Resulting files are located in `/atoms/` and `/site/`.
-Only if remote publishing is enabled: 
-- `Push` publish to the remote repository. Make sure to push to live branch.  Once files are in the remote
-  repository, a post-receive hook checkouts the site directory of the HEAD
-  branch. 
-  By default this is set to main with the initialization script. 
+| Commit | generate and commit XML and HTML from added Markdown files. Resulting files are located in `/atoms/` and `/site/`. |  
+| Push | publish to the remote repository. Make sure to push to the 'live' branch. |   
+  
 ```
   git push live
 ```
+
   The post-receive hook on the remote repository will checkout the site
   directory to your work_path specified in the configuration file.  
 
-### ex. --CURRENTLY UNDER CONSTRUCTION
-Initialize the remote repository and  site directory:
-
-```
-python3 init.py
-```
-
-To publish `somepost.md` to the site:
+### Example
+To publish `somepost.md`:
 
 ```
 git add ../markdowns/somepost.md
@@ -142,7 +129,6 @@ git commit -m 'adding somepost to blog'
 git push live main
 ```
 
-Site index and archive are created at initialization, and they are updated when new entries are added.
 
 ## Troubleshooting
 Permission denied when ssh into remote server:
