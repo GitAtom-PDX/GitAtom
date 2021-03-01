@@ -69,15 +69,6 @@ nav ul li a:focus {
   padding: 20px;
 }
 
-.footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  border-top: double;
-}
-
 @media (max-width: 700px) {
   .flex-container {
     justify-content: center;
