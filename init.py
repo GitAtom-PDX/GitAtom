@@ -21,7 +21,6 @@ def remote_setup():
     host = cfg['host']
     port = cfg['port']
     username = cfg['username']
-    password = getpass.getpass("Enter ssh key passphrase: ")
 
     #absolute path from root
     bare_path = cfg['repo_path']
@@ -40,7 +39,8 @@ def remote_setup():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     print(cfg['keypath'])
-    ssh.connect(host, port, username, password, key_filename=cfg['keypath'])
+    print(ssh.get_host_keys)
+    ssh.connect(host, port, username)
 
     #should prob catch these
     ssh.exec_command(command)
