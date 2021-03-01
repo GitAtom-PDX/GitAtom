@@ -69,6 +69,10 @@ nav ul li a:focus {
   padding: 20px;
 }
 
+#gitatom {
+  text-align: center;
+}
+
 @media (max-width: 700px) {
   .flex-container {
     justify-content: center;
