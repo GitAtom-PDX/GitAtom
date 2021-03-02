@@ -90,10 +90,10 @@ def atomify(md):
         tree = ET.parse(atompath + outname) 
         root = tree.getroot()
         entry_published = root.find('entry').find('published').text
-        entry_updated = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        entry_updated = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
 
     else:
-        entry_published = datetime.now().strftime("%d/%m/%Y %H:%M:%S")	# using current time
+        entry_published = datetime.now().strftime("%m/%d/%Y %H:%M:%S")	# using current time
         entry_updated = entry_published		
     feed_updated = entry_updated 		
 
@@ -126,48 +126,7 @@ def atomify(md):
     #subprocess.call(['git', 'add', 'atoms/' + outname])
     #subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
     return outname
-
   
-  
-def render(filename):
-
-    #get data from xml
-    tree = ET.parse(filename)
-    root = tree.getroot()
-
-    #get feed and content info from xml file
-    title = root.find('entry').find('title').text
-    updated = root.find('entry').find('updated').text
-    published = root.find('entry').find('published').text
-    content = root.find('entry').find('content').text
-    content = content.replace('\**', '<').replace('**/', '>')
-   
-    # load template html file
-    template_env = Environment(
-        loader=FileSystemLoader(searchpath='gitatom/post_templates/'))
-    template = template_env.get_template('default_jinja.html')
-
-    # convert content which should be in md to html
-    html_text = cmarkgfm.markdown_to_html(content)
-    html_name = title + '.html'
-
-    cfg = config.load_into_dict()
-    posts_directory = cfg['publish_directory'] + '/posts/'
-
-    with open(posts_directory + html_name, "w") as outfile:
-        outfile.write(
-            template.render(
-                title=title,
-                update=updated,
-                published=published,
-                content=html_text
-            )
-        )
-
-    #subprocess.call(['git', 'add', posts_directory + html_name])
-    #subprocess.call(['git','commit','-m','adding {} to vc'.format(html_name)])
-    return html_name
-
 
 def gitatom_git_add(repo, files):
     index = repo.index
@@ -197,14 +156,10 @@ def on_commit(mds):
     files = []
     for md in mds:
         xml = atomify(md)
-        html = render('atoms/' + xml)
         files.append('atoms/' + xml)
-        files.append('site/posts/' + html)
-    build.build_it()
-    cfg = config.load_into_dict()
-    site_dir = Path(cfg['publish_directory'])
-    files.append(str(site_dir) + '/index.html')
-    files.append(str(site_dir) + '/archive.html')
+    html = build.build_it()
+    for f in html:
+        files.append(f)
     return files
 
 

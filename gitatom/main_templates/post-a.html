@@ -1,0 +1,17 @@
+{% extends "nav-a.html" %}
+
+{% block title %}{{title}} - Post{% endblock %}
+
+{% block main %}
+
+{% if original %}
+<h5>published {{published}}</h5>
+{% else %}
+<h5>updated {{updated}}</h4>
+<h5>published {{published}}</h5>
+{% endif %}
+
+<h1>{{title}}</h1>
+{{content}}
+
+{% endblock %}
