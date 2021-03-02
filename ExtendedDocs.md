@@ -44,7 +44,15 @@ GitAtom uses githooks to operate behind the scenes when git commands are called.
 `python3` and `pip3` must be installed prior to installing GitAtom.
 Install by cloning GitAtom to the local repository, then install requirements using pip:
 
-`pip3 install -r requirements.txt`
+`pip3 install -r requirements.txt`  
+
+This application requires the following modules:
+* Jinja2 <https://pypi.org/project/Jinja2/)>
+* cmark <https://pypi.org/project/cmarkgfm/>
+* YAML <https://pypi.org/project/PyYAML/>
+* Pygit2 <https://pypi.org/project/pygit2/>
+* Paramiko <https://pypi.org/project/paramiko/>
+
 
 ### Configuration
 
