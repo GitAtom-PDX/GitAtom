@@ -4,6 +4,7 @@
 
 {% block main %}
 
+<h1>{{title}}</h1>
 {% if original %}
 <h5>published {{published}}</h5>
 {% else %}
@@ -11,7 +12,6 @@
 <h5>published {{published}}</h5>
 {% endif %}
 
-<h1>{{title}}</h1>
 {{content}}
 
 {% endblock %}
