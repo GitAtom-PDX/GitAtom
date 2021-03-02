@@ -1,143 +1,164 @@
 # GitAtom
- GitAtom blogging software development repository for CS Capstone
+Developed for Portland State University CS Capstone (Fall 2020 - Winter 2021)
  
- ### Contents
+ ## Contents
  * Introduction
- * Requirements
- * Configuration
  * Setup
  * Usage
  * Troubleshooting
  
-### Introduction
-GitAtom is a git-based static site generator used to create and manage blog 
-content.  It stores blog content in an Atom XML content.
+## Introduction
+GitAtom is a git-based static site generator used to create and manage Markdown blog 
+content using the Atom XML format.
 
-GitAtom takes a blog post in the form of a Markdown file and commits the file 
-to a local git repository.  On commit, the Markdown file is parsed to find 
-metadata and converted into Atom XML format.  This file goes through a template 
-that adds CSS.  This formatted page is in HTML.  The user can preview the 
-formatted page, then they can use a gitatom command to publish the page to a 
-remote git repository.
+Upon committing one or more Markdown files, GitAtom will automatically generate a static 
+website and commit all required files for you. You can even configure GitAtom to automatically 
+publish your site to a remote repository upon push.
 
-More information in GitAtomDocs.md or at <https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing>
+###### Is this drive link publicly accessible?
+Detailed information can be found [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
+
  
+## Setup 
+### Requirements 
 
-### Requirements
-Before installing GitAtom:  
-Python3 and pip need ot be installed to run GitAtom.    
-clone to local repository.   
-Have access to the remote server to which you want to publish the blog.  
-Create an ssh key.  
+`python3` and `pip3` must be installed prior to installing GitAtom.
 
-Install requirements on local repository using `pip install -r requirements.txt`  
+### Installation 
 
-This application requires the following modules:
-* Jinja2 <https://pypi.org/project/Jinja2/>
-* cmark <https://pypi.org/project/cmarkgfm/>
-* YAML <https://pypi.org/project/PyYAML/>
-* Pygit2 <https://pypi.org/project/pygit2/>
-* Paramiko <https://pypi.org/project/paramiko/>
+To begin, clone GitAtom to your local machine.
 
-### Configuration
-Edit the configuration file: `config.yaml` before initialization.  
+``` 
+HTML: git clone https://github.com/GitAtom-PDX/GitAtom.git
+ssh: git clone git@github.com:GitAtom-PDX/GitAtom.git
+```
+
+Next, install all required modules using `pip3`.
+
+```
+pip3 install -r requirements.txt
+```
+
+The following modules will be installed:
+
+* [Jinja2](https://pypi.org/project/Jinja2/) for site generation and formatting.
+* [cmark](https://pypi.org/project/cmarkgfm/) to convert Markdown to HTML for site generation.
+* [PyYAML](https://pypi.org/project/PyYAML/) for config handling.
+* [pygit2](https://pypi.org/project/pygit2/) to implement git commands in Python.
+* [paramiko](https://pypi.org/project/paramiko/) to initialize remote server. 
+
+### Configuration 
+
+GitAtom must be configured using `config.yaml` prior to initialization. `sample.config.yaml` is provided as a reference.
+
 #### Fields:  
-| Fields | Description|
+| Field | Description|
 | --- | --- |
-| feed_id | A metadata field in Atom, not currently used other then to fill the xml.|
+| feed_id |Website's web address or unique permanent URI|
 | feed_title | Title of the website/blog.|  
 | author | Name of author of the blog.|   
 | publish_directory | site -needs to remain site for now.  |
 | repo_path | Path to where the remote server bare repository will be located. |   
-| work_path | Path to where the website will be hosted. |
-| host | Ip address of remote server. |   
-| port | SSH port default used by ssh is 22. |   
+| work_path | Path to where the website will be hosted on remote server. |
+| host | IP address of remote server. |   
+| port | SSH port, default used by ssh is 22. |   
 | username | Name of the user on the remote system. |  
 | keypath | Path to your ssh key. |    
-| deploy | true/false use true if you want to deploy to a remote server.| 
+| deploy | true/false, use true if you want to deploy to a remote server.| 
 
-Configure remote server settings using `.ssh/config`
-(not necessary unless working with multiple ssh keys - see Troubleshooting section)
+GitAtom can be configured to use automatic remote deployment. You will need access to the 
+remote server to which you want to publish the blog.  
 
-To change blog appearance, add a CSS file to the `gitatom/main_templates` 
-directory.  To choose which template to use, specify the file name in the 
-'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  To use a 
-different Jinja template, add the new template as an HTML file to the 
-`gitatom/post_templates` directory.
 
-### Setup
- 
-Install with 
+### Initialization
+
+Initialize GitAtom using the configuration specified in `config.yaml`.
+
 ```
 python3 init.py
 ```
 
-This will install git hooks and initialize a bare repository on the remote
-server
- 
-You need to have permissions to write in the repo and working tree directory on the
-remote server.  If that directory cannot normally be written to without sudo you
-need to  connect to remote server
-```
-ssh <user>@<server address>
-```
-and make sure the user has permissions to write into the targeted directories.
+If using GitAtom locally, this will create the required directories and 
+install the post-commit hook. 
 
-### Usage:
+#### Directories
+| Directory | Description|
+| --- | --- |
+| markdowns | Where GitAtom expects to find your Markdown blog posts. |
+| atoms | Where GitAtom stores your Atom-formatted blog posts. |  
+| site | Where GitAtom stores your static web pages. |   
+
+If using remote deployment, a bare repository will be created and the 
+post-receive hook will be installed on the remote server.
+
+
+## Usage
+### Commands
 `git [command] [-flag] (target)`
 commands: [add, commit, push]
 
-- Add: add target files to the /markdowns/ directory.  (same as standard git add
-  command) Only markdown files located in the `/markdowns/` and added to the
-  repository will be tracked for xml file creation. 
-- Commit: create formatted .xml files in /atoms/  from .md files in the /markdowns/ directory using atomify.  Creates .html files in /site/posts/ directory from .xml files in /atoms/ using jinja template.  Add the new post locations to the site index and archive.
-- Push: Pushes the repository to the remote repo.  Once files are in the remote
-  repository, a post-receive hook checkouts the site directory of the HEAD
-  branch. By default this is set to main with the initialization script.  
-  Make sure to push to live branch. 
-```
-  git push live
-```
-  The post-receive hook on the remote repository will checkout the site
-  directory to your work_path specified in the configuration file.  
+| Command | Description|
+| --- | --- |
+| Add | add or update one or more blog posts. Only Markdown files located in the `/markdowns/` will be tracked for xml file creation. |
+| Commit | generate and commit XML and HTML from added Markdown file(s). Resulting files are located in `/atoms/` and `/site/`. |  
+| Push | publish to the remote repository. Make sure to push to the 'live' branch. |   
 
-### ex. --CURRENTLY UNDER CONSTRUCTION
-Initialize the remote repository and  site directory:
-```
-python3 init.py
-```
+If using remote deployment, the post-receive hook on the remote repository will copy the site directory to your `work_path` specified in `config.yaml`.  
 
-- A config.yaml file must exist in the directory otherwise config.py will create one and populate with default values
-- The config.yaml file is read when init.py is run. Taking in the users input to 
-set up the remote repository if deploy is set to true.  
-
-
-To publish contents of ‘lorem.md’ to the site:
+### Example
+To publish `somepost.md`:
 
 ```
-git add ../markdowns/lorem.md
-git commit -m ‘atomify and render lorem.md
+git add ../markdowns/somepost.md
+git commit -m 'adding somepost to blog'
 git push live main
 ```
 
-config.yaml is created populated with default values when init is called.
+### Templating 
+To add a new blog template, add the CSS file to the `gitatom/main_templates` 
+directory.  
 
-Site index and archive are created at initialization, and they are updated when new entries are added.
+To choose which template to use, specify the file name in the 
+'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  
 
-### Troubleshooting
-Permission denied when ssh into remote server:
+To use a different Jinja template, add the new template as an HTML file to the 
+`gitatom/post_templates` directory.
 
-This issue comes up when a user has multiple ssh keys to choose from.  To solve, you need to create an alias that indicates use of a specific key.  This is done by updating the config file in the remote repository.  
-In `ssh config`  add/modify the following:  
-`Host <human readable hostname>`  
-`HostName <host address>`  
-`User <username>`  
-`IDFile ~/.ssh/key`  
-`IDOnly yes`  
 
-Note IDFile needs a complete file path.
+## Troubleshooting
+
+### Permission denied on ssh into remote server
+
+This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
+
+To fix, create an alias in the `.ssh/config` file. 
+
+In `.ssh/config` add the following:  
+
+```
+Host alias
+    HostName address 
+    User username 
+    IDFile ~/.ssh/path-to-key
+    IDOnly yes  
+```
+
+| Field | Description|
+| --- | --- |
+| Host | alias name, chosen by user |
+| HostName | IP address of remote server |  
+| User | username for remote server |   
+| IDFile | path to your ssh key |   
+
+**NOTE** IDFile requires a complete file path.
 
 With the alias specified, the live branch will use `<username>@<alias>`
+
+You need to have permissions to write in the repo and working tree directory on the
+remote server. If that directory cannot normally be written to without sudo you
+need to connect to remote server and make sure the user has permissions to write 
+into the targeted directories.
+
 
 
 
