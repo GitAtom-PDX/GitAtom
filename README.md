@@ -54,7 +54,7 @@ GitAtom must be configured using `config.yaml` prior to initialization. `sample.
 #### Fields:  
 | Field | Description|
 | --- | --- |
-| feed_id | A metadata field in Atom, not currently used other than to fill the xml.|
+| feed_id |Website's web address or unique permanent URI|
 | feed_title | Title of the website/blog.|  
 | author | Name of author of the blog.|   
 | publish_directory | site -needs to remain site for now.  |
@@ -131,8 +131,7 @@ To use a different Jinja template, add the new template as an HTML file to the
 
 This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
 
-###### I thought this was on the local machine?
-To fix, create an alias in the ssh config file on the remote repository. 
+To fix, create an alias in the `.ssh/config` file. 
 
 In `.ssh/config` add the following:  
 
