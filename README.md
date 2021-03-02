@@ -12,7 +12,7 @@ GitAtom is a git-based static site generator used to create and manage Markdown 
 content using the Atom XML format.
 
 Upon committing one or more Markdown files, GitAtom will automatically generate a static 
-web site and commit all required files for you. You can even configure GitAtom to automatically 
+website and commit all required files for you. You can even configure GitAtom to automatically 
 publish your site to a remote repository upon push.
 
 ###### Is this drive link publicly accessible?
@@ -54,7 +54,7 @@ GitAtom must be configured using `config.yaml` prior to initialization. `sample.
 #### Fields:  
 | Field | Description|
 | --- | --- |
-| feed_id | A metadata field in Atom, not currently used other then to fill the xml.|
+| feed_id | A metadata field in Atom, not currently used other than to fill the xml.|
 | feed_title | Title of the website/blog.|  
 | author | Name of author of the blog.|   
 | publish_directory | site -needs to remain site for now.  |
@@ -88,8 +88,8 @@ install the post-commit hook.
 | atoms | Where GitAtom stores your Atom-formatted blog posts. |  
 | site | Where GitAtom stores your static web pages. |   
 
-If using remote depoloyment, a bare repository will be created and the 
-post-recieve hook will be installed on the remote server.
+If using remote deployment, a bare repository will be created and the 
+post-receive hook will be installed on the remote server.
 
 
 ## Usage
@@ -129,7 +129,7 @@ To use a different Jinja template, add the new template as an HTML file to the
 
 ### Permission denied on ssh into remote server
 
-This error occurs when a user has multiple ssh keys. Ceate an alias that indicates use of a specific key.  
+This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
 
 ###### I thought this was on the local machine?
 To fix, create an alias in the ssh config file on the remote repository. 
