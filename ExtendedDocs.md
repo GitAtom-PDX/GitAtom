@@ -52,7 +52,7 @@ GitAtom must be configured using `config.yaml` prior to initialization. `sample.
 #### `config.yaml` Fields:  
 | Field | Description|
 | --- | --- |
-| feed_id | A metadata field in Atom, not currently used other then to fill the xml.|
+| feed_id | A metadata field in Atom, not currently used other than to fill the xml.|
 | feed_title | Title of the website/blog.|  
 | author | Name of author of the blog.|   
 | publish_directory | site -needs to remain site for now.  |
@@ -78,8 +78,8 @@ If using GitAtom locally, this will create the required directories and install 
 | atoms | Where GitAtom stores your Atom-formatted blog posts. |  
 | site | Where GitAtom stores your static web pages. |   
 
-If using remote depoloyment, a bare repository will be created and the 
-post-recieve hook will be installed on the remote server.
+If using remote deployment, a bare repository will be created and the 
+post-receive hook will be installed on the remote server.
 
 ### Usage with git commands
 
