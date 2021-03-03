@@ -12,7 +12,7 @@
 	<div class="flex-item item1">
 	{% for post in posts %}
 		<div class=entry id=post>
-			<h3><a href={{post.link}}>{{ post.title }}</a></h3>
+			<h1><a href={{post.link}}>{{ post.title }}</a></h1>
 			{% if post.original %}
 			<h4>published {{ post.published }}</h4>
 			{% else %}
