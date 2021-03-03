@@ -2,10 +2,14 @@ feed_id: feed id
 feed_title: feed title
 author: author
 publish_directory: site
-repo_path: path to bare git repository
-work_path: path to work tree
-host: host ip address
-port: port number
-username: username
-keypath: path to ssh key
+#full path from remote ssh home to bare repo for deployment git tracking
+repo_path: /home/capstone/kathryn/bare_repo.git
+
+#full path from remote ssh home to deployment repo !!-Different than bare-!!
+work_path: /home/capstone/kathryn/work_tree
+
+#ssh info for remote
+host: 167.99.103.193
+port: 22
+username: capstone
 deploy: false

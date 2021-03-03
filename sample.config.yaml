@@ -13,7 +13,6 @@ work_path: /home/capstone/kathryn/work_tree
 host: 167.99.103.193
 port: 22
 username: capstone
-#relative path to ssh key
-keypath: /u/katsilva/.ssh/gitatom.pub
 
+#change to true if you want to deploy on remote server
 deploy: false
