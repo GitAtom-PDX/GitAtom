@@ -14,10 +14,6 @@ content using the Atom XML format.
 Upon committing one or more Markdown files, GitAtom will automatically generate a static 
 website and commit all required files for you. You can even configure GitAtom to automatically 
 publish your site to a remote repository upon push.
-
-###### Is this drive link publicly accessible?
-Detailed information can be found [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
-
  
 ## Setup 
 ### Requirements 
@@ -115,6 +111,7 @@ git push live main
 ```
 
 ### Templating 
+###### These instructions need to be corrected / improved
 To add a new blog template, add the CSS file to the `gitatom/main_templates` 
 directory.  
 
