@@ -14,53 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
-
-#Functions not being used in current iteration, together do some modification of title to capitilize and append date to front
-"""
-# Generate blog post title from .md filename
-def getTitle(filename):
-    # Determine filename style
-    if '-' in filename: 
-        words = filename.replace('-',' ').split(' ')
-
-    elif '_' in filename:
-        words = filename.replace('_',' ').split(' ')
-
-    elif ' ' in filename:
-        words = filename.split(' ')	
-
-        # Check for single-word titles
-        # https://www.geeksforgeeks.org/python-test-if-string-contains-any-uppercase-character/
-    elif not bool(re.match(r'\w*[A-Z]\w*', filename)):
-        return filename
-
-    else: # assume camelCase
-        words = camelCaseSplit(filename)
-
-    words = [word.capitalize() for word in words]
-    title = ' '.join(words)
-    return title
- # Generate xml filename from title and date
-def getFilename(title):
-    # Generate date in YYYYMMDD	
-    filename = datetime.today().strftime('%Y%m%d')
-
-    # Append title to date 
-    if ' ' not in title: # check for single-word title
-        filename += title
-    else: 
-        words = title.split(' ')
-        for word in words: filename += word
-
-    return filename 
-
-# camelCase splitter 
-# https://www.geeksforgeeks.org/python-split-camelcase-string-to-individual-strings/
-def camelCaseSplit(str):
-    str = str[0].upper() + str[1:] # preserve lowercase first words
-    return re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
-"""
-  
+ 
   
 # Takes a .md file and pastes its content into an atom xml format
 def atomify(md):
