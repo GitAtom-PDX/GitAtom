@@ -149,9 +149,7 @@ Host alias
 
 **NOTE** IdentityFile requires a complete file path.
 
-Next, reconfigure the live remote branch.
-
-First, display the list of remote aliases.
+Next, you have to reconfigure the live remote branch. First, display the list of remote aliases.
 ```
 git remote -v
 ```
@@ -161,15 +159,9 @@ Find the alias named live and save the path following the colon.
 live git@github.com:/path/to/your/repo.git
 ```
 
-Next, remove the live branch.
+Reconfigure the live branch using your alias. 
 ```
-git remote rm live
-```
-
-Re-add the live branch using your alias. 
-```
-git remote add live alias:/path/to/your/repo.git
-
+git remote set-url live alias:/path/to/your/repo.git
 ```
 
 The live branch will now use your alias to push to the live branch.
@@ -178,8 +170,5 @@ You need to have permissions to write in the repo and working tree directory on 
 remote server. If that directory cannot normally be written to without sudo you
 need to connect to remote server and make sure the user has permissions to write 
 into the targeted directories.
-
-
-
 
 
