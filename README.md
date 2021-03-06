@@ -128,7 +128,7 @@ To use a different Jinja template, add the new template as an HTML file to the
 
 This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
 
-To fix, create an alias in the `~/.ssh/config` file on the local machine. 
+To fix, create an alias in the `~/.ssh/config` file on the local machine and reconfigure the live remote branch. 
 
 In `~/.ssh/config` add the following:  
 
@@ -149,8 +149,30 @@ Host alias
 
 **NOTE** IdentityFile requires a complete file path.
 
-###### This doesn't happen by default, what step are we missing?
-With the alias specified, the live branch will use `<username>@<alias>`
+Next, reconfigure the live remote branch.
+
+First, display the list of remote aliases.
+```
+git remote -v
+```
+
+Find the alias named live and save the path following the colon.
+```
+live git@github.com:/path/to/your/repo.git
+```
+
+Next, remove the live branch.
+```
+git remote rm live
+```
+
+Re-add the live branch using your alias. 
+```
+git remote add live alias:/path/to/your/repo.git
+
+```
+
+The live branch will now use your alias to push to the live branch.
 
 You need to have permissions to write in the repo and working tree directory on the
 remote server. If that directory cannot normally be written to without sudo you
