@@ -147,8 +147,9 @@ Host alias
 | User | username for remote server |   
 | IdentityFile | path to your ssh key |   
 
-**NOTE** IDFile requires a complete file path.
+**NOTE** IdentityFile requires a complete file path.
 
+###### This doesn't happen by default, what step are we missing?
 With the alias specified, the live branch will use `<username>@<alias>`
 
 You need to have permissions to write in the repo and working tree directory on the
