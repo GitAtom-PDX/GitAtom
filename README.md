@@ -128,16 +128,16 @@ To use a different Jinja template, add the new template as an HTML file to the
 
 This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
 
-To fix, create an alias in the `.ssh/config` file. 
+To fix, create an alias in the `~/.ssh/config` file on the local machine. 
 
-In `.ssh/config` add the following:  
+In `~/.ssh/config` add the following:  
 
 ```
 Host alias
     HostName address 
     User username 
-    IDFile ~/.ssh/path-to-key
-    IDOnly yes  
+    IdentityFile ~/.ssh/path-to-key
+    IdentitiesOnly yes  
 ```
 
 | Field | Description|
@@ -145,7 +145,7 @@ Host alias
 | Host | alias name, chosen by user |
 | HostName | IP address of remote server |  
 | User | username for remote server |   
-| IDFile | path to your ssh key |   
+| IdentityFile | path to your ssh key |   
 
 **NOTE** IDFile requires a complete file path.
 
