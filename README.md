@@ -134,10 +134,10 @@ In `~/.ssh/config` add the following:
 
 ```
 Host alias
-    HostName address 
-    User username 
+    HostName address
+    User username
     IdentityFile ~/.ssh/path-to-key
-    IdentitiesOnly yes  
+    IdentitiesOnly yes
 ```
 
 | Field | Description|
