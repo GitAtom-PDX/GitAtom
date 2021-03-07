@@ -111,15 +111,15 @@ git push live main
 ```
 
 ### Templating 
-###### These instructions need to be corrected / improved
-To add a new blog template, add the CSS file to the `gitatom/main_templates` 
-directory.  
+To add a new blog template, navigate to the `gitatom/main_templates` directory rename the existing template `style.css` (e.g. `style.css.old`).
 
-To choose which template to use, specify the file name in the 
-'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  
+Add your desired CSS file to the `gitatom/main_templates` directory, rename it to `style.css`. 
 
-To use a different Jinja template, add the new template as an HTML file to the 
-`gitatom/post_templates` directory.
+Re-initialize GitAtom.
+
+```$ python3 init.py```
+
+Your template will be applied next time you add or update a blog post. 
 
 
 ## Troubleshooting
