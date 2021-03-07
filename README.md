@@ -117,7 +117,9 @@ Add your desired CSS file to the `gitatom/main_templates` directory, rename it t
 
 Re-initialize GitAtom.
 
-```$ python3 init.py```
+```
+$ python3 init.py
+```
 
 Your template will be applied next time you add or update a blog post. 
 
@@ -149,14 +151,14 @@ Host alias
 
 **NOTE** IdentityFile requires a complete file path.
 
-Next, you have to reconfigure the live remote branch. First, display the list of remote aliases.
+Next, you have to reconfigure the live remote branch. First, display the list of remote branches.
 ```
 git remote -v
 ```
 
-Find the alias named live and save the path following the colon.
+Find the branch named live and save the path following the colon.
 ```
-live git@github.com:/path/to/your/repo.git
+live user@hostname:/path/to/your/repo.git
 ```
 
 Reconfigure the live branch using your alias. 
@@ -164,7 +166,7 @@ Reconfigure the live branch using your alias.
 git remote set-url live alias:/path/to/your/repo.git
 ```
 
-The live branch will now use your alias to push to the live branch.
+The live branch will now use your alias to connect via ssh.
 
 You need to have permissions to write in the repo and working tree directory on the
 remote server. If that directory cannot normally be written to without sudo you
