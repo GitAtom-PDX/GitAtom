@@ -111,17 +111,7 @@ git push live main
 ```
 
 ### Templating 
-To add a new blog template, navigate to the `gitatom/main_templates` directory and rename or delete the existing template `style.css`.
-
-Add your desired CSS file to the `gitatom/main_templates` directory, rename it to `style.css`. 
-
-Re-initialize GitAtom.
-
-```
-$ python3 init.py
-```
-
-Your template will be applied next time you add or update a blog post. 
+To change the blog template, simply modify or replace the `style.css` file in the `site` directory.
 
 
 ## Troubleshooting
