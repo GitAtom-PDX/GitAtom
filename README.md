@@ -111,7 +111,7 @@ git push live main
 ```
 
 ### Templating 
-To add a new blog template, navigate to the `gitatom/main_templates` directory rename the existing template `style.css` (e.g. `style.css.old`).
+To add a new blog template, navigate to the `gitatom/main_templates` directory and rename or delete the existing template `style.css`.
 
 Add your desired CSS file to the `gitatom/main_templates` directory, rename it to `style.css`. 
 
