@@ -26,32 +26,38 @@ def remote_setup():
 
     #absolute path from root
     bare_path = cfg['repo_path']
-    command = "git init --bare " + bare_path
-    #absolute path from root
-    symbolic_command = f"cd {bare_path}; git symbolic-ref HEAD refs/heads/main"
+    make_repo = f"git init --bare -b main '{bare_path}'"
     work_path = cfg['work_path']
-    work_tree = "mkdir " + work_path
+    make_work_tree = f"mkdir -p '{work_path}'"
 
-    shabang = "'#!/bin/sh'"
-    p_rec = f"git --work-tree={work_path} --git-dir={bare_path} checkout HEAD -- site"
-    change_perm = "chmod +x " + bare_path + "/hooks/post-receive"
-    make_hook = "echo '" + shabang + "' > " + bare_path + "/hooks/post-receive"
-    make_hook2 = "echo '" + p_rec + "' >> " + bare_path + "/hooks/post-receive"
+    shabang = "#!/bin/sh"
+    make_hook = f"""cat >'{bare_path}/hooks/post-receive' <<'EOF'
+#!/bin/sh
+git --work-tree={work_path} --git-dir={bare_path} checkout HEAD -- site
+EOF
+"""
+    change_perm = f"chmod +x '{bare_path}/hooks/post-receive'"
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(host, port, username,password=password)
 
+    def run_command(command):
+        print("run", command)
+        with ssh.get_transport().open_session() as chan:
+            chan.exec_command(command)
+            result = chan.recv_exit_status()
+            if result != 0:
+                print("failed", result)
+                message = chan.recv_stderr(1000000)
+                print(message.decode('utf-8'))
+                exit(result)
 
     #should prob catch these
-    ssh.exec_command(command)
-    ssh.exec_command(symbolic_command)
-    ssh.exec_command(work_tree)
-    stdin, stdout, stderr =  ssh.exec_command(make_hook)
-    ssh.exec_command(make_hook2)
-    ssh.exec_command(change_perm)
-    lines = stdout.readlines()
-    print(lines)
+    run_command(make_repo)
+    run_command(make_work_tree)
+    run_command(make_hook)
+    run_command(change_perm)
 
     # Track remote server with git
     current_directory = os.getcwd()
