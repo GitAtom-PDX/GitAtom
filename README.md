@@ -105,10 +105,11 @@ If using remote deployment, the post-receive hook on the remote repository will 
 To publish `somepost.md`:
 
 ```
-git add ../markdowns/somepost.md
+git add ./markdowns/somepost.md
 git commit -m 'adding somepost to blog'
-git push live main
+git push -u live main
 ```
+If you use `git push -u live main` the first time every time after you only have to use `git push`
 
 ### Templating 
 To change the blog template, simply modify or replace the `style.css` file in the `site` directory.
