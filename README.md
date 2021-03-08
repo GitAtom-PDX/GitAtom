@@ -19,6 +19,7 @@ publish your site to a remote repository upon push.
 ### Requirements 
 
 `python3` and `pip3` must be installed prior to installing GitAtom.
+`Git` must also be up to date on both local and remote systems in order for it to deploy remotly.
 
 ### Installation 
 
