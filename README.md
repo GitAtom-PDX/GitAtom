@@ -18,7 +18,7 @@ publish your site to a remote repository upon push.
 ## Setup 
 ### Requirements 
 
-`python3` and `pip3` must be installed prior to installing GitAtom.
+`python3`, `pip3`, and `git 2.27` or later must be installed prior to installing GitAtom.
 `Git` must also be up to date on both local and remote systems in order for it to deploy remotly.
 
 ### Installation 
@@ -110,7 +110,7 @@ git add ./markdowns/somepost.md
 git commit -m 'adding somepost to blog'
 git push -u live main
 ```
-If you use `git push -u live main` the first time every time after you only have to use `git push`
+If you use `git push -u live main` the first time, every time after you only have to use `git push`.
 
 ### Templating 
 To change the blog template, simply modify or replace the `style.css` file in the `site` directory.
