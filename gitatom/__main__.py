@@ -3,7 +3,6 @@ import yaml
 from gitatom import config
 import shutil
 import cmarkgfm  # used to convert markdown to html in mdtohtml()
-import subprocess
 import pygit2 
 import glob
 import sys
@@ -24,7 +23,6 @@ def atomify(md):
     # Get title and xml filename	
     entry_title= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
     outname = entry_title + '.xml'
-    #print('outname from atomify: ', outname)
 
     # Check for a matching xml file 
     atompath = './atoms/'
@@ -40,18 +38,19 @@ def atomify(md):
     feed_title = cfg['feed_title']
 
     entry_id = feed_id + outname[:-4] 
+
+    #atome file already exists so update instead of create new
     if exists: # retain existing publish date
         tree = ET.parse(atompath + outname) 
         root = tree.getroot()
         entry_published = root.find('entry').find('published').text
         entry_updated = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-
-    else:
+    else: #atom file didnt exist yet 
         entry_published = datetime.now().strftime("%m/%d/%Y %H:%M:%S")	# using current time
         entry_updated = entry_published		
     feed_updated = entry_updated 		
 
-    # Create atom string
+    # Create atom strings
     atom = '<feed>\n'
     atom += '<title>' + feed_title + '</title>\n'
     atom += '<updated>' + str(feed_updated) + '</updated>\n'
@@ -78,7 +77,7 @@ def atomify(md):
     outfile.close()
     return outname
   
-
+#git add the list of files that were created (HTML,XML)
 def gitatom_git_add(repo, files):
     index = repo.index
     for f in files:
@@ -87,18 +86,21 @@ def gitatom_git_add(repo, files):
     print('end of gitatom_git_add()')
 
 
+
+#get the list of files that have been staged with git
 def git_staged_files(repo):
     status = repo.status()
     staged_files = []
     for file_path, flags in status.items():
         if flags == pygit2.GIT_STATUS_INDEX_NEW or flags == pygit2.GIT_STATUS_INDEX_MODIFIED:
             file_only = path.basename(file_path)
+            #append the markdown files to list of staged files
             if file_only.endswith('.md') and 'markdowns' in file_path:
                 staged_files.append('./markdowns/' + file_only)
     return staged_files
 
 
-# function for use with commit git hook
+# create a list of files based on newly created files so that they can be git added in gitatom_git_add()
 def on_commit(mds):
     files = []
     for md in mds:
@@ -108,60 +110,3 @@ def on_commit(mds):
     for f in html:
         files.append(f)
     return files
-
-
-def run(filename):
-    xml_file = atomify(filename)
-    html_file = render("atoms/" + xml_file)
-    build.build_it()
-
-
-def init():
-    print("initializing")
-    
-    feed_id = 'a-feed-id'
-    feed_title = 'yet another blog'
-    author = 'Author'
-    publish_directory = './site'
-
-    yaml_dict = { 
-                'feed_id' : feed_id, \
-                'feed_title' : feed_title, \
-                'author' : author, \
-                'publish_directory' : publish_directory
-                }
-
-    with open('config.yaml', 'w') as f:
-        yaml.dump(yaml_dict, f)
-
-    posts_path = Path(publish_directory + '/posts')
-    if not posts_path.exists():
-        posts_path.mkdir(parents=True)
-
-    atoms_path = Path('./atoms')
-    if not atoms_path.exists():
-        atoms_path.mkdir()
-
-    build.create(publish_directory)
-
-
-def usage():
-    exit("Usage: python3 gitatom [command] (filename)")
-
-
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        if command == 'init': init()
-        elif command == 'build': build.build_it()
-        elif len(sys.argv) > 2:
-            file_out = ''     
-            filename = sys.argv[2]
-            if command == 'atomify':
-                file_out = atomify(filename)
-            elif command == 'render': file_out = render(filename)
-            elif command == 'run': 
-                file_out = run(filename)
-            else: usage()
-        else: usage()
-    else: usage()
