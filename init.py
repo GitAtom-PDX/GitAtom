@@ -18,40 +18,48 @@ def remote_setup():
 
     cfg = config.load_into_dict()    
 
+    #pull config options for remote
     host = cfg['host']
     port = cfg['port']
     username = cfg['username']
-    password = getpass.getpass("Enter ssh key passphrase: ")
-
-
-    #absolute path from root
+    password = getpass.getpass("Enter key passphrase: ")
     bare_path = cfg['repo_path']
-    command = "git init --bare " + bare_path
-    #absolute path from root
-    symbolic_command = f"cd {bare_path}; git symbolic-ref HEAD refs/heads/main"
     work_path = cfg['work_path']
-    work_tree = "mkdir " + work_path
+    
+    #fstring commands to be run on remote once connection is established for deployment setup
+    make_repo = f"git init --bare -b main '{bare_path}'"     #set up bare repo for remote version control
+    make_work_tree = f"mkdir -p '{work_path}'"               #make the working tree where site will be deployed
+    shabang = "#!/bin/sh"                                    #shabang for remote hook on bare
+    #place the hook in remote bare
+    make_hook = f"""cat >'{bare_path}/hooks/post-receive' <<'EOF'           
+#!/bin/sh
+git --work-tree={work_path} --git-dir={bare_path} checkout HEAD -- site
+EOF
+"""
+    change_perm = f"chmod +x '{bare_path}/hooks/post-receive'"      #change the permissions on hook so it will execute properly
 
-    shabang = "'#!/bin/sh'"
-    p_rec = f"git --work-tree={work_path} --git-dir={bare_path} checkout HEAD -- site"
-    change_perm = "chmod +x " + bare_path + "/hooks/post-receive"
-    make_hook = "echo '" + shabang + "' > " + bare_path + "/hooks/post-receive"
-    make_hook2 = "echo '" + p_rec + "' >> " + bare_path + "/hooks/post-receive"
-
+    #connect to the remote server
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(host, port, username,password=password)
 
+    #function that will run the fstring commands with some added verbosity 
+    def run_command(command):
+        print("run", command)
+        with ssh.get_transport().open_session() as chan:
+            chan.exec_command(command)
+            result = chan.recv_exit_status()
+            if result != 0:
+                print("failed", result)
+                message = chan.recv_stderr(1000000)
+                print(message.decode('utf-8'))
+                exit(result)
 
-    #should prob catch these
-    ssh.exec_command(command)
-    ssh.exec_command(symbolic_command)
-    ssh.exec_command(work_tree)
-    stdin, stdout, stderr =  ssh.exec_command(make_hook)
-    ssh.exec_command(make_hook2)
-    ssh.exec_command(change_perm)
-    lines = stdout.readlines()
-    print(lines)
+    #run the various command strings
+    run_command(make_repo)
+    run_command(make_work_tree)
+    run_command(make_hook)
+    run_command(change_perm)
 
     # Track remote server with git
     current_directory = os.getcwd()
@@ -67,7 +75,7 @@ def remote_setup():
 
 
 
-
+#set up the local file structure needed for 
 def init():
     print("initializing")
 
@@ -79,6 +87,7 @@ def init():
     from_pc = cur_dir+'/gitatom/hooks/pre-commit'
     to_pc = cur_dir+'/.git/hooks/pre-commit'
 
+    #place the hook in local that will create files and /site
     with open (from_pc,'r') as f: 
         lines = f.read()
     outfile = open(to_pc,'w')
@@ -86,6 +95,7 @@ def init():
     outfile.close()
     os.chmod(to_pc, 0o755)
 
+    #create the initial structure in local for hook and main to work with
     if not posts_path.exists():
         posts_path.mkdir(parents=True)
 
@@ -98,7 +108,7 @@ def init():
         markdowns_path.mkdir()
 
     build.create(cfg['publish_directory'])
-    # check if deplay set to true before running remote
+    # check if deploy set to true before running remote
     if cfg['deploy']: remote_setup()
 
 
