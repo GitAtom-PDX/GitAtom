@@ -83,6 +83,8 @@ def gitatom_git_add(repo, files):
     for f in files:
         index.add(f)
     index.write()
+    print('end of gitatom_git_add()')
+
 
 
 #get the list of files that have been staged with git
