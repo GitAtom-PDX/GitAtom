@@ -4,10 +4,10 @@ feed_title: My Blog
 publish_directory: site
 
 #full path from remote ssh home to bare repo for deployment git tracking
-repo_path: /home/site/var/bare_repo.git
+repo_path: /home/bare_repo.git
 
 #full path from remote ssh home to deployment repo !!-Different than bare-!!
-work_path: /home/site/var/www
+work_path: /var/www
 
 #ssh info for remote
 host: 123.12.123.123
