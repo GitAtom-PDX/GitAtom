@@ -14,15 +14,12 @@ content using the Atom XML format.
 Upon committing one or more Markdown files, GitAtom will automatically generate a static 
 website and commit all required files for you. You can even configure GitAtom to automatically 
 publish your site to a remote repository upon push.
-
-###### Is this drive link publicly accessible?
-Detailed information can be found [here](https://docs.google.com/document/d/1eONVONseT0Ex_Z_COYcDEAZJZb3Gb6mCPAmSxwqYNFM/edit?usp=sharing).
-
  
 ## Setup 
 ### Requirements 
 
-`python3` and `pip3` must be installed prior to installing GitAtom.
+`python3`, `pip3`, and `git 2.27` or later must be installed prior to installing GitAtom.
+`git` must be up to date on both local and remote systems to deploy remotly.
 
 ### Installation 
 
@@ -109,20 +106,14 @@ If using remote deployment, the post-receive hook on the remote repository will 
 To publish `somepost.md`:
 
 ```
-git add ../markdowns/somepost.md
+git add ./markdowns/somepost.md
 git commit -m 'adding somepost to blog'
-git push live main
+git push -u live main
 ```
+If you use `git push -u live main` the first time, every time after you only have to use `git push`.
 
 ### Templating 
-To add a new blog template, add the CSS file to the `gitatom/main_templates` 
-directory.  
-
-To choose which template to use, specify the file name in the 
-'stylesheet' reference in `gitatom/post_templates/default_jinja.html`.  
-
-To use a different Jinja template, add the new template as an HTML file to the 
-`gitatom/post_templates` directory.
+To change the blog template, simply modify or replace the `style.css` file in the `site` directory.
 
 
 ## Troubleshooting
@@ -131,16 +122,16 @@ To use a different Jinja template, add the new template as an HTML file to the
 
 This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
 
-To fix, create an alias in the `.ssh/config` file. 
+To fix, create an alias in the `~/.ssh/config` file on the local machine and reconfigure the live remote branch. 
 
-In `.ssh/config` add the following:  
+In `~/.ssh/config` add the following:  
 
 ```
 Host alias
-    HostName address 
-    User username 
-    IDFile ~/.ssh/path-to-key
-    IDOnly yes  
+    HostName address
+    User username
+    IdentityFile ~/.ssh/path-to-key
+    IdentitiesOnly yes
 ```
 
 | Field | Description|
@@ -148,18 +139,30 @@ Host alias
 | Host | alias name, chosen by user |
 | HostName | IP address of remote server |  
 | User | username for remote server |   
-| IDFile | path to your ssh key |   
+| IdentityFile | path to your ssh key |   
 
-**NOTE** IDFile requires a complete file path.
+**NOTE** IdentityFile requires a complete file path.
 
-With the alias specified, the live branch will use `<username>@<alias>`
+Next, you have to reconfigure the live remote branch. First, display the list of remote branches.
+```
+git remote -v
+```
+
+Find the branch named live and save the path following the colon.
+```
+live user@hostname:/path/to/your/repo.git
+```
+
+Reconfigure the live branch using your alias. 
+```
+git remote set-url live alias:/path/to/your/repo.git
+```
+
+The live branch will now use your alias to connect via ssh.
 
 You need to have permissions to write in the repo and working tree directory on the
 remote server. If that directory cannot normally be written to without sudo you
 need to connect to remote server and make sure the user has permissions to write 
 into the targeted directories.
-
-
-
 
 

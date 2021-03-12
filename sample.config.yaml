@@ -1,18 +1,18 @@
-author: Author
-feed_id: a-feed-id
-feed_title: yet another blog
+author: John Doe
+feed_id: My Posts
+feed_title: My Blog
 publish_directory: site
 
 #full path from remote ssh home to bare repo for deployment git tracking
-repo_path: /home/capstone/kathryn/bare_repo.git
+repo_path: /home/site/var/bare_repo.git
 
 #full path from remote ssh home to deployment repo !!-Different than bare-!!
-work_path: /home/capstone/kathryn/work_tree
+work_path: /home/site/var/www
 
 #ssh info for remote
-host: 167.99.103.193
+host: 123.12.123.123
 port: 22
-username: capstone
+username: myusername
 
 #change to true if you want to deploy on remote server
 deploy: false
