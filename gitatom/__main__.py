@@ -73,12 +73,9 @@ def atomify(md):
     atom += '</feed>\n'
 
     # Write result to file
-    #outname += '.xml' 
     outfile = open('./atoms/' + outname, 'w')
     outfile.write(atom)
     outfile.close()
-    #subprocess.call(['git', 'add', 'atoms/' + outname])
-    #subprocess.call(['git','commit','-m','adding {} to vc'.format(outname)])
     return outname
   
 
@@ -87,11 +84,7 @@ def gitatom_git_add(repo, files):
     for f in files:
         index.add(f)
     index.write()
-    subprocess.call(['git', 'status'])
     print('end of gitatom_git_add()')
-    #subprocess.call(['git', 'add', 'files/xml_files/' + xml_file])
-    #subprocess.call(['git', 'add', 'files/html_files/' + html_file])
-    #subprocess.call(['git', 'commit', '-m', 'Adding {}, {}, {} files to git.'.format(md_file, xml_file, html_file)])
 
 
 def git_staged_files(repo):
@@ -117,19 +110,10 @@ def on_commit(mds):
     return files
 
 
-def gitatom_git_push(filename):
-    print('New files add to vc, push when ready.')
-    #print('Push called with file: {}'.format(filename))
-    #subprocess.call(['git', 'push', 'origin', 'git_hook'])
-
-
 def run(filename):
     xml_file = atomify(filename)
     html_file = render("atoms/" + xml_file)
-    #published_file = publish(html_file)
-    #build.append(published_file)
     build.build_it()
-    #gitatom_git_add(filename,xml_file,html_file)
 
 
 def init():
@@ -173,15 +157,11 @@ if __name__ == '__main__':
         elif len(sys.argv) > 2:
             file_out = ''     
             filename = sys.argv[2]
-            #print("printing filename from main: ", filename)
             if command == 'atomify':
-                #subprocess.call(['git', 'add', filename])
                 file_out = atomify(filename)
             elif command == 'render': file_out = render(filename)
             elif command == 'run': 
-                #subprocess.call(['git', 'add', filename])
                 file_out = run(filename)
             else: usage()
-            #gitatom_git_push(file_out)
         else: usage()
     else: usage()
