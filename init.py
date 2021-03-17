@@ -84,8 +84,8 @@ def init():
 
     cur_dir = os.getcwd()
 
-    from_pc = cur_dir+'/gitatom/hooks/post-commit'
-    to_pc = cur_dir+'/.git/hooks/post-commit'
+    from_pc = cur_dir+'/gitatom/hooks/pre-commit'
+    to_pc = cur_dir+'/.git/hooks/pre-commit'
 
     #place the hook in local that will create files and /site
     with open (from_pc,'r') as f:
