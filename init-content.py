@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+import shutil
 import sys
 import yaml
 
@@ -46,6 +47,8 @@ markdowns_path = Path('./content/markdowns')
 markdowns_path.mkdir()
 
 build.create(f"./content/{publish_directory}")
+
+shutil.copytree("gitatom/templates/", "./content/templates")
 
 # Set up the content repo.
 wstatus = os.system("""sh -c '

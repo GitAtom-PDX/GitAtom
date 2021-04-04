@@ -30,11 +30,6 @@ def create(publish_directory):
     with open(archive, 'w') as f:
         f.write("")
 
-    # copy the default stylesheet into the site directory
-    style_src = Path("gitatom/main_templates/style.css")
-    style_dst = site_dir / "style.css"
-    copyfile(style_src, style_dst)
-
 # scan, render and write landing page 
 def build_it():
     # get 'Pathlib' paths and blog metadata from config file
