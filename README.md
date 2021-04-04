@@ -1,33 +1,35 @@
 # GitAtom
 Developed for Portland State University CS Capstone (Fall 2020 - Winter 2021)
  
- ## Contents
- * Introduction
- * Setup
- * Usage
- * Troubleshooting
- 
 ## Introduction
-GitAtom is a git-based static site generator used to create and manage Markdown blog 
-content using the Atom XML format.
 
-Upon committing one or more Markdown files, GitAtom will automatically generate a static 
-website and commit all required files for you. You can even configure GitAtom to automatically 
-publish your site to a remote repository upon push.
+GitAtom is a git-based static site generator used to create
+and manage Markdown blog content using the Atom XML format.
+
+Upon committing one or more Markdown files, GitAtom will
+automatically generate a static website and commit all
+required files for you. You can even configure GitAtom to
+automatically publish your site to a remote repository upon
+push.
  
 ## Setup 
+
+The setup of GitAtom is a bit intricate, in spite of some
+provided information. We assume a user who is relatively
+familiar with the technologies used by GitAtom.
+
 ### Requirements 
 
-`python3`, `pip3`, and `git 2.27` or later must be installed prior to installing GitAtom.
-`git` must be up to date on both local and remote systems to deploy remotly.
+`python3`, `pip3`, and `git 2.27` or later must be installed
+prior to installing GitAtom.  `git` must be up to date on
+both local and remote systems to deploy remotely.
 
 ### Installation 
 
 To begin, clone GitAtom to your local machine.
 
 ``` 
-HTML: git clone https://github.com/GitAtom-PDX/GitAtom.git
-ssh: git clone git@github.com:GitAtom-PDX/GitAtom.git
+git clone https://github.com/GitAtom-PDX/GitAtom.git
 ```
 
 Next, install all required modules using `pip3`.
@@ -38,93 +40,132 @@ pip3 install -r requirements.txt
 
 The following modules will be installed:
 
-* [Jinja2](https://pypi.org/project/Jinja2/) for site generation and formatting.
-* [cmark](https://pypi.org/project/cmarkgfm/) to convert Markdown to HTML for site generation.
-* [PyYAML](https://pypi.org/project/PyYAML/) for config handling.
+* [Jinja2](https://pypi.org/project/Jinja2/) for site
+  generation and formatting.
+
+* [cmark](https://pypi.org/project/cmarkgfm/) to convert
+  Markdown to HTML for site generation.
+
+* [PyYAML](https://pypi.org/project/PyYAML/) for config
+  handling.
+
 * [pygit2](https://pypi.org/project/pygit2/) to implement git commands in Python.
-* [paramiko](https://pypi.org/project/paramiko/) to initialize remote server. 
+
+* [paramiko](https://pypi.org/project/paramiko/) to
+  initialize remote server.
 
 ### Configuration 
 
-GitAtom must be configured using `config.yaml` prior to initialization. `sample.config.yaml` is provided as a reference.
+GitAtom must be configured using `config.yaml` prior to
+initialization. `sample.config.yaml` is provided as a
+reference.
 
 #### Fields:  
 | Field | Description|
 | --- | --- |
-| feed_id |Website's web address or unique permanent URI|
-| feed_title | Title of the website/blog.|  
-| author | Name of author of the blog.|   
-| publish_directory | site -needs to remain site for now.  |
-| repo_path | Path to where the remote server bare repository will be located. |   
-| work_path | Path to where the website will be hosted on remote server. |
-| host | IP address of remote server. |   
-| port | SSH port, default used by ssh is 22. |   
-| username | Name of the user on the remote system. |  
-| keypath | Path to your ssh key. |    
-| deploy | true/false, use true if you want to deploy to a remote server.| 
+| `feed_id` |Website's web address or unique permanent URI|  
+| `feed_title` | Title of the website/blog.|  
+| `author` | Name of author of the blog.|   
+| `publish_directory` | site -needs to remain site for now.|  
+| `repo_path` | Path to where the remote server bare repository will be located. |  
+| `work_path` | Path to where the website will be hosted on remote server.|  
+| `host` | IP address of remote server. |  
+| `port` | SSH port, default used by ssh is 22. |  
+| `username` | Name of the user on the remote system. |  
+| `keypath` | Path to your ssh key. |  
+| `deploy` | `true`/`false`: use `true` if you want to deploy to a remote server.| 
 
-GitAtom can be configured to use automatic remote deployment. You will need access to the 
-remote server to which you want to publish the blog.  
+GitAtom can be configured to use automatic remote
+deployment. You will need access to the
+remote server to which you want to publish the blog.
 
+### Set Up Blog Content
 
-### Initialization
-
-Initialize GitAtom using the configuration specified in `config.yaml`.
+You will want to have a repo for your blog content, separate
+from the GitAtom codebase. Run
 
 ```
-python3 init.py
+python3 init-content.py
 ```
 
-If using GitAtom locally, this will create the required directories and 
-install the post-commit hook. 
+This will make a `content/` subdirectory containing a new
+Git repo with a ready-to-edit `config.yaml` in it. It will
+populate the `content/` repo with the directories `GitAtom`
+needs to operate.
+
+Once you have completed the initialization of `GitAtom` (see
+below), you may move `content/` elsewhere: the main
+`GitAtom` sourcebase is no longer needed.
 
 #### Directories
 | Directory | Description|
 | --- | --- |
-| markdowns | Where GitAtom expects to find your Markdown blog posts. |
-| atoms | Where GitAtom stores your Atom-formatted blog posts. |  
-| site | Where GitAtom stores your static web pages. |   
+| content/markdowns | Where GitAtom expects to find your Markdown blog posts. |
+| content/atoms | Where GitAtom stores your Atom-formatted blog posts. |  
+| content/site | Where GitAtom stores your static web pages. |   
+
+### Initialization
+
+Be sure to edit your `content/config.yaml`.  You may then
+initialize GitAtom using the configuration specified there.
+
+```
+python3 init.py [--remote]
+```
+
+If using GitAtom locally, this will install the post-commit
+hook.
 
 If using remote deployment, a bare repository will be created and the 
 post-receive hook will be installed on the remote server.
 
 
 ## Usage
-### Commands
-`git [command] [-flag] (target)`
-commands: [add, commit, push]
+
+Once GitAtom is set up, you may use normal Git commands to
+operate your blog. Three Git commands are set up to work
+especially with GitAtom: `add`, `commit`, and `push`.
 
 | Command | Description|
 | --- | --- |
-| Add | add or update one or more blog posts. Only Markdown files located in the `/markdowns/` will be tracked for xml file creation. |
-| Commit | generate and commit XML and HTML from added Markdown file(s). Resulting files are located in `/atoms/` and `/site/`. |  
-| Push | publish to the remote repository. Make sure to push to the 'live' branch. |   
+| `add` | Add or update one or more blog posts. Only
+| Markdown files located in the `markdowns/` directory will be tracked for xml file creation. |  
+| `commit` | Generate and commit XML and HTML from added  Markdown file(s). Resulting files are saved in `atoms/` and `site/`. |  
+| `push` | Publish to the remote repository. Make sure to push to the `live` branch. |
 
-If using remote deployment, the post-receive hook on the remote repository will copy the site directory to your `work_path` specified in `config.yaml`.  
+If using remote deployment, the `post-receive` hook on the
+remote repository will update the site directory at your
+`work_path`, as specified in `config.yaml` during
+initialization.
 
 ### Example
-To publish `somepost.md`:
+To publish `somepost.md` from your `content/` repo:
 
 ```
 git add ./markdowns/somepost.md
 git commit -m 'adding somepost to blog'
 git push -u live main
 ```
-If you use `git push -u live main` the first time, every time after you only have to use `git push`.
+
+Use `git push -u live main` to publish your first
+post. After that, `git push` will default correctly.
 
 ### Templating 
-To change the blog template, simply modify or replace the `style.css` file in the `site` directory.
 
+To change the blog template, simply modify or replace the
+`style.css` file in the `content/site` directory.
 
 ## Troubleshooting
 
 ### Permission denied on ssh into remote server
 
-This error occurs when a user has multiple ssh keys. Create an alias that indicates use of a specific key.  
+This error occurs when a user has multiple ssh keys. Create
+an alias that indicates use of a specific key.
 
-To fix, create an alias in the `~/.ssh/config` file on the local machine and reconfigure the live remote branch. 
+To fix, create an alias in the `~/.ssh/config` file on the
+local machine and reconfigure the live remote branch.
 
-In `~/.ssh/config` add the following:  
+In `~/.ssh/config` add the following:
 
 ```
 Host alias
@@ -136,33 +177,36 @@ Host alias
 
 | Field | Description|
 | --- | --- |
-| Host | alias name, chosen by user |
-| HostName | IP address of remote server |  
-| User | username for remote server |   
-| IdentityFile | path to your ssh key |   
+| `Host` | alias name, chosen by user |  
+| `HostName` | IP address of remote server |  
+| `User` | username for remote server |   
+| `IdentityFile` | path to your ssh key |
 
-**NOTE** IdentityFile requires a complete file path.
+**NOTE** `IdentityFile` requires an absolute path.
 
-Next, you have to reconfigure the live remote branch. First, display the list of remote branches.
+Next, reconfigure the `live` remote branch. First, display
+the list of remote branches.
+
 ```
 git remote -v
 ```
 
-Find the branch named live and save the path following the colon.
+Find the branch named `live` and save the path following the colon.
+
 ```
 live user@hostname:/path/to/your/repo.git
 ```
 
 Reconfigure the live branch using your alias. 
+
 ```
 git remote set-url live alias:/path/to/your/repo.git
 ```
 
 The live branch will now use your alias to connect via ssh.
 
-You need to have permissions to write in the repo and working tree directory on the
-remote server. If that directory cannot normally be written to without sudo you
-need to connect to remote server and make sure the user has permissions to write 
-into the targeted directories.
-
-
+You need to have permissions to write in the repo and
+working tree directory on the remote server. If that
+directory cannot normally be written to without sudo you
+need to connect to the remote server and make sure the user
+has permissions to write into the targeted directories.
