@@ -63,10 +63,9 @@ reference.
 #### Fields:  
 | Field | Description|
 | --- | --- |
-| `feed_id` |Website's web address or unique permanent URI|  
+| `feed_id` | Website's web address or unique permanent URI|  
 | `feed_title` | Title of the website/blog.|  
 | `author` | Name of author of the blog.|   
-| `publish_directory` | site -needs to remain site for now.|  
 | `repo_path` | Path to where the remote server bare repository will be located. |  
 | `work_path` | Path to where the website will be hosted on remote server.|  
 | `host` | IP address of remote server. |  
@@ -131,7 +130,7 @@ especially with GitAtom: `add`, `commit`, and `push`.
 | `add` | Add or update one or more blog posts. Only
 | Markdown files located in the `markdowns/` directory will be tracked for xml file creation. |  
 | `commit` | Generate and commit XML and HTML from added  Markdown file(s). Resulting files are saved in `atoms/` and `site/`. |  
-| `push` | Publish to the remote repository. Make sure to push to the `live` branch. |
+| `push` | Publish to the remote repository. |
 
 If using remote deployment, the `post-receive` hook on the
 remote repository will update the site directory at your
@@ -144,10 +143,10 @@ To publish `somepost.md` from your `content/` repo:
 ```
 git add ./markdowns/somepost.md
 git commit -m 'adding somepost to blog'
-git push -u live main
+git push -u origin
 ```
 
-Use `git push -u live main` to publish your first
+Use `git push -u origin` to publish your first
 post. After that, `git push` will default correctly.
 
 ### Templating 
@@ -163,7 +162,7 @@ This error occurs when a user has multiple ssh keys. Create
 an alias that indicates use of a specific key.
 
 To fix, create an alias in the `~/.ssh/config` file on the
-local machine and reconfigure the live remote branch.
+local machine and reconfigure the remote branch.
 
 In `~/.ssh/config` add the following:
 
@@ -184,26 +183,26 @@ Host alias
 
 **NOTE** `IdentityFile` requires an absolute path.
 
-Next, reconfigure the `live` remote branch. First, display
+Next, reconfigure the remote branch. First, display
 the list of remote branches.
 
 ```
 git remote -v
 ```
 
-Find the branch named `live` and save the path following the colon.
+Find the branch named `origin` and save the path following the colon.
 
 ```
-live user@hostname:/path/to/your/repo.git
+origin user@hostname:/path/to/your/repo.git
 ```
 
-Reconfigure the live branch using your alias. 
+Reconfigure the `origin` using your alias. 
 
 ```
-git remote set-url live alias:/path/to/your/repo.git
+git remote set-url origin alias:/path/to/your/repo.git
 ```
 
-The live branch will now use your alias to connect via ssh.
+The remote will now use your alias to connect via ssh.
 
 You need to have permissions to write in the repo and
 working tree directory on the remote server. If that

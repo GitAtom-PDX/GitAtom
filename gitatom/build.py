@@ -46,7 +46,7 @@ def build_it():
     site_author = Path(cfg['author'])
 
     # load jinja template location/environment
-    file_loader = FileSystemLoader('gitatom/main_templates/')
+    file_loader = FileSystemLoader('./templates/')
     env = Environment(loader=file_loader)
     post_template = env.get_template('post-a.html')
     blog_template = env.get_template('blog-a.html')
