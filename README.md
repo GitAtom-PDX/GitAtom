@@ -1,7 +1,4 @@
 # GitAtom
-Developed for Portland State University CS Capstone (Fall 2020 - Winter 2021)
- 
-## Introduction
 
 GitAtom is a git-based static site generator used to create
 and manage Markdown blog content using the Atom XML format.
@@ -216,3 +213,18 @@ working tree directory on the remote server. If that
 directory cannot normally be written to without sudo you
 need to connect to the remote server and make sure the user
 has permissions to write into the targeted directories.
+
+# Authors
+
+GitAtom was developed for the Portland State University CS
+Capstone during Fall 2020 - Winter 2021.
+
+Subsequently, Bart Massey <bart@cs.pdx.edu> and Keith
+Packard <keithp@keith.com> took over primary responsibility
+for the codebase.
+
+# License
+
+This work is made available under the "GPL v3 or later
+license." Please see the file `LICENSE` in this distribution
+for license terms.
