@@ -57,7 +57,7 @@ GitAtom needs to be able to find its modules. Set the
 `GITATOM_PATH` environment variable to point to the root of
 this repository as installed.
 
-### Set Up Blog Content
+### Set Up Your Blog
 
 You will want to have a repo for your blog content, separate
 from the GitAtom codebase. Run
@@ -99,6 +99,7 @@ deployment. You will need access to the
 remote server to which you want to publish the blog.
 
 #### Directories
+
 | Directory | Description|
 | --- | --- |
 | content/markdowns | Where GitAtom expects to find your Markdown blog posts. |
@@ -122,7 +123,6 @@ If using remote deployment (`deploy = true` in
 and the `post-receive` hook will be installed on the remote
 server.
 
-
 ## Usage
 
 Once GitAtom is set up, you may use normal Git commands to
@@ -142,6 +142,7 @@ remote repository will update the site directory at your
 initialization.
 
 ### Example
+
 To publish `somepost.md` from your `content/` repo:
 
 ```
@@ -152,6 +153,12 @@ git push -u origin
 
 Use `git push -u origin` to publish your first
 post. After that, `git push` will default correctly.
+
+### Markdown Requirements
+
+Each blog post file should start with a level 1 header that
+will be used as the post title. All other blog post
+information is extracted from Git at commit time.
 
 ### Templating 
 
