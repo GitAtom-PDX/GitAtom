@@ -5,6 +5,7 @@ import getpass
 import os
 import paramiko
 import pygit2
+import sys
 
 from gitatom import config
 
