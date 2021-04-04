@@ -54,29 +54,11 @@ The following modules will be installed:
 * [paramiko](https://pypi.org/project/paramiko/) to
   initialize remote server.
 
-### Configuration 
+### Set Up Environment Variable
 
-GitAtom must be configured using `config.yaml` prior to
-initialization. `sample.config.yaml` is provided as a
-reference.
-
-#### Fields:  
-| Field | Description|
-| --- | --- |
-| `feed_id` | Website's web address or unique permanent URI|  
-| `feed_title` | Title of the website/blog.|  
-| `author` | Name of author of the blog.|   
-| `repo_path` | Path to where the remote server bare repository will be located. |  
-| `work_path` | Path to where the website will be hosted on remote server.|  
-| `host` | IP address of remote server. |  
-| `port` | SSH port, default used by ssh is 22. |  
-| `username` | Name of the user on the remote system. |  
-| `keypath` | Path to your ssh key. |  
-| `deploy` | `true`/`false`: use `true` if you want to deploy to a remote server.| 
-
-GitAtom can be configured to use automatic remote
-deployment. You will need access to the
-remote server to which you want to publish the blog.
+GitAtom needs to be able to find its modules. Set the
+`GITATOM_PATH` environment variable to point to the root of
+this repository as installed.
 
 ### Set Up Blog Content
 
@@ -96,6 +78,29 @@ Once you have completed the initialization of `GitAtom` (see
 below), you may move `content/` elsewhere: the main
 `GitAtom` sourcebase is no longer needed.
 
+### Configuration 
+
+GitAtom must be configured using `config.yaml` prior to
+initialization.
+
+#### Fields:  
+| Field | Description|
+| --- | --- |
+| `feed_id` | Website's web address or unique permanent URI|  
+| `feed_title` | Title of the website/blog.|  
+| `author` | Name of author of the blog.|   
+| `repo_path` | Path to where the remote server bare repository will be located. |  
+| `work_path` | Path to where the website will be hosted on remote server.|  
+| `host` | IP address of remote server. |  
+| `port` | SSH port, default used by ssh is 22. |  
+| `username` | Name of the user on the remote system. |  
+| `keypath` | Path to your ssh key. |  
+| `deploy` | `true`/`false`: use `true` if you want to deploy to a remote server.| 
+
+GitAtom can be configured to use automatic remote
+deployment. You will need access to the
+remote server to which you want to publish the blog.
+
 #### Directories
 | Directory | Description|
 | --- | --- |
@@ -109,14 +114,16 @@ Be sure to edit your `content/config.yaml`.  You may then
 initialize GitAtom using the configuration specified there.
 
 ```
-python3 init.py [--remote]
+python3 init.py
 ```
 
-If using GitAtom locally, this will install the post-commit
+If using GitAtom locally, this will install the `pre-commit`
 hook.
 
-If using remote deployment, a bare repository will be created and the 
-post-receive hook will be installed on the remote server.
+If using remote deployment (`deploy = true` in
+`./content/config.yaml`), a bare repository will be created
+and the `post-receive` hook will be installed on the remote
+server.
 
 
 ## Usage
