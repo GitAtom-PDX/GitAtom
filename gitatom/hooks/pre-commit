@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
-import sys
 import os
+import sys
 import pygit2
 
-sys.path.append(os.getcwd())
+if "GITATOM_PATH" in os.environ:
+    gitatom_path = os.environ["GITATOM_PATH"]
+else:
+    gitatom_path = ".."
+sys.path.append(gitatom_path)
 
 from gitatom import __main__ as main
 from gitatom import build
 
 
-current_directory = os.getcwd()
-repo_path = pygit2.discover_repository(current_directory)
+repo_path = pygit2.discover_repository(".")
 repo = pygit2.Repository(repo_path)
 staged_files = main.git_staged_files(repo)
 files = main.on_commit(staged_files)
