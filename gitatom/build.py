@@ -14,6 +14,7 @@
 from gitatom import config
 from pathlib import Path
 import cmarkgfm
+from cmarkgfm.cmark import Options as cmarkgfm_options
 from shutil import copyfile
 import re
 from xml.etree import cElementTree as ET
@@ -65,7 +66,10 @@ def build_it():
         post['published'] = root.find('entry').find('published').text
         post['original'] = True if post['updated'] == post['published'] else False
         post['title'] = title
-        post['body'] = cmarkgfm.markdown_to_html(content)
+        post['body'] = cmarkgfm.markdown_to_html(
+            content,
+            options = cmarkgfm_options.CMARK_OPT_UNSAFE,
+        )
         post['link'] = 'posts/' + atom.stem + '.html'
         posts.append(post)
         archive.append( { 'title' : post['title'], 'link' : post['link'], 'published': post['published'], 'updated' : post['updated'], 'original' : post['original']} )
