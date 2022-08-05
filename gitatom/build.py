@@ -31,6 +31,8 @@ def create(publish_directory):
     with open(archive, 'w') as f:
         f.write("")
 
+TITLE_RE = re.compile(r"#(.+)")
+
 # scan, render and write landing page 
 def build_it():
     # get 'Pathlib' paths and blog metadata from config file
@@ -57,13 +59,14 @@ def build_it():
     for atom in atoms:
         tree = ET.parse(atom)
         root = tree.getroot()
-        content = root.find('entry').find('content').text
+        entry = root.find('{*}entry')
+        content = entry.find('{*}content').text
         content = content.replace('\**', '<').replace('**/', '>')
-        title = re.compile(r"#(.+)").findall(content)[0].strip()
-        content = re.compile(r"#(.+)").sub('', content, 1)
+        title = TITLE_RE.findall(content)[0].strip()
+        content = TITLE_RE.sub('', content, 1)
         post = dict()
-        post['updated'] = root.find('entry').find('updated').text
-        post['published'] = root.find('entry').find('published').text
+        post['updated'] = entry.find('{*}updated').text
+        post['published'] = entry.find('{*}published').text
         post['original'] = True if post['updated'] == post['published'] else False
         post['title'] = title
         post['body'] = cmarkgfm.markdown_to_html(
