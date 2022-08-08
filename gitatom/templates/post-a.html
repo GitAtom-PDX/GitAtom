@@ -6,12 +6,11 @@
 
 <h1>{{title}}</h1>
 {% if original %}
-<h5>published {{published}}</h5>
+<p class="pubdt">{{published}}</p>
 {% else %}
-<h5>updated {{updated}}</h4>
-<h5>published {{published}}</h5>
+<p class="pubdt">{{published}} (last update {{updated}})</p>
 {% endif %}
 
-{{content}}
+{{body}}
 
 {% endblock %}

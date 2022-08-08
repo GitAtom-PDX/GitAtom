@@ -37,23 +37,36 @@ def create(publish_directory):
 # https://thispointer.com/convert-utc-datetime-string-to-local-time-in-python/
 local_zone = tz.tzlocal()
 
-# Convert ISO 8601 string to local timezone.
-def dtlocal(iso):
-    t = dateparser.isoparse(iso).astimezone(local_zone)
-    return t.strftime("%Y-%m-%d %H:%M:%S %Z")
+# convert ISO 8601 string to local timezone datetime
+def datetime_local(iso):
+    return dateparser.isoparse(iso).astimezone(local_zone)
+
+# render datetime in a user-friendly detail format
+def datetime_render(dt):
+    return dt.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+# render datetime as date
+def datetime_date(dt):
+    return dt.strftime("%Y-%m-%d")
 
 # used for recognizing post titles
 TITLE_RE = re.compile(r"#(.+)")
 
-# scan, render and write landing page 
+# scan, render and write blog content
 def build_it():
     # get 'Pathlib' paths and blog metadata from config file
     cfg = config.load_into_dict()
     site_dir = Path(cfg['publish_directory'])
-    posts_dir = Path(cfg['publish_directory'] + '/posts/')
-    atoms_dir = Path('atoms/')
+    posts_dir = Path(cfg['publish_directory']) / 'posts'
+    atoms_dir = Path('atoms')
     site_title = Path(cfg['feed_title'])
     site_author = Path(cfg['author'])
+
+    # basic sanity check
+    if not site_dir.is_dir():
+        print("cannot build site")
+        print("run init.py before committing to generate site")
+        exit(1)
 
     # load jinja template location/environment
     file_loader = FileSystemLoader('./templates/')
@@ -62,89 +75,126 @@ def build_it():
     blog_template = env.get_template('blog-a.html')
     archive_template = env.get_template('archive-a.html')
 
-    atoms = list(atoms_dir.glob('*.xml')) # to be scanned and rendered
-    posts = list() # to be sorted and rendered on blog template
-    archive = list() # to be sorted and rendered on archive template
-    files = list() # to be returned - list of generated html files
+    # set up state to be accumulated
+    # atoms to be scanned and rendered
+    atoms = list(atoms_dir.glob('*.xml'))
+    # posts to be sorted and rendered on blog template
+    posts = list()
+    # posts to be sorted and rendered on archive template
+    archives = list()
+    # generated html files to be returned
+    files = list()
 
     # read atoms and render individual entries, add to lists
     for atom in atoms:
+        # extract relevant information from atom feed file
         tree = ET.parse(atom)
         root = tree.getroot()
         entry = root.find('{*}entry')
-        content = entry.find('{*}content').text
-        content = content.replace('\**', '<').replace('**/', '>')
-        title = TITLE_RE.findall(content)[0].strip()
-        content = TITLE_RE.sub('', content, 1)
-        post = dict()
-        post['published'] = dtlocal(entry.find('{*}published').text)
-        post['updated'] = post['published']
-        original = True
-        upd = entry.find('{*}updated')
-        if upd is not None:
-            upd = upd.text
-            if upd != post['published']:
-                original = False
-                post['updated'] = dtlocal(upd)
-        post['original'] = original
-        post['title'] = title
-        post['body'] = cmarkgfm.markdown_to_html(
-            content,
+        atom_content = entry.find('{*}content')
+        atom_updated = entry.find('{*}updated')
+        atom_published = entry.find('{*}published')
+
+        # split content into body and title
+        content = atom_content.text.replace('\**', '<').replace('**/', '>')
+        post_title = TITLE_RE.findall(content)[0].strip()
+        post_body = cmarkgfm.markdown_to_html(
+            TITLE_RE.sub('', content, 1),
             options = cmarkgfm_options.CMARK_OPT_UNSAFE,
         )
-        post['link'] = 'posts/' + atom.stem + '.html'
+
+        # get a post link
+        post_link = (Path("posts") / atom.name).with_suffix('.html')
+
+        # deal with updates
+        # XXX non-updated posts by default have an `updated`
+        # entry in their atom feed file that is the same as
+        # their `published` entry
+        post_published = datetime_local(atom_published.text)
+        post_updated = post_published
+        post_original = True
+        if atom_updated is not None:
+            upd = datetime_local(atom_updated.text)
+            if upd != post_published:
+                post_original = False
+                post_updated = upd
+
+        # queue the post
+        post = {
+            'published' : datetime_render(post_published),
+            'updated' : datetime_render(post_updated),
+            'original' : post_original,
+            'title' : post_title,
+            'body' : post_body,
+            'link' : post_link,
+        }
         posts.append(post)
-        archive.append( { 'title' : post['title'], 'link' : post['link'], 'published': post['published'], 'updated' : post['updated'], 'original' : post['original']} )
+
+        # queue the archive entry
+        archive = dict(post)
+        archive['published'] = datetime_date(post_published)
+        archive['updated'] = datetime_date(post_updated)
+        archives.append(archive)
 
         # write post html files, add to files list
+        nav_dict = {
+            'home' : '../index.html',
+            'archive' : '../archive.html'
+        }
+        # XXX ugh there must be a better way to build this
         html_name = atom.stem + '.html'
-        nav_dict = { 'home' : '../index.html', 'archive' : '../archive.html' }
-        try:
-            with open(posts_dir / html_name, "w") as outfile:
-                outfile.write(
-                    post_template.render(
-                        stylesheet='../style.css',
-                        nav=nav_dict,
-                        title=post['title'],
-                        updated=post['updated'],
-                        published=post['published'],
-                        original=post['original'],
-                        content=post['body']
-                    )
+        post_path = posts_dir / html_name
+        with open(post_path, "w") as outfile:
+            outfile.write(
+                post_template.render(
+                    stylesheet='../style.css',
+                    nav=nav_dict,
+                    **post,
                 )
-            files.append(str(posts_dir / html_name))
-        except:
-            print("\n No 'posts/' directory found in 'publish_directory' ")
-            break
+            )
+            files.append(post_path)
 
     # sort and render blog and archive templates
-    sorted_posts = sorted(posts, key=lambda post: post['updated'], reverse=True)
-    sorted_archive = sorted(archive, key=lambda item: item['updated'], reverse=True)
-    sidebar_len = len(archive) if len(archive) < 5 else 5
-    nav_dict = { 'home' : 'index.html', 'archive' : 'archive.html' }
+    # XXX should sort on datetime not string
+    sorted_posts = sorted(
+        posts,
+        key=lambda post: post['published'],
+        reverse=True,
+    )
+    sorted_archives = sorted(
+        archives,
+        key=lambda item: item['published'],
+        reverse=True,
+    )
+    nav_dict = {
+        'home' : 'index.html',
+        'archive' : 'archive.html',
+    }
+    basic_fields = {
+        'stylesheet' : './style.css', 
+        'title' : site_title, 
+        'author' : site_author,
+        'nav' : nav_dict,
+    }
+    # XXX should be configurable somehow
+    sidebar_len = min(len(archive), 5)
     rendered_blog = blog_template.render(
-        stylesheet='./style.css', 
-        title=site_title, 
-        author=site_author,
-        nav=nav_dict, posts=sorted_posts,
-        sidebar=sorted_archive[0:sidebar_len])
+        posts=sorted_posts,
+        sidebar=sorted_archives[:sidebar_len],
+        **basic_fields,
+    )
     rendered_archive = archive_template.render(
-        stylesheet='./style.css', 
-        title=site_title,
-        author=site_author,
-        nav=nav_dict, archive=sorted_archive)
+        archive=sorted_archives,
+        **basic_fields,
+    )
 
-    # write blog and archive html files, add to files list
-    try:
-        index = site_dir / "index.html"
-        with open(index, 'w') as f:
-            f.write(rendered_blog)
-        archive = site_dir / "archive.html"
-        with open(archive, 'w') as f:
-            f.write(rendered_archive)
-        files.append(str(index))
-        files.append(str(archive))
-    except:
-        print("\n Run init.py before committing to generate site \n")
-
+    # write blog and archive html files, build files list
+    index_path = site_dir / "index.html"
+    with open(index_path, 'w') as f:
+        f.write(rendered_blog)
+    archive_path = site_dir / "archive.html"
+    with open(archive_path, 'w') as f:
+        f.write(rendered_archive)
+    files.append(index_path)
+    files.append(archive_path)
     return files

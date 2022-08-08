@@ -83,3 +83,8 @@ nav ul li a:focus {
     flex: 100%;
   }
 }
+
+.pubdt {
+    font-style: italic;
+    font-size: 80%;
+}

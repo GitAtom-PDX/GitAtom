@@ -12,8 +12,6 @@ from os import path
 from datetime import datetime, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
-from jinja2 import Environment, FileSystemLoader
- 
   
 def current_time():
     return f"{datetime.utcnow().isoformat(timespec='seconds')}Z"

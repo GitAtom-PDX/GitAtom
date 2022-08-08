@@ -13,12 +13,7 @@
 	{% for post in posts %}
 		<div class=entry id=post>
 			<h1><a href={{post.link}}>{{ post.title }}</a></h1>
-			{% if post.original %}
-			<h4>published {{ post.published }}</h4>
-			{% else %}
-			<h4>updated {{post.updated}}</h4>
-			<h4>published {{ post.published }}</h4>
-			{% endif %}
+			<p class="pubdt">{{ post.published }}</p>
 			<p>{{ post.body }}</p>
 		</div>
 		<br>
@@ -29,14 +24,13 @@
 	<h3>Recent Posts</h3>
 
 	{% for item in sidebar %}
-		<div class=item>
-			<h4><a href={{item.link}}>{{ item.title }}</a></h4>
+                <div class=item>
 			{% if item.original %}
-			<h5>published {{ item.published }}</h5>
+			{{ item.published }}:
 			{% else %}
-			<h5>updated {{ item.updated }}</h5>
-			<h5>published {{ item.published }}</h5>
+			{{ item.updated }}:
 			{% endif %}
+                        <a href={{item.link}}>{{ item.title }}</a>
 		</div>
 		<br>
 	{% endfor %}
