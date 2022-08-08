@@ -3,3 +3,4 @@ cmarkgfm
 pyyaml
 pygit2
 paramiko
+python-dateutil

@@ -16,7 +16,7 @@ from jinja2 import Environment, FileSystemLoader
  
   
 def current_time():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return f"{datetime.utcnow().isoformat(timespec='seconds')}Z"
 
 # Takes a .md file and pastes its content into an atom xml format
 def atomify(md):

@@ -19,6 +19,9 @@ from shutil import copyfile
 import re
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
+import dateutil.parser as dateparser
+from dateutil import tz
+from datetime import datetime
 
 # create files with no content 
 def create(publish_directory):
@@ -31,6 +34,15 @@ def create(publish_directory):
     with open(archive, 'w') as f:
         f.write("")
 
+# https://thispointer.com/convert-utc-datetime-string-to-local-time-in-python/
+local_zone = tz.tzlocal()
+
+# Convert ISO 8601 string to local timezone.
+def dtlocal(iso):
+    t = dateparser.isoparse(iso).astimezone(local_zone)
+    return t.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+# used for recognizing post titles
 TITLE_RE = re.compile(r"#(.+)")
 
 # scan, render and write landing page 
@@ -65,9 +77,16 @@ def build_it():
         title = TITLE_RE.findall(content)[0].strip()
         content = TITLE_RE.sub('', content, 1)
         post = dict()
-        post['updated'] = entry.find('{*}updated').text
-        post['published'] = entry.find('{*}published').text
-        post['original'] = True if post['updated'] == post['published'] else False
+        post['published'] = dtlocal(entry.find('{*}published').text)
+        post['updated'] = post['published']
+        original = True
+        upd = entry.find('{*}updated')
+        if upd is not None:
+            upd = upd.text
+            if upd != post['published']:
+                original = False
+                post['updated'] = dtlocal(upd)
+        post['original'] = original
         post['title'] = title
         post['body'] = cmarkgfm.markdown_to_html(
             content,
