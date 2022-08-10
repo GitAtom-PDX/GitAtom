@@ -1,14 +1,67 @@
 # GitAtom
 
-GitAtom is a git-based static site generator used to create
-and manage Markdown blog content using the Atom XML format.
+GitAtom is a "static" website generator used to create and manage
+Markdown blog content using [Git](https://git-scm.com) and
+the
+[Atom feed format](https://www.ibm.com/docs/en/baw/19.x?topic=formats-atom-feed-format).
 
-Upon committing one or more Markdown files, GitAtom will
-automatically generate a static website and commit all
-required files for you. You can even configure GitAtom to
+Upon Git-committing one or more
+[Markdown-formatted](https://github.com/github/cmark-gfm)
+posts to your blog, GitAtom will automatically regenerate a
+static website for you. You can even configure GitAtom to
 automatically publish your site to a remote repository upon
-push.
+Git push.
+
+**This is a work in progress! GitAtom is not yet really
+ready for general use. Please see the
+[GitAtom Issue Tracker](https://github.com/GitAtom-PDX/GitAtom/issues)
+for some of the many GitAtom pitfalls.**
  
+## Background
+
+After 20 years of blogging (off and on), Bart Massey got
+tired of some of the issues with the various blog
+platforms. A CS Capstone Team at
+[Portland State University](http://pdx.edu) wrote GitAtom to
+Bart's design. Bart has subsequently maintained and updated
+GitAtom.
+
+What does GitAtom offer?
+
+* **Maximal data portability:** If you decide to migrate
+  your blog content away from GitAtom, you should be able to
+  do something reasonable with the combination of per-post
+  Atom feed files and Git repo that GitAtom maintains for you.
+
+* **Old-school convenience:** If you are the kind of person
+  who wants to just edit a Markdown blog post with emacs,
+  git-commit it, push it and have a blog post on the web —
+  you are me and you get that. Github Markdown is a good
+  markdown engine for blogging purposes.
+
+* **Reasonable flexibility:** GitAtom is only
+  medium-opinionated. The use of Jinja2 templating, CSS
+  styling on top of simple HTML, and direct access to the
+  Git repo via libgit2 means that adapting GitAtom to your
+  needs may not be too much of a pull.
+
+What are the downsides?
+
+* **Major features are missing:** Some stuff you'd expect
+  from any blog platform isn't there: notably any kind of a
+  feed mechanism. Adding missing features is a high
+  priority, but let's just say pull requests are welcome.
+
+* **Fragile:** The codebase is tiny but full of
+  small issues at this point. Lots of stuff will panic during
+  site generation that should be more gracefully handled.
+  The process of publishing remotely is a bit convoluted and
+  can go wrong in many ways.
+
+* **Bespoke:** This is a boutique project. It has only one
+  developer-user currently. You will not have access to help
+  or support other than that.
+
 ## Setup 
 
 The setup of GitAtom is a bit intricate, in spite of some
@@ -17,9 +70,9 @@ familiar with the technologies used by GitAtom.
 
 ### Requirements 
 
-`python3`, `pip3`, and `git 2.27` or later must be installed
-prior to installing GitAtom.  `git` must be up to date on
-both local and remote systems to deploy remotely.
+`python3.9` and `git 2.27` or later must be installed before
+installing GitAtom.  `git` must be up to date on both local
+and remote systems to deploy remotely.
 
 ### Installation 
 
@@ -29,10 +82,10 @@ To begin, clone GitAtom to your local machine.
 git clone https://github.com/GitAtom-PDX/GitAtom.git
 ```
 
-Next, install all required modules using `pip3`.
+Next, install all required modules.
 
 ```
-pip3 install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 The following modules will be installed:
@@ -40,7 +93,7 @@ The following modules will be installed:
 * [Jinja2](https://pypi.org/project/Jinja2/) for site
   generation and formatting.
 
-* [cmark](https://pypi.org/project/cmarkgfm/) to convert
+* [cmarkgfm](https://pypi.org/project/cmarkgfm/) to convert
   Markdown to HTML for site generation.
 
 * [PyYAML](https://pypi.org/project/PyYAML/) for config
@@ -50,6 +103,9 @@ The following modules will be installed:
 
 * [paramiko](https://pypi.org/project/paramiko/) to
   initialize remote server.
+
+* [python-dateutil](https://dateutil.readthedocs.io/en/stable/)
+  to handle date-time parsing, formatting and conversions.
 
 ### Set Up Environment Variable
 
@@ -74,6 +130,7 @@ needs to operate.
 Once you have completed the initialization of `GitAtom` (see
 below), you may move `content/` elsewhere: the main
 `GitAtom` sourcebase is no longer needed.
+
 
 ### Configuration 
 
@@ -132,8 +189,11 @@ especially with GitAtom: `add`, `commit`, and `push`.
 | Command | Description|
 | --- | --- |
 | `add` | Add or update one or more blog posts. Only
-| Markdown files located in the `markdowns/` directory will be tracked for xml file creation. |  
-| `commit` | Generate and commit XML and HTML from added  Markdown file(s). Resulting files are saved in `atoms/` and `site/`. |  
+| Markdown files located in the `markdowns/` directory will
+| be tracked for xml file creation. *Note:* `git commit -a`
+| does not currently work: you will need to explicitly `git add`. |  
+| `commit` | Generate and commit XML and HTML from added
+| Markdown file(s). Resulting files are saved in `atoms/` and `site/`. |  
 | `push` | Publish to the remote repository. |
 
 If using remote deployment, the `post-receive` hook on the
@@ -141,7 +201,7 @@ remote repository will update the site directory at your
 `work_path`, as specified in `config.yaml` during
 initialization.
 
-### Example
+### Blogging
 
 To publish `somepost.md` from your `content/` repo:
 
@@ -150,6 +210,8 @@ git add ./markdowns/somepost.md
 git commit -m 'adding somepost to blog'
 git push -u origin
 ```
+
+(I normally just use `git add .` in the first step.)
 
 Use `git push -u origin` to publish your first
 post. After that, `git push` will default correctly.
@@ -163,14 +225,16 @@ information is extracted from Git at commit time.
 ### Templating 
 
 To change the blog template, simply modify or replace the
-`style.css` file in the `content/site` directory.
+`style.css` file in the `content/site` directory. *Note:*
+the `style.css` in the `templates` directory is currently
+ignored after installation.
 
-## Troubleshooting
 
-### Permission denied on ssh into remote server
+## SSH Issues
 
-This error occurs when a user has multiple ssh keys. Create
-an alias that indicates use of a specific key.
+Perhaps you are seeing "Permission denied on ssh into remote
+server."  This error occurs when a user has multiple ssh
+keys. Create an alias that indicates use of a specific key.
 
 To fix, create an alias in the `~/.ssh/config` file on the
 local machine and reconfigure the remote branch.
