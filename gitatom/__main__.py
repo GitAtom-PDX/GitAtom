@@ -19,14 +19,11 @@ def current_time():
 # Takes a .md file and pastes its content into an atom xml format
 def atomify(md):
     # Check for invalid filetype
-    if not md.endswith('.md'): exit("Incorrect input file type (expected .md)")
+    assert md.endswith('.md'), f"Non .md file {md}"
 
     # Get title and xml filename	
     entry_title= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
     outname = entry_title + '.xml'
-
-    # Check for a matching xml file 
-    atompath = './atoms/'
 
     # Grab tags from config
     # Populate tags
@@ -37,6 +34,8 @@ def atomify(md):
 
     entry_id = feed_id + '/' + entry_title
 
+    # Check for a matching xml file 
+    atompath = './atoms/'
     # should only ever return 0-1 matches
     exists = glob.glob(atompath + outname)
     if exists:
@@ -61,35 +60,33 @@ def atomify(md):
         entry_updated = entry_published		
     feed_updated = entry_updated 		
 
-    # Create atom strings
-    atom = '<?xml version="1.0" encoding="utf-8"?>\n'
-    atom += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
-    atom += '<title>' + feed_title + '</title>\n'
-    atom += '<updated>' + feed_updated + '</updated>\n'
-    atom += '<id>' + feed_id + '</id>\n'
-    atom += '<entry>\n'
-    atom += '<title>' + entry_title + '</title>\n'
-    atom += '<author><name>' + author_name + '</name></author>'
-    atom += '<id>' + entry_id + '</id>\n'
-    atom += '<published>' + entry_published + '</published>\n'
-    atom += '<updated>' + entry_updated + '</updated>\n'
-    atom += '<content>'
+    # Create entry
+    entry = '<entry>\n'
+    entry += '<title>' + entry_title + '</title>\n'
+    entry += '<author><name>' + author_name + '</name></author>'
+    entry += '<id>' + entry_id + '</id>\n'
+    entry += '<published>' + entry_published + '</published>\n'
+    entry += '<updated>' + entry_updated + '</updated>\n'
+    # https://stackoverflow.com/a/66029848/364875
+    entry += '<content type="text/markdown; charset=UTF-8; variant=GFM">'
 
-    # https://stackoverflow.com/questions/3411771/best-way-to-replace-multiple-characters-in-a-string
     with open (md,'r') as f: 
-        #embedded html brackets replaced with *** on either side, can be replaced later using opposite operation
-        atom += f.read().replace('<', '\**').replace('>', '**/')
+        entry += f.read()
 
-    atom += '</content>\n'
-    atom += '</entry>\n'
-    atom += '</feed>\n'
+    entry += '</content>\n'
+    entry += '</entry>\n'
 
-    # Write result to file
-    outfile = open('./atoms/' + outname, 'w')
-    outfile.write(atom)
-    outfile.close()
-    return outname
-  
+    
+    feed = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    feed += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+    feed += '<title>' + feed_title + '</title>\n'
+    feed += '<updated>' + feed_updated + '</updated>\n'
+    feed += '<id>' + feed_id + '</id>\n'
+    feed += entry
+    feed += '</feed>\n'
+
+    return outname, entry, feed
+
 #git add the list of files that were created (HTML,XML)
 def gitatom_git_add(repo, files):
     index = repo.index
@@ -97,8 +94,6 @@ def gitatom_git_add(repo, files):
         index.add(f)
     index.write()
     print('end of gitatom_git_add()')
-
-
 
 #get the list of files that have been staged with git
 def git_staged_files(repo):
@@ -113,12 +108,17 @@ def git_staged_files(repo):
     return staged_files
 
 
-# create a list of files based on newly created files so that they can be git added in gitatom_git_add()
+# Generate atom content.  Returns a list of files based
+# on newly created files so that they can be git added in
+# gitatom_git_add().
 def on_commit(mds):
     files = []
     for md in mds:
-        xml = atomify(md)
-        files.append('atoms/' + xml)
+        outname, entry, feedfile = atomify(md)
+        outfile = open('./atoms/' + outname, 'w')
+        outfile.write(feedfile)
+        outfile.close()
+        files.append('atoms/' + outname)
     html = build.build_it()
     for f in html:
         files.append(f)
