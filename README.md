@@ -127,11 +127,6 @@ Git repo with a ready-to-edit `config.yaml` in it. It will
 populate the `content/` repo with the directories `GitAtom`
 needs to operate.
 
-Once you have completed the initialization of `GitAtom` (see
-below), you may move `content/` elsewhere: the main
-`GitAtom` sourcebase is no longer needed.
-
-
 ### Configuration 
 
 GitAtom must be configured using `config.yaml` prior to
@@ -179,6 +174,11 @@ If using remote deployment (`deploy = true` in
 `./content/config.yaml`), a bare repository will be created
 and the `post-receive` hook will be installed on the remote
 server.
+
+Once you have completed the initialization of `GitAtom`, you
+may move `content/` elsewhere: the main `GitAtom` sourcebase
+will be referenced using the `GITATOM_PATH` environment
+variable (described above).
 
 ## Usage
 
