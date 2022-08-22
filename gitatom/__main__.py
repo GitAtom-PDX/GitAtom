@@ -13,9 +13,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-def current_time():
-    return f"{datetime.utcnow().isoformat(timespec='seconds')}Z"
-
 # Generate an Atom Feed File or Feed File header or Feed File entry.
 def atomify(outtype, md=None):
     assert outtype in {"file", "header", "entry"}, \
@@ -31,6 +28,7 @@ def atomify(outtype, md=None):
         site_url = cfg['site_url']
     else:
         site_url = f"http://{feed_id}"
+    now = f"{datetime.utcnow().isoformat(timespec='seconds')}Z"
 
     # Take care of just generating a header.
     if outtype == "header":
@@ -42,6 +40,7 @@ def atomify(outtype, md=None):
         header += f'href="{site_url}/feed.atom"/>\n'
         header += '<generator uri="https://github.com/GitAtom-PDX/GitAtom">'
         header += 'GitAtom</generator>\n'
+        header += f'<updated>{now}</updated>\n'
         return header
     
     # Get title and xml filename	
@@ -71,11 +70,11 @@ def atomify(outtype, md=None):
         published = entry.find('{*}published')
         assert published is not None, f"{outname}: no published: {list(entry)}"
         entry_published = published.text
-        entry_updated = current_time()
+        entry_updated = now
     else:
         # atom file didnt exist yet
         # use current time
-        entry_published = current_time()
+        entry_published = now
         entry_updated = entry_published		
     feed_updated = entry_updated
 
@@ -101,6 +100,7 @@ def atomify(outtype, md=None):
         entry += content
         entry += '</content>\n'
     elif outtype == "entry":
+        entry += f'<link href="{site_url}/posts/{entry_filename}.html">\n'
         entry += f'<content type="xhtml" xml:base="{site_url}">'
         html_content = cmarkgfm.markdown_to_html(
             content_body,
