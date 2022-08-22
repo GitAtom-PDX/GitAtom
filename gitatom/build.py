@@ -65,6 +65,17 @@ def split_content(content):
     body = fields[2]
     return title, body
 
+RAW_TEXT_RE = re.compile("<[^>]*>([^<]*)<[^>]*>\n", flags=re.M)
+
+# extract text from ElementTree leaf preserving entities.
+# XXX This is the grossest hack I've done in a long time.
+# Suggestions welcome. --Bart
+def raw_text(node):
+    text = ET.tostring(node, encoding="unicode", method="html")
+    match = RAW_TEXT_RE.fullmatch(text)
+    assert match is not None, f"internal error: failed match on '{text}'"
+    return match[1]
+
 # scan, render and write blog content
 def build_it():
     # get 'Pathlib' paths and blog metadata from config file
@@ -104,8 +115,8 @@ def build_it():
         tree = ET.parse(atom)
         root = tree.getroot()
         entry = root.find('{*}entry')
-        atom_content_raw = entry.find('{*}content')
-        atom_content = escape.unescape(atom_content_raw.text)
+        atom_content_raw = raw_text(entry.find('{*}content'))
+        atom_content = escape.unescape(atom_content_raw)
         atom_updated = entry.find('{*}updated')
         atom_published = entry.find('{*}published')
 
