@@ -22,6 +22,7 @@ import re
 import dateutil.parser as dateparser
 from dateutil import tz
 from datetime import datetime
+from gitatom import escape
   
 # used for recognizing post titles
 # https://stackoverflow.com/a/3469155/364875
@@ -103,11 +104,12 @@ def build_it():
         tree = ET.parse(atom)
         root = tree.getroot()
         entry = root.find('{*}entry')
-        atom_content = entry.find('{*}content')
+        atom_content_raw = entry.find('{*}content')
+        atom_content = escape.unescape(atom_content_raw.text)
         atom_updated = entry.find('{*}updated')
         atom_published = entry.find('{*}published')
 
-        post_title, post_markdown = split_content(atom_content.text)
+        post_title, post_markdown = split_content(atom_content)
         post_body = cmarkgfm.markdown_to_html(
             post_markdown,
             options = cmarkgfm_options.CMARK_OPT_UNSAFE,

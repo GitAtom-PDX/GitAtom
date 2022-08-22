@@ -12,6 +12,7 @@ from os import path
 from datetime import datetime, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
+from gitatom import escape
 
 # Generate an Atom Feed File or Feed File header or Feed File entry.
 def atomify(outtype, md=None):
@@ -79,7 +80,8 @@ def atomify(outtype, md=None):
     feed_updated = entry_updated
 
     with open (md,'r') as f: 
-        content = f.read()
+        raw_content = f.read()
+        content = escape.escape(raw_content)
     content_title, content_body = build.split_content(content)
 
     # Create entry
