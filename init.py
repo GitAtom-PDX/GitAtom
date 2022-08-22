@@ -6,6 +6,8 @@ import os
 import paramiko
 import pygit2
 import sys
+import shutil
+from pathlib import Path
 
 from gitatom import config
 
@@ -73,13 +75,9 @@ print("initializing")
 cfg = config.load_into_dict()
 
 # Place the hook in local that will create files and /site.
-from_pc = './gitatom/hooks/pre-commit'
-to_pc = './content/.git/hooks/pre-commit'
-with open (from_pc,'r') as f:
-    lines = f.read()
-outfile = open(to_pc,'w')
-outfile.write(lines)
-outfile.close()
+from_pc = Path('./gitatom/hooks/pre-commit')
+to_pc = Path('./content/.git/hooks/pre-commit')
+shutil.copyfile(from_pc, to_pc)
 os.chmod(to_pc, 0o755)
 
 # check if deploy set to true before running remote

@@ -37,7 +37,9 @@ content_path.mkdir()
 
 generate_default_config('./content/config.yaml')
 
-posts_path = Path(f'./content/{publish_directory}/posts')
+publish_path = Path(f'./content/{publish_directory}')
+
+posts_path = publish_path / 'posts'
 posts_path.mkdir(parents=True)
 
 atoms_path = Path('./content/atoms')
@@ -46,9 +48,10 @@ atoms_path.mkdir()
 markdowns_path = Path('./content/markdowns')
 markdowns_path.mkdir()
 
-build.create(f"./content/{publish_directory}")
+build.create(publish_path)
 
 shutil.copytree("gitatom/templates/", "./content/templates")
+shutil.move("./content/templates/style.css", publish_path)
 
 # Set up the content repo.
 wstatus = os.system("""sh -c '

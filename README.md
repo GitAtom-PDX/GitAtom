@@ -225,10 +225,7 @@ information is extracted from Git at commit time.
 ### Templating 
 
 To change the blog template, simply modify or replace the
-`style.css` file in the `content/site` directory. *Note:*
-the `style.css` in the `templates` directory is currently
-ignored after installation.
-
+`style.css` file in the `content/site` directory.
 
 ## SSH Issues
 
