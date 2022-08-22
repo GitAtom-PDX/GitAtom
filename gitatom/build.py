@@ -16,12 +16,15 @@ from pathlib import Path
 import cmarkgfm
 from cmarkgfm.cmark import Options as cmarkgfm_options
 from shutil import copyfile
-import re
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
+import re
 import dateutil.parser as dateparser
 from dateutil import tz
 from datetime import datetime
+  
+# used for recognizing post titles
+TITLE_RE = re.compile(r"#(.+)")
 
 # create files with no content 
 def create(publish_directory):
@@ -48,9 +51,6 @@ def datetime_render(dt):
 # render datetime as date
 def datetime_date(dt):
     return dt.strftime("%Y-%m-%d")
-
-# used for recognizing post titles
-TITLE_RE = re.compile(r"#(.+)")
 
 # scan, render and write blog content
 def build_it():

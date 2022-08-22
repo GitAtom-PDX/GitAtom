@@ -2,28 +2,24 @@ from gitatom import build
 import yaml
 from gitatom import config
 import shutil
-import cmarkgfm  # used to convert markdown to html in mdtohtml()
+import cmarkgfm  # used to convert markdown to text in atomify.
+from cmarkgfm.cmark import Options as cmarkgfm_options
 import pygit2 
 import glob
 import sys
-import re
 import string
 from os import path
 from datetime import datetime, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
-  
+
 def current_time():
     return f"{datetime.utcnow().isoformat(timespec='seconds')}Z"
 
-# Takes a .md file and pastes its content into an atom xml format
-def atomify(md):
-    # Check for invalid filetype
-    assert md.endswith('.md'), f"Non .md file {md}"
-
-    # Get title and xml filename	
-    entry_title= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
-    outname = entry_title + '.xml'
+# Generate an Atom Feed File or Feed File header or Feed File entry.
+def atomify(outtype, md=None):
+    assert outtype in {"file", "header", "entry"}, \
+        f"internal error: unknown atom output type {outtype}"
 
     # Grab tags from config
     # Populate tags
@@ -31,6 +27,29 @@ def atomify(md):
     feed_id = cfg['feed_id']
     feed_title = cfg['feed_title']
     author_name = cfg['author']
+    if 'site_url' in cfg:
+        site_url = cfg['site_url']
+    else:
+        site_url = f"http://{feed_id}"
+
+    # Take care of just generating a header.
+    if outtype == "header":
+        header = '<?xml version="1.0" encoding="utf-8"?>\n'
+        header += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+        header += f'<title>{feed_title}</title>\n'
+        header += f'<id>{feed_id}</id>\n'
+        header += '<link rel="self" type="application/atom+xml" '
+        header += f'href="{site_url}/feed.atom"/>\n'
+        header += '<generator uri="https://github.com/GitAtom-PDX/GitAtom">'
+        header += 'GitAtom</generator>\n'
+        return header
+    
+    # Get title and xml filename	
+    entry_title= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
+    outname = entry_title + '.xml'
+
+    # Check for invalid filetype
+    assert md.endswith('.md'), f"Non .md file {md}"
 
     entry_id = feed_id + '/' + entry_title
 
@@ -68,24 +87,39 @@ def atomify(md):
     entry += '<published>' + entry_published + '</published>\n'
     entry += '<updated>' + entry_updated + '</updated>\n'
     # https://stackoverflow.com/a/66029848/364875
-    entry += '<content type="text/markdown; charset=UTF-8; variant=GFM">'
-
-    with open (md,'r') as f: 
-        entry += f.read()
-
-    entry += '</content>\n'
+    if outtype == "file":
+        entry += '<content type="text/markdown; charset=UTF-8; variant=GFM">'
+        with open (md,'r') as f: 
+            entry += f.read()
+        entry += '</content>\n'
+    elif outtype == "entry":
+        entry += f'<content type="xhtml" xml:base="{site_url}">'
+        with open (md,'r') as f: 
+            content = f.read()
+        html_content = cmarkgfm.markdown_to_html(
+            build.TITLE_RE.sub('', content, 1),
+            options = cmarkgfm_options.CMARK_OPT_UNSAFE,
+        )
+        entry += html_content
+        entry += '</content>\n'
+    else:
+        assert False, f"internal error: unknown atom content type {outtype}"
     entry += '</entry>\n'
 
-    
-    feed = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    feed += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
-    feed += '<title>' + feed_title + '</title>\n'
-    feed += '<updated>' + feed_updated + '</updated>\n'
-    feed += '<id>' + feed_id + '</id>\n'
-    feed += entry
-    feed += '</feed>\n'
+    if outtype == "entry":
+        return entry
 
-    return outname, entry, feed
+    if outtype == "file":
+        feed = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        feed += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+        feed += '<title>' + feed_title + '</title>\n'
+        feed += '<updated>' + feed_updated + '</updated>\n'
+        feed += '<id>' + feed_id + '</id>\n'
+        feed += entry
+        feed += '</feed>\n'
+        return outname, feed
+
+    assert False, f"internal error: unknown atom type {outtype}"
 
 #git add the list of files that were created (HTML,XML)
 def gitatom_git_add(repo, files):
@@ -112,12 +146,22 @@ def git_staged_files(repo):
 # gitatom_git_add().
 def on_commit(mds):
     files = []
-    for md in mds:
-        outname, entry, feedfile = atomify(md)
-        outfile = open('./atoms/' + outname, 'w')
-        outfile.write(feedfile)
-        outfile.close()
-        files.append('atoms/' + outname)
+    with open("./site/feed.xml", 'w') as feed:
+        atomheader = atomify("header")
+        feed.write(atomheader)
+        for md in mds:
+            # make feed entry file
+            outname, feedfile = atomify("file", md=md)
+            outfile = open('./atoms/' + outname, 'w')
+            outfile.write(feedfile)
+            outfile.close()
+            files.append('atoms/' + outname)
+
+            # add entry to feed file
+            atomentry = atomify("entry", md=md)
+            feed.write(atomentry)
+        feed.write('</feed>\n')
+    files.append('site/feed.xml')
     html = build.build_it()
     for f in html:
         files.append(f)
