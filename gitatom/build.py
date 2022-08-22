@@ -24,7 +24,11 @@ from dateutil import tz
 from datetime import datetime
   
 # used for recognizing post titles
-TITLE_RE = re.compile(r"#(.+)")
+# https://stackoverflow.com/a/3469155/364875
+TITLE_RE = re.compile(
+    r"[\s\n]*[#][^\S\n]*([^\n]*)\n+(.*)",
+    flags=re.M|re.S,
+)
 
 # create files with no content 
 def create(publish_directory):
@@ -51,6 +55,14 @@ def datetime_render(dt):
 # render datetime as date
 def datetime_date(dt):
     return dt.strftime("%Y-%m-%d")
+
+# split content into title and body
+def split_content(content):
+    fields = TITLE_RE.fullmatch(content)
+    assert fields is not None, "content split failure"
+    title = fields[1].rstrip()
+    body = fields[2]
+    return title, body
 
 # scan, render and write blog content
 def build_it():
@@ -95,11 +107,9 @@ def build_it():
         atom_updated = entry.find('{*}updated')
         atom_published = entry.find('{*}published')
 
-        # split content into body and title
-        content = atom_content.text.replace('\**', '<').replace('**/', '>')
-        post_title = TITLE_RE.findall(content)[0].strip()
+        post_title, post_markdown = split_content(atom_content.text)
         post_body = cmarkgfm.markdown_to_html(
-            TITLE_RE.sub('', content, 1),
+            post_markdown,
             options = cmarkgfm_options.CMARK_OPT_UNSAFE,
         )
 
@@ -177,7 +187,7 @@ def build_it():
         'nav' : nav_dict,
     }
     # XXX should be configurable somehow
-    sidebar_len = min(len(archive), 5)
+    sidebar_len = min(len(archives), 5)
     rendered_blog = blog_template.render(
         posts=sorted_posts,
         sidebar=sorted_archives[:sidebar_len],

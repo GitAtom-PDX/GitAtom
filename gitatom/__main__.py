@@ -45,13 +45,13 @@ def atomify(outtype, md=None):
         return header
     
     # Get title and xml filename	
-    entry_title= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
-    outname = entry_title + '.xml'
+    entry_filename= path.splitext(path.basename(md))[0] # TODO make os-agnostic 
+    outname = entry_filename + '.xml'
 
     # Check for invalid filetype
     assert md.endswith('.md'), f"Non .md file {md}"
 
-    entry_id = feed_id + '/' + entry_title
+    entry_id = feed_id + '/' + entry_filename
 
     # Check for a matching xml file 
     atompath = './atoms/'
@@ -77,27 +77,33 @@ def atomify(outtype, md=None):
         # use current time
         entry_published = current_time()
         entry_updated = entry_published		
-    feed_updated = entry_updated 		
+    feed_updated = entry_updated
+
+    with open (md,'r') as f: 
+        content = f.read()
+    content_title, content_body = build.split_content(content)
 
     # Create entry
     entry = '<entry>\n'
-    entry += '<title>' + entry_title + '</title>\n'
-    entry += '<author><name>' + author_name + '</name></author>'
+    if outtype == "file":
+        entry += '<title>' + entry_filename + '</title>\n'
+    elif outtype == "entry":
+        entry += '<title>' + content_title + '</title>\n'
+    else:
+        assert False, f"internal error: unknown atom content_type {outtype}"
+    entry += '<author><name>' + author_name + '</name></author>\n'
     entry += '<id>' + entry_id + '</id>\n'
     entry += '<published>' + entry_published + '</published>\n'
     entry += '<updated>' + entry_updated + '</updated>\n'
     # https://stackoverflow.com/a/66029848/364875
     if outtype == "file":
         entry += '<content type="text/markdown; charset=UTF-8; variant=GFM">'
-        with open (md,'r') as f: 
-            entry += f.read()
+        entry += content
         entry += '</content>\n'
     elif outtype == "entry":
         entry += f'<content type="xhtml" xml:base="{site_url}">'
-        with open (md,'r') as f: 
-            content = f.read()
         html_content = cmarkgfm.markdown_to_html(
-            build.TITLE_RE.sub('', content, 1),
+            content_body,
             options = cmarkgfm_options.CMARK_OPT_UNSAFE,
         )
         entry += html_content
