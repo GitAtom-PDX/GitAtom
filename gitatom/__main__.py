@@ -28,22 +28,14 @@ def git_staged_files(repo):
 # gitatom_git_add().
 def on_commit(mds):
     files = []
-    with open("./site/feed.xml", 'w') as feed:
-        atomheader = build.atomify("header")
-        feed.write(atomheader)
-        for md in mds:
-            # make feed entry file
-            outname, feedfile = build.atomify("file", md=md)
-            outfile = open('./atoms/' + outname, 'w')
-            outfile.write(feedfile)
-            outfile.close()
-            files.append('atoms/' + outname)
+    for md in mds:
+        # make feed entry file
+        outname, feedfile = build.atomify("file", md=md)
+        outfile = open('./atoms/' + outname, 'w')
+        outfile.write(feedfile)
+        outfile.close()
+        files.append('atoms/' + outname)
 
-            # add entry to feed file
-            atomentry = build.atomify("entry", md=md)
-            feed.write(atomentry)
-        feed.write('</feed>\n')
-    files.append('site/feed.xml')
     html = build.build_it()
     for f in html:
         files.append(f)
