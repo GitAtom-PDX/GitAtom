@@ -191,7 +191,7 @@ def gen_feedfile(md):
 def gen_feed_header(cfg):
     header = gen_atom_header(cfg)
     header += '<link rel="self" type="application/atom+xml" '
-    header += f'href="{cfg["site_url"]}/feed.atom"/>\n'
+    header += f'href="{cfg["site_url"]}/feed.xml"/>\n'
     return header
 
 def gen_feed_footer(cfg):
