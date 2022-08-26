@@ -30,11 +30,11 @@ def on_commit(mds):
     files = []
     for md in mds:
         # make feed entry file
-        outname, feedfile = build.atomify("file", md=md)
-        outfile = open('./atoms/' + outname, 'w')
-        outfile.write(feedfile)
-        outfile.close()
-        files.append('atoms/' + outname)
+        feedfile = build.gen_feedfile(md)
+        outname = 'atoms/' + build.filepart(md) + '.xml'
+        with open(outname, 'w') as outfile:
+            outfile.write(feedfile)
+        files.append(outname)
 
     html = build.build_it()
     for f in html:

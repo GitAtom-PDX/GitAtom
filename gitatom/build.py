@@ -67,6 +67,10 @@ def split_content(content):
     body = fields[2]
     return title, body
 
+# get the non-extension part of the basename of p
+def filepart(p):
+    return path.splitext(path.basename(p))[0]
+
 RAW_TEXT_RE = re.compile("<[^>]*>([^<]*)<[^>]*>\n", flags=re.M)
 
 # extract text from ElementTree leaf preserving entities.
@@ -78,134 +82,120 @@ def raw_text(node):
     assert match is not None, f"internal error: failed match on '{text}'"
     return match[1]
 
-
 # Set up a from-scratch configuration from the config data.
-def get_atom_config():
+# Provides: site_url, now
+def new_config():
     cfg = config.load_into_dict()
     if 'site_url' not in cfg:
-        cfg['site_url'] = f"http://{feed_id}"
+        cfg['site_url'] = f"http://{cfg['feed_id']}"
     cfg['now'] = f"{datetime.utcnow().isoformat(timespec='seconds')}Z"
     return cfg
 
-def cfg_from_atom(cfg, md):
+# Update a config from an atom file if possible; otherwise
+# from the source md file.
+# Requires: feed_id, entry_filename, now
+# Provides: entry_id, entry_published, entry_updated
+def update_cfg_from_atom(cfg):
     cfg['entry_id'] = cfg['feed_id'] + '/' + cfg['entry_filename']
 
     # Check for a matching xml file 
-    atompath = './atoms/'
+    atom_filename = './atoms/' + cfg['entry_filename'] + '.xml'
     # should only ever return 0-1 matches
-    exists = glob.glob(atompath + outname)
+    exists = Path(atom_filename).is_file()
     if exists:
-        # atom file already exists so update instead of create new
-        # overwrite existing file
-        s = slice(len(atompath), len(exists[0])) # use path length to slice
-        # check slice path against existing file name
-        assert outname == exists[0][s], "weird match fail"
-        # retain existing publish date
-        tree = ET.parse(atompath + outname) 
+        # atom file already exists so retain existing
+        # publish date
+        tree = ET.parse(atom_filename) 
         root = tree.getroot()
         entry = root.find('{*}entry')
         assert entry is not None, f"{outname}: no entry: {list(root)}"
         published = entry.find('{*}published')
         assert published is not None, f"{outname}: no published: {list(entry)}"
-        entry_published = published.text
-        entry_updated = now
+        cfg['entry_published'] = published.text
     else:
         # atom file didnt exist yet
         # use current time
-        entry_published = now
-        entry_updated = entry_published		
-    feed_updated = entry_updated
+        cfg['entry_published'] = cfg['now']
+    cfg['entry_updated'] = cfg['now']
+    return cfg
 
-
-# generate a feed header
-def feed_header(cfg):
-    header = '<?xml version="1.0" encoding="utf-8"?>\n'
-    header += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
-    header += f'<title>{cfg["feed_title"]}</title>\n'
-    header += f'<id>{cfg["feed_id"]}</id>\n'
-    header += '<link rel="self" type="application/atom+xml" '
-    header += f'href="{cfg["site_url"]}/feed.atom"/>\n'
-    header += '<generator uri="https://github.com/GitAtom-PDX/GitAtom">'
-    header += 'GitAtom</generator>\n'
-    header += f'<updated>{cfg["now"]}</updated>\n'
-    return header
-
-# Generate an Atom Feed File or Feed File header or Feed File entry.
-def xatomify(outtype, md=None):
-    assert outtype in {"file", "header", "entry"}, \
-        f"internal error: unknown atom output type {outtype}"
-
-    
-
-    content_title, content_body = split_content(content)
-
+# Generate an Atom Feed Entry
+# Requires: entry_title, entry_author, entry_id,
+#   entry_published, entry_updated, entry_link,
+#   entry_content_tag, entry_content
+def gen_entry(cfg):
     # Create entry
     entry = '<entry>\n'
-    if outtype == "file":
-        entry += '<title>' + entry_filename + '</title>\n'
-    elif outtype == "entry":
-        entry += '<title>' + content_title + '</title>\n'
-    else:
-        assert False, f"internal error: unknown atom content_type {outtype}"
-    entry += '<author><name>' + author + '</name></author>\n'
-    entry += '<id>' + entry_id + '</id>\n'
-    entry += '<published>' + entry_published + '</published>\n'
-    entry += '<updated>' + entry_updated + '</updated>\n'
-    # https://stackoverflow.com/a/66029848/364875
-    if outtype == "file":
-        entry += '<content type="text/markdown; charset=UTF-8; variant=GFM">'
-        entry += content
-        entry += '</content>\n'
-    elif outtype == "entry":
-        entry += f'<link href="{site_url}/posts/{entry_filename}.html">\n'
-        entry += f'<content type="xhtml" xml:base="{site_url}">'
-        html_content = cmarkgfm.markdown_to_html(
-            content_body,
-            options = cmarkgfm_options.CMARK_OPT_UNSAFE,
-        )
-        entry += html_content
-        entry += '</content>\n'
-    else:
-        assert False, f"internal error: unknown atom content type {outtype}"
+    entry += '<title>' + cfg['entry_title'] + '</title>\n'
+    entry += '<author><name>' + cfg['entry_author'] + '</name></author>\n'
+    entry += '<id>' + cfg['entry_id'] + '</id>\n'
+    entry += '<published>' + cfg['entry_published'] + '</published>\n'
+    entry += '<updated>' + cfg['entry_updated'] + '</updated>\n'
+    if 'entry_link' in cfg:
+        entry += cfg['entry_link'] + '\n'
+    entry += cfg['entry_content_tag'] + '\n'
+    entry += cfg['entry_content']
+    entry += '</content>\n'
     entry += '</entry>\n'
+    return entry
 
-    if outtype == "entry":
-        return entry
+# generate atom feed header
+# Requires: feed_title, feed_id, now
+def gen_atom_header(cfg):
+    header = '<?xml version="1.0" encoding="utf-8"?>\n'
+    header += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+    header += '<title>' + cfg["feed_title"] + '</title>\n'
+    header += '<id>' + cfg["feed_id"] + '</id>\n'
+    header += '<updated>' + cfg["now"] + '</updated>\n'
+    header += '<generator uri="https://github.com/GitAtom-PDX/GitAtom">'
+    header += 'GitAtom</generator>\n'
+    return header
 
-    if outtype == "file":
+def gen_atom_footer(cfg):
+    return "</feed>\n"
 
-    assert False, f"internal error: unknown atom type {outtype}"
-
-# HERE
-
-def gen_feed_file(cfg):
-    feed = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    feed += '<feed xmlns="http://www.w3.org/2005/Atom">\n'
-    feed += '<title>' + cfg['feed_title'] + '</title>\n'
-    feed += '<updated>' + cfg['feed_updated'] + '</updated>\n'
-    feed += '<id>' + cfg['feed_id'] + '</id>\n'
-    feed += entry
-    feed += '</feed>\n'
-    return outname, feed
-
-def atomify(md):
+# generate Atom Feed content string
+def gen_feedfile(md):
     # Check for invalid filetype
     assert md.endswith('.md'), f"Non .md file {md}"
 
+    # Get a base config
+    cfg = new_config()
+
     # Read and escape content.
-    with open (md,'r') as f: 
+    cfg['entry_filename'] = filepart(md)
+    with open(md, 'r') as f: 
         raw_content = f.read()
         content = escape.escape(raw_content)
+    cfg['entry_content'] = content
 
-    cfg = get_atom_config()
-    cfg['content'] = content
+    # Update cfg for entry.
+    cfg = update_cfg_from_atom(cfg)
+    cfg['entry_title'] = cfg['entry_filename']
+    cfg['entry_author'] = cfg['author']
+    site_url = cfg['site_url']
+    entry_filename = cfg['entry_filename']
+    cfg['entry_link'] = f'<link href="{site_url}/posts/{entry_filename}.html"/>'
+    cfg['entry_content_tag'] = \
+        '<content type="text/markdown; charset=UTF-8; variant=GFM">'
 
-    # Get path info.
-    # TODO make os-agnostic 
-    cfg['entry_filename'] = path.splitext(path.basename(md))[0]
-    cfg['outname'] = cfg['entry_filename'] + '.xml'
-    outname, feed = gen_feed_file(cfg)
-    return outname, feed
+    # Generate feed file contents.
+    feed = gen_atom_header(cfg)
+    feed += gen_entry(cfg)
+    feed += gen_atom_footer(cfg)
+
+    return feed
+
+# generate Atom feed header
+# Requires: gen_atom_header(), site_url
+def gen_feed_header(cfg):
+    header = gen_atom_header(cfg)
+    header += '<link rel="self" type="application/atom+xml" '
+    header += f'href="{cfg["site_url"]}/feed.atom"/>\n'
+    return header
+
+def gen_feed_footer(cfg):
+    return gen_atom_footer(cfg)
 
 # scan, render and write blog content
 def build_it():
@@ -234,13 +224,12 @@ def build_it():
     # atoms to be scanned and rendered
     atoms = list(atoms_dir.glob('*.xml'))
     # posts to be sorted and rendered on blog template
+    # and in Atom feed
     posts = list()
     # posts to be sorted and rendered on archive template
     archives = list()
     # generated html files to be returned
     files = list()
-    # markdown bodies to be added to feed.
-    contents = list()
 
     # read atoms and render individual entries, add to lists
     for atom in atoms:
@@ -248,12 +237,12 @@ def build_it():
         tree = ET.parse(atom)
         root = tree.getroot()
         entry = root.find('{*}entry')
+        atom_id = entry.find('{*}id')
         atom_content_raw = raw_text(entry.find('{*}content'))
         atom_content = escape.unescape(atom_content_raw)
         atom_updated = entry.find('{*}updated')
         atom_published = entry.find('{*}published')
-
-        contents.append(atom_content)
+        atom_filename = filepart(atom)
 
         post_title, post_markdown = split_content(atom_content)
         post_body = cmarkgfm.markdown_to_html(
@@ -285,6 +274,8 @@ def build_it():
             'title' : post_title,
             'body' : post_body,
             'link' : post_link,
+            'id' : atom_id.text,
+            'filename' : atom_filename,
         }
         posts.append(post)
 
@@ -348,13 +339,25 @@ def build_it():
 
     # write feed.xml
     with open("./site/feed.xml", 'w') as feed:
-        atomheader = atomify("header")
-        feed.write(atomheader)
-        for md in contents:
-            # add entry to feed file
-            atomentry = atomify("entry", md=md)
-            feed.write(atomentry)
-        feed.write('</feed>\n')
+        cfg = new_config()
+        feed_header = gen_feed_header(cfg)
+        feed.write(feed_header)
+        for post in posts:
+            cfg['entry_title'] = post['title']
+            cfg['entry_author'] = cfg['author']
+            cfg['entry_id'] = post['id']
+            cfg['entry_published'] = post['published']
+            cfg['entry_updated'] = post['updated']
+            site_url = cfg['site_url']
+            link_url = site_url + '/' + post['filename'] + '.html'
+            cfg['entry_link'] = link_url
+            cfg['entry_content'] = post['body']
+            cfg['entry_content_tag'] = \
+                f'<content type="xhtml" xml:base="{site_url}">'
+            feed_entry = gen_entry(cfg)
+            feed.write(feed_entry)
+        feed_footer = gen_feed_footer(cfg)
+        feed.write(feed_footer)
     files.append('site/feed.xml')
 
     # write blog and archive html files, build files list
