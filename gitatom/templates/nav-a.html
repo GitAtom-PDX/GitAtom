@@ -13,8 +13,15 @@
 				{% for key, value in nav.items() %}
 				<li><a href="{{value}}">{{ key }}</a></li>
 				{% endfor %}
-			</ul>
+                                <a id="atomfeed" href="/feed.xml">
+                                    <img
+                                      src="feed-icon.png"
+                                      alt="Atom Feed"
+                                      title="Atom Feed"
+                                      width="30px"
+                                    /></a>
 			{% endblock %}
+                        </ul>
 		</nav>
 	</section>
 	<div id="main">{% block main %}{% endblock %}</div>

@@ -88,3 +88,9 @@ nav ul li a:focus {
     font-style: italic;
     font-size: 80%;
 }
+
+#atomfeed {
+    position: absolute;
+    top: 5px;
+    right:20px;
+}

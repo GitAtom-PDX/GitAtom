@@ -52,6 +52,7 @@ build.create(publish_path)
 
 shutil.copytree("gitatom/templates/", "./content/templates")
 shutil.move("./content/templates/style.css", publish_path)
+shutil.move("./content/templates/feed-icon.png", publish_path)
 
 # Set up the content repo.
 wstatus = os.system("""sh -c '
