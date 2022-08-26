@@ -131,8 +131,10 @@ def gen_entry(cfg):
     entry += '<id>' + cfg['entry_id'] + '</id>\n'
     entry += '<published>' + cfg['entry_published'] + '</published>\n'
     entry += '<updated>' + cfg['entry_updated'] + '</updated>\n'
-    if 'entry_link' in cfg:
-        entry += cfg['entry_link'] + '\n'
+    entry_filename = cfg['entry_filename']
+    site_url = cfg['site_url']
+    entry_link = f'{site_url}/posts/{entry_filename}.html'
+    entry += f'<link href="{entry_link}"/>\n'
     entry += cfg['entry_content_tag'] + '\n'
     entry += cfg['entry_content']
     entry += '</content>\n'
@@ -174,8 +176,6 @@ def gen_feedfile(md):
     cfg['entry_title'] = cfg['entry_filename']
     cfg['entry_author'] = cfg['author']
     site_url = cfg['site_url']
-    entry_filename = cfg['entry_filename']
-    cfg['entry_link'] = f'<link href="{site_url}/posts/{entry_filename}.html"/>'
     cfg['entry_content_tag'] = \
         '<content type="text/markdown; charset=UTF-8; variant=GFM">'
 
@@ -303,18 +303,18 @@ def build_it():
             )
             files.append(post_path)
 
-    # sort and render blog and archive templates
-    # XXX should sort on datetime not string
-    sorted_posts = sorted(
-        posts,
-        key=lambda post: post['published'],
-        reverse=True,
-    )
-    sorted_archives = sorted(
-        archives,
-        key=lambda item: item['published'],
-        reverse=True,
-    )
+    # sort templates
+    def sorted_cfgs(cfgs):
+        # XXX should sort on datetime not string
+        def sort_key(cfg):
+            return (cfg['published'], cfg['updated'], cfg['id'])
+
+        return sorted(cfgs, key=sort_key, reverse=True)
+
+    sorted_posts = sorted_cfgs(posts)
+    sorted_archives = sorted_cfgs(archives)
+
+    # render posts and archives
     nav_dict = {
         'home' : 'index.html',
         'archive' : 'archive.html',
@@ -342,16 +342,15 @@ def build_it():
         cfg = new_config()
         feed_header = gen_feed_header(cfg)
         feed.write(feed_header)
-        for post in posts:
+        for post in sorted_posts:
             cfg['entry_title'] = post['title']
             cfg['entry_author'] = cfg['author']
             cfg['entry_id'] = post['id']
             cfg['entry_published'] = post['published']
             cfg['entry_updated'] = post['updated']
-            site_url = cfg['site_url']
-            link_url = site_url + '/' + post['filename'] + '.html'
-            cfg['entry_link'] = link_url
+            cfg['entry_filename'] = post['filename']
             cfg['entry_content'] = post['body']
+            site_url = cfg['site_url']
             cfg['entry_content_tag'] = \
                 f'<content type="xhtml" xml:base="{site_url}">'
             feed_entry = gen_entry(cfg)
