@@ -180,6 +180,30 @@ may move `content/` elsewhere: the main `GitAtom` sourcebase
 will be referenced using the `GITATOM_PATH` environment
 variable (described above).
 
+## Webserver Config
+
+Here's a webserver configuration you can try for Apache2.
+
+```
+<VirtualHost *:80>
+    ServerName devblog.example.com
+    ServerAlias devblog.example.com www.devblog.example.com
+    ErrorLog /var/log/apache2/devblog.example.com-error.log
+    CustomLog /var/log/apache2/devblog.example.com-access.log common
+    ServerAdmin webmaster@devblog.example.com
+    DocumentRoot /var/www/devblog/site
+</VirtualHost>
+```
+
+(If you use `nginx` or something, you'll have to figure that
+one out. Let us know how it went.)
+
+The important thing here is to be sure to set `DocumentRoot`
+correctly so that the `/site` directory is transparent. This
+is a misfeature/bug in Gitatom that
+[should be fixed](https://github.com/GitAtom-PDX/GitAtom/issues/28)
+but for now here we are.
+
 ## Usage
 
 Once GitAtom is set up, you may use normal Git commands to
