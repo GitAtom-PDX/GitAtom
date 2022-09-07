@@ -36,6 +36,15 @@ nav ul li a:focus {
   color: #008080;
 }
 
+/* https://www.w3schools.com/css/css_align.asp */ 
+p img {
+    display: block;
+    margin-left: 3em;
+    margin-right: auto;
+    max-width: 50%;
+    max-height: 20ex;
+}
+
 .flex-container {
   display: flex;
   flex-wrap: wrap;
