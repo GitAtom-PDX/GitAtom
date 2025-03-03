@@ -48,8 +48,7 @@ What does GitAtom offer?
 What are the downsides?
 
 * **Major features are missing:** Some stuff you'd expect
-  from any blog platform isn't there: notably any kind of a
-  feed mechanism. Adding missing features is a high
+  from any blog platform isn't there. Adding missing features is a high
   priority, but let's just say pull requests are welcome.
 
 * **Fragile:** The codebase is tiny but full of
@@ -312,7 +311,7 @@ GitAtom was developed for the Portland State University CS
 Capstone during Fall 2020 - Winter 2021.
 
 Subsequently, Bart Massey <bart@cs.pdx.edu> and Keith
-Packard <keithp@keith.com> took over primary responsibility
+Packard <keithp@keithp.com> took over primary responsibility
 for the codebase.
 
 # License
