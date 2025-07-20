@@ -1,5 +1,5 @@
 jinja2
-cmarkgfm
+pandoc
 pyyaml
 pygit2
 paramiko

@@ -13,8 +13,7 @@
 
 from gitatom import config
 from pathlib import Path
-import cmarkgfm
-from cmarkgfm.cmark import Options as cmarkgfm_options
+import pandoc
 from shutil import copyfile
 from xml.etree import cElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -245,9 +244,15 @@ def build_it():
         atom_filename = filepart(atom)
 
         post_title, post_markdown = split_content(atom_content)
-        post_body = cmarkgfm.markdown_to_html(
-            post_markdown,
-            options = cmarkgfm_options.CMARK_OPT_UNSAFE,
+        post_pandoc = pandoc.read(
+            source=post_markdown,
+            format="gfm",
+            options=["--mathml"],
+        )
+        post_body = pandoc.write(
+            post_pandoc,
+            format="html",
+            options=["--mathml", "--ascii"],
         )
 
         # get a post link

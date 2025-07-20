@@ -92,7 +92,7 @@ The following modules will be installed:
 * [Jinja2](https://pypi.org/project/Jinja2/) for site
   generation and formatting.
 
-* [cmarkgfm](https://pypi.org/project/cmarkgfm/) to convert
+* [pandoc](https://pypi.org/project/pandoc/) to convert
   Markdown to HTML for site generation.
 
 * [PyYAML](https://pypi.org/project/PyYAML/) for config
