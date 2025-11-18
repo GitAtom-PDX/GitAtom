@@ -282,13 +282,16 @@ def build_it():
             'id' : atom_id.text,
             'filename' : atom_filename,
         }
-        posts.append(post)
 
-        # queue the archive entry
-        archive = dict(post)
-        archive['published'] = datetime_date(post_published)
-        archive['updated'] = datetime_date(post_updated)
-        archives.append(archive)
+        # only add to blog listings if filename starts with a digit
+        if atom_filename[0].isdigit():
+            posts.append(post)
+
+            # queue the archive entry
+            archive = dict(post)
+            archive['published'] = datetime_date(post_published)
+            archive['updated'] = datetime_date(post_updated)
+            archives.append(archive)
 
         # write post html files, add to files list
         nav_dict = {
