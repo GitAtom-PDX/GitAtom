@@ -8,14 +8,16 @@ def gitatom_git_add(repo, files):
     index = repo.index
     for f in files:
         index.add(f)
-    index.write()
+    # Don't call index.write() - when called from a git hook,
+    # the index is locked by the parent git process.
+    # Git will write the index after the hook completes.
 
 #get the list of files that have been staged with git
 def git_staged_files(repo):
     status = repo.status()
     staged_files = []
     for file_path, flags in status.items():
-        if flags == pygit2.GIT_STATUS_INDEX_NEW or flags == pygit2.GIT_STATUS_INDEX_MODIFIED:
+        if flags & (pygit2.GIT_STATUS_INDEX_NEW | pygit2.GIT_STATUS_INDEX_MODIFIED):
             file_only = path.basename(file_path)
             #append the markdown files to list of staged files
             if file_only.endswith('.md') and 'markdowns' in file_path:
